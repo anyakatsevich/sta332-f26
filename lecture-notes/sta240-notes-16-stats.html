@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Introduction to the theory of statistics – STA 332 Fall 2026</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-d640c705e8c17715bca3574aa719063f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d0086a85466981861881e17a07507999.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content="..">
+<script src="../site_libs/quarto-contrib/shinylive-0.9.1/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="../site_libs/quarto-contrib/shinylive-0.9.1/shinylive/run-python-blocks.js" type="module"></script>
+<link href="../site_libs/quarto-contrib/shinylive-0.9.1/shinylive/shinylive.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+<meta property="og:title" content="Introduction to the theory of statistics – STA 332 Fall 2026">
+<meta property="og:description" content="Homepage for STA 332: Statistical Inference">
+<meta property="og:image" content="https://anyakatsevich.github.io/sta332-f26/lecture-notes/images/birth-weight-hist.png">
+<meta property="og:site_name" content="STA 332 Fall 2026">
+<meta property="og:image:height" content="758">
+<meta property="og:image:width" content="1376">
+</head>
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Introduction to the theory of statistics</li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto"><div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../img/logo.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../img/logo.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <div class="sidebar-tools-main tools-wide">
+    <a href="https://cmgr.oit.duke.edu/containers" title="RStudio Containers" class="quarto-navigation-tool px-1" aria-label="RStudio Containers"><i class="bi bi-code-square"></i></a>
+    <a href="https://go.canvas.duke.edu/" title="Canvas" class="quarto-navigation-tool px-1" aria-label="Canvas"><i class="bi bi-megaphone"></i></a>
+    <a href="https://edstem.org/us/courses/89558/discussion" title="Ed Discussion" class="quarto-navigation-tool px-1" aria-label="Ed Discussion"><i class="bi bi-people"></i></a>
+    <a href="https://www.gradescope.com/courses/1195780" title="Gradescope" class="quarto-navigation-tool px-1" aria-label="Gradescope"><i class="bi bi-file-arrow-up"></i></a>
+</div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Syllabus</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_team.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Teaching team</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_materials.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Materials</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_assignments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignments and grading</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_policies.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policies</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_resources.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">University resources</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Schedule</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Math Helpers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/greeks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Greek alphabet</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/logexp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exponents and logarithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/differentiation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Differentiation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/integration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Integration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/limits.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Limits and continuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/series.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Infinite series</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/gamma-function.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gamma function</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/massage-and-squint.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Massage and squint</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Distribution Families</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binomial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-geometric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Geometric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-hypergeometric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hypergeometric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-poisson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-uniform.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous uniform</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-normal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Normal</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-gamma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gamma</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-inverse-gamma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inverse gamma</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-beta.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Problem Sets</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-0.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 0</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 5</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 6</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 7</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#babys-first-dataset" id="toc-babys-first-dataset" class="nav-link active" data-scroll-target="#babys-first-dataset">Baby’s first dataset</a></li>
+  <li><a href="#the-implicit-assumption-of-all-statistics" id="toc-the-implicit-assumption-of-all-statistics" class="nav-link" data-scroll-target="#the-implicit-assumption-of-all-statistics">The implicit assumption of all statistics</a></li>
+  <li>
+<a href="#classical-statistical-inference" id="toc-classical-statistical-inference" class="nav-link" data-scroll-target="#classical-statistical-inference">Classical statistical inference</a>
+  <ul class="collapse">
+<li><a href="#parametric-statistics" id="toc-parametric-statistics" class="nav-link" data-scroll-target="#parametric-statistics">Parametric statistics</a></li>
+  <li><a href="#threes-company" id="toc-threes-company" class="nav-link" data-scroll-target="#threes-company">Three’s Company</a></li>
+  </ul>
+</li>
+  <li><a href="#point-estimation" id="toc-point-estimation" class="nav-link" data-scroll-target="#point-estimation">Point estimation</a></li>
+  <li><a href="#example-bernoulli-data-coin-flip" id="toc-example-bernoulli-data-coin-flip" class="nav-link" data-scroll-target="#example-bernoulli-data-coin-flip">Example: Bernoulli data (coin flip)</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Introduction to the theory of statistics</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><p>Imagine you work at a hospital. Dozens of babies are delivered in the hospital each week. A lot of information is collected about each birth, and hiding inside of these data is a lot of useful information about the health and future of the community. How can we extract it? If you take classes like STA 101 or 199, you learn various methods:</p>
+<div class="center-table-75">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 20%">
+<col style="width: 40%">
+</colgroup>
+<thead><tr class="header">
+<th>Question</th>
+<th>Method</th>
+<th>Cartoon</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>How are birth weights distributed?</td>
+<td>histogram</td>
+<td><img src="images/birth-weight-hist.png" class="img-fluid"></td>
+</tr>
+<tr class="even">
+<td>What’s the typical birth weight?</td>
+<td>sample average</td>
+<td><img src="images/birth-weight-mean.png" class="img-fluid"></td>
+</tr>
+<tr class="odd">
+<td>How is birth weight related to gestational age?</td>
+<td>linear regression</td>
+<td><img src="images/birth-weight-scatter.png" class="img-fluid"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In general, the goal of <em>data science</em> is to convert data into knowledge, and we perform this “conversion” by applying statistical methods: histogram, sample average, line of best fit, etc. A <em>mathematical statistician</em> looks at these methods and wonders: do they actually work? Do they behave the way we expect? Do they deliver what they promise? Are they reliable? How reliable? Under what conditions? And before we can answer these questions, we have to back up and ask a more fundamental one: what does it even <em>mean</em> for a statistical method to “work”? These are all theoretical questions, and mathematical statisticians answer them using the tools of probability theory that we have studied for the last twelve weeks.</p>
+<section id="babys-first-dataset" class="level1"><h1>Baby’s first dataset</h1>
+<p>For us, a data set will be a spreadsheet with one column of numbers:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><img src="images/baby-spreadsheet.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Of course, in the modern era, datasets are huge. There could be millions of columns. There could be so many columns and rows that you can’t fit the entire dataset on a single computer (so-called “big data”). Furthermore, modern datasets are weird. It’s not just a box of numbers anymore. Text is data. Images are data. Video is data. Sometimes all at once.</p>
+<p>If you continue studying statistics, you’ll get there eventually. But for now, let’s keep it simple.</p>
+</section><section id="the-implicit-assumption-of-all-statistics" class="level1"><h1>The implicit assumption of all statistics</h1>
+<blockquote class="blockquote">
+<p>Observed data are the result of a random process.</p>
+</blockquote>
+<p>By the time the data arrive in our spreadsheet, they are a fixed set of numbers. But how did those numbers get there in the first place? Plenty of seemingly random forces might have had their way before you ever got to observe anything:</p>
+<ul>
+<li>(<strong>nature’s randomness</strong>) many of the phenomena we study have an intrinsic random component that is simply irreducible. Think mutations during DNA replication, the quantum behavior of subatomic particles, or the “random walk” in stock prices;</li>
+<li>(<strong>human error</strong>) data are collected by humans, and humans make mistakes;</li>
+<li>(<strong>measurement error</strong>) the laboratory devices we use to collect measurements in the sciences are far from perfect;</li>
+<li>(<strong>study design</strong>) the gold standard for teasing out cause and effect is the randomized controlled trial (RCT) where, <em>by design</em>, the researcher randomly divides subjects into treatment and control groups;</li>
+<li>(<strong>survey non-response</strong>) much of our economic data on unemployment, inflation, and the behavior of firms is collected by survey. Political polls are a type of survey. Course evaluations are a survey. Say you issue a survey to a population of interest, and only 10% respond. Who are they? Why did they respond? Why did the other 90% abstain? There’s a lot of randomness going on here, and you need to get your arms around it if you want to interpret the survey results correctly.</li>
+</ul>
+<p>For all of these reasons and more, it is sensible to regard the numbers in our spreadsheet as the end-result of a complex random process. One of the statistician’s goals is to model this process and explain how the data turned out the way they did. Part of this job involves modeling the true underlying science, and another part involves modeling the errors introduced in the measurement process. Tricky stuff!</p>
+</section><section id="classical-statistical-inference" class="level1"><h1>Classical statistical inference</h1>
+<p>Since the data in our spreadsheet are the result of a random process, we model them on the blackboard as realizations of <em>random variables</em>. Y’know, those things we’ve been studying for two months. To keep it simple, on a first pass we model the data as <strong>independent and identically distributed</strong> (<strong>iid</strong>) from some shared distribution <span class="math inline">\(P\)</span>:</p>
+<p><span class="math display">\[
+X_1,\,X_2,\,X_3,\,...,\,X_{n-1},\,X_n\overset{\text{iid}}{\sim}P.
+\]</span></p>
+<p>If you keep studying statistics, you learn how to relax the iid assumption, which is often bogus.</p>
+<p>The main idea of statistics is that we have no clue what the distribution <span class="math inline">\(P\)</span> is that governs the data. All we have access to are realizations of the <span class="math inline">\(X_i\)</span>, and we need to use these to try to reverse engineer <span class="math inline">\(P\)</span>. Contrast this with probability. When we were doing probability, <span class="math inline">\(P\)</span> was always known. Every problem thus far has begun with a statement that is equivalent to: “Assume <span class="math inline">\(P\)</span> is…” You were <em>told</em> what the distribution was, and then you did some math that reasoned from that assumption to a conclusion about the behavior of <span class="math inline">\(X\)</span>: its mean, median, variance, mgf, how to sample it, etc. In statistics, the situation is exactly reversed: given examples of data generated from <span class="math inline">\(P\)</span>, can you figure out what <span class="math inline">\(P\)</span> is? As I warned you on the <a href="../slides/2025-08-25-welcome.html#/inverse-problems-are-tricky">first day of class</a>, this task is much less straightforward than probability, so gird your loins!</p>
+<section id="parametric-statistics" class="level2"><h2 class="anchored" data-anchor-id="parametric-statistics">Parametric statistics</h2>
+<p>In principle, <span class="math inline">\(P\)</span> could be literally any probability distribution under the sun. That makes searching for the right one quite daunting. To simplify life, we often make the <em>extra</em> assumption that the unknown <span class="math inline">\(P\)</span> belongs to some convenient <strong>parametric family</strong> of distributions, such as the binomial, Poisson, normal, etc:</p>
+<p><span class="math display">\[
+X_1,\,X_2,\,X_3,\,...,\,X_{n-1},\,X_n\overset{\text{iid}}{\sim}f_{\theta}.
+\]</span></p>
+<p>Here, <span class="math inline">\(f\)</span> is generic notation for <em>either</em> a PMF or PDF, and <span class="math inline">\(\theta\)</span> is generic notation for the <em>finite</em> set of parameters that govern the distribution. Here are some of the examples we have seen:</p>
+<ul>
+<li>The Bernoulli family has the probability of success <span class="math inline">\(\theta=p\)</span>;</li>
+<li>The Poisson family has the rate <span class="math inline">\(\theta=\lambda\)</span>;</li>
+<li>The normal family has the mean and variance <span class="math inline">\(\theta=(\mu,\,\sigma^2)\)</span>;</li>
+<li>The gamma family has the shape and rate <span class="math inline">\(\theta=(\alpha,\,\beta)\)</span>.</li>
+</ul>
+<p>If you’re willing to swallow the parametric assumption, the goal of statistical inference becomes “use the data to learn the value of the unknown parameter <span class="math inline">\(\theta\)</span>.” As soon as you know the parameters, you know the entire distribution. Furthermore, statisticians want to <em>quantify uncertainty</em> about what we’ve learned from the data, not just produce a good guess and call it a day.</p>
+<p>To be clear from the very outset, the “true” data-generating distribution is seldom if ever literally a member of one of our special parametric families, but as a simplifying assumption, this leap of faith may be “close enough” for practical purposes. If you remain skeptical, I encourage you to dive into the beautiful area of <a href="https://doi.org/10.1007/0-387-30623-4"><em>nonparametric</em> statistics</a> where we do <em>not</em> make strong (and often unrealistic) parametric assumptions about <span class="math inline">\(P\)</span>.</p>
+</section><section id="threes-company" class="level2"><h2 class="anchored" data-anchor-id="threes-company">Three’s Company</h2>
+<p>The Catholics have the Father, the Son, and the Holy Spirit. American government has legislative, judicial, and executive branches. Music has melody, harmony, and rhythm. Similarly, we organize classical parametric statistical theory into three related areas of inquiry:</p>
+<ol type="1">
+<li>(<strong>point estimation</strong>) what is our single number best guess at the unknown parameter?</li>
+<li>(<strong>interval estimation</strong>) what is a range of likely values for the unknown parameter?</li>
+<li>(<strong>hypothesis testing</strong>) can the data distinguish between competing claims about the unknown parameter?</li>
+</ol>
+<p>With the short time we have left, we will discuss the first two and defer the third to STA 332. Hypothesis testing turns out to be a surprisingly controversial topic. Spicy!</p>
+</section></section><section id="point-estimation" class="level1"><h1>Point estimation</h1>
+<p><span class="math display">\[
+X_1,\,X_2,\,X_3,\,...,\,X_{n-1},\,X_n\overset{\text{iid}}{\sim}f_{\theta}.
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Definition: estimator
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An <strong>estimator</strong> is a rule that takes in data and outputs a best guess at some quantity of interest. Formally, an estimator could be any transformation of the observations:</p>
+<p><span class="math display">\[
+\hat{\theta}_n=\hat{\theta}(X_1,\,X_2,\,...,\,X_n).
+\]</span></p>
+<p>So, in go data, out pops a guess. The notation is deliberate. Our generic notation for the <strong>estimand</strong> (the true but unknown quantity we seek to estimate) will be <span class="math inline">\(\theta\)</span>, so <span class="math inline">\(\hat{\theta}\)</span> will be our generic notation for an estimator that targets that quantity. The subscript-<span class="math inline">\(n\)</span> reminds us what sample size our estimate is based on, which will be an important consideration.</p>
+</div>
+</div>
+<p>The main idea of <em>classical</em> statistics is that, since the data are random variables and the estimator is a function of the data, the estimator is a random variable as well. So it has its own distribution which we call the <strong>sampling distribution</strong> of the estimator. If we want to understand how the estimator behaves and whether or not it is “good,” we need to understand the properties of its sampling distribution. For example:</p>
+<ul>
+<li>(<strong>bias</strong>) is the estimator correct <em>on average</em>? Is the sampling distribution centered on the true value? In other words, do we have <span class="math inline">\(E(\hat{\theta}_n)=\theta\)</span>?</li>
+<li>(<strong>variance</strong>) is the estimator stable or volatile? Is the sampling distribution widely spread out or tightly concentrated? In other words, how big is <span class="math inline">\(\text{var}(\hat{\theta}_n)\)</span>?</li>
+<li>(<strong>consistency</strong>) As we collect more and more data, does the estimator get closer and closer to the truth? That is, does <span class="math inline">\(\hat{\theta}_n\to\theta\)</span> as <span class="math inline">\(n\to\infty\)</span>? If not, then what the hell are we even doing? If so, how fast is the convergence?</li>
+</ul>
+<p>To investigate these properties, we need all of the tools of probability theory that we’ve been developing this semester.</p>
+<!--
+
+## Measuring the quality of an estimator
+
+In the crudest possible terms, an estimator $\hat{\theta}_n$ is good if it is close to the true value of the unknown parameter $\theta$. To assess this, we choose a **loss function** $L(\hat{\theta}_n,\,\theta)$ that measures the discrepancy between the estimator and the truth. Examples include:
+
+$$
+\begin{aligned}
+L(\hat{\theta}_n,\,\theta)&=(\hat{\theta}_n-\theta)^2 && \text{squared error loss}\\
+L(\hat{\theta}_n,\,\theta)&=|\hat{\theta}_n-\theta| && \text{absolute error}\\
+L(\hat{\theta}_n,\,\theta)&=\begin{cases}
+0 & \hat{\theta}_n\neq\theta
+\\
+1 & \hat{\theta}_n=\theta
+\end{cases} && \text{zero-one loss}.
+\end{aligned}
+$$
+
+And trust me, there are more where that come from. I want to emphasize that the loss function is a *choice* made by the statistician to capture their priorities in the analysis. For example, both absolute and squared error loss are symmetric, meaning they penalize over- and under-estimation equally. But if you are working in an environment where one type of error is more costly, you should choose a different loss function that captures that asymmetry. 
+
+Anyhow, the first thing to notice is that the loss of an estimator is just a particular transformation of the estimator. Since the estimator is a random variable, the loss is a random variable as well. If we wish to compute a single number that summarizes *typically* how far the estimator is from the target, we look at the expected value of the loss, which gets a special name:
+
+
+::: callout-note 
+## Definition: risk of an estimator
+
+The **risk** of an estimator is the expected value of the loss:
+
+$$
+R(\hat{\theta}_n,\,\theta) = E[L(\hat{\theta}_n,\,\theta)]
+$$
+
+The expected value is taken with respect to the sampling distribution of the estimator $\hat{\theta}_n$, and the true but unknown value of the parameter $\theta$ is everywhere treated as a constant.
+:::
+
+
+
+## Mean squared error
+
+For the rest of the semester, we will focus on the example of squared error loss, mainly because it is convenient mathematically ($x^2$ is differentiable while $|x|$ is not). The risk associated with this loss gets a special name:
+
+::: callout-note 
+## Definition: mean squared error (MSE)
+
+The risk of an estimator under squared error loss is its **mean squared error** (**MSE**):
+
+$$
+\text{MSE}(\hat{\theta}_n,\,\theta)
+=
+E[(\theta-\hat{\theta}_n)^2]
+.
+$$
+
+:::
+
+
+
+It turns out that the mean squared error has a powerful and informative decomposition:
+
+
+::: callout-tip
+## Theorem: bias-variance trade-off
+
+The mean squared error of an estimator can be decomposed into the sum of its squared bias and its variance:
+
+$$
+\begin{aligned}
+\text{MSE}(\hat{\theta}_n,\,\theta)
+=
+\text{bias}(\hat{\theta}_n,\,\theta)^2
++
+\text{var}(\hat{\theta}_n).
+\end{aligned}
+$$
+
+Here $\text{bias}(\hat{\theta}_n,\,\theta)=E(\hat{\theta}_n)-\theta$ and $\text{var}(\hat{\theta}_n)=E[(\hat{\theta}_n-E(\hat{\theta}_n))^2]$.
+
+:::
+
+::: {.callout-tip appearance="minimal" collapse="true"}
+## Proof
+
+$$
+\begin{aligned}
+\text{MSE}(\hat{\theta}_n,\,\theta)
+&=
+E[(\theta-\hat{\theta}_n)^2]
+\\
+&=
+E[(\underbrace{\theta-E(\hat{\theta}_n)}_{\text{keep together}}+\underbrace{E(\hat{\theta}_n)-\hat{\theta}_n}_{\text{keep together}})^2]
+&&
+\text{add zero}
+\\
+&=
+E\left[\underbrace{(\theta-E(\hat{\theta}_n))^2}_{\text{constant}}+\underbrace{2(\theta-E(\hat{\theta}_n))}_{\text{constant}}\underbrace{(E(\hat{\theta}_n)-\hat{\theta}_n)}_{\text{random}}+\underbrace{(E(\hat{\theta}_n)-\hat{\theta}_n)^2}_{\text{random}}\right]
+&&
+\text{FOIL}
+\\
+&=
+(\theta-E(\hat{\theta}_n))^2+
+2(\theta-E(\hat{\theta}_n))
+E\left[E(\hat{\theta}_n)-\hat{\theta}_n\right]
++
+E[(E(\hat{\theta}_n)-\hat{\theta}_n)^2]
+&&
+\text{linearity}
+\\
+&=
+(\theta-E(\hat{\theta}_n))^2+
+2(\theta-E(\hat{\theta}_n))
+\left[E(\hat{\theta}_n)-E(\hat{\theta}_n)\right]
++
+E[(E(\hat{\theta}_n)-\hat{\theta}_n)^2]
+&&
+\text{linearity again}
+\\
+&=
+(\theta-E(\hat{\theta}_n))^2
++
+\underbrace{
+2(\theta-E(\hat{\theta}_n))
+\cdot
+0
+}_{=0}
++
+E[(E(\hat{\theta}_n)-\hat{\theta}_n)^2]
+\\
+&=
+(\theta-E(\hat{\theta}_n))^2
++
+E[(E(\hat{\theta}_n)-\hat{\theta}_n)^2]
+\\
+&=
+\text{bias}(\hat{\theta}_n,\,\theta)^2
++
+\text{var}(\hat{\theta}_n).
+\end{aligned}
+$$
+:::
+
+Bias refers to how accurate the estimator is on average. If the estimator is "correct" on average and $E(\hat{\theta}_n)=\theta$, then $\text{bias}(\hat{\theta}_n,\,\theta)=0$ and we call the estimator **unbiased**. This would seem to be a good property in and of itself, but if our goal is for *overall* MSE to be as low as possible, the above result shows us that bias is only a part of the story. We must also consider the variance of the estimator. If bias is like the "accuracy" of an estimator and its variance is like the inverse of its precision, then then lesson of the bias-variance decomposition is illustrated with the classic bullseye analogy displayed in @fig-bullseye.
+
+
+![Accuracy is synonymous with bias here, and precision is the inverse of variance. We want our estimator to nail it on both counts, but sometimes we are willing to trade-off one for the other if it makes the overall MSE lower.](images/accuracy-precision.svg){#fig-bullseye fig-align="center" width="60%"}
+
+The result in this section is referred to as the bias-variance *tradeoff* because in practice, we will sometimes find ourselves tolerating a little bit of bias for a reduction in variance that makes the overall MSE smaller than if we had restricted ourselves to purely unbiased estimators. This opens up a whole kettle of worms involving topics like **shrinkage** and **regularization**. Fun stuff for another day!
+
+::: callout-note
+## Definition: consistency
+
+If $\text{MSE}(\hat{\theta}_n,\,\theta)\to 0$ as $n\to\infty$, then we say that an estimator is **consistent**. In order to be consistent, an estimators bias and variance must both go to zero as the sample size increases. If the estimator is already unbiased, then consistency is guaranteed if the variance goes to 0. 
+
+:::
+
+When it comes to point estimation, this is the ultimate sanity check. If we had *infinite* data, would our estimator recover the truth? If the answer is no, then wut wut wut are we doing? An estimator should *at least* be consistent. But if the answer is yes, this isn't the slam dunk it may seen like. Consistency is an *asymptotic* property. It tells us what happens if we have infinite data. But we never actually have infinite data. We have a finite set of observations. If an estimator is consistent but the rate of convergence is very slow, then that somewhat curbs our enthusiasm for it.
+
+
+# Interval estimation
+
+If I had to boil statistics down to the one main idea that distinguishes it from adjacent fields, I would say that statistics is uniquely focused on the quantification of uncertainty to help make decisions. As such, we are not content to simply construct a single number best guess for an unknown quantity. We also want to construct a range that communicates uncertainty. If the data give us a wide range, then uncertainty is high. If the data give us a small range, then uncertainty is low. At the crudest level of abstraction, that's basically it. 
+
+In classical statistics, the goal is to use the data to construct an interval $(L_n,\,U_n)\subseteq \mathbb{R}$ satisfying 
+
+$$
+P(L_n<\theta < U_n)=1-\alpha,
+$$
+
+where $0 < \alpha< 1/2$ is the user-defined **coverage level**. So, if you want a 95% confidence interval, $\alpha=0.05$; If you want 90%, $\alpha = 0.1$, and so on. Newcomers find confidence intervals challenging because the interpretation is subtle and somewhat at odds with how we *wish* such an interval behaved. The bounds of the interval are computed from the data, so just like an estimator, the bounds are random. The statement $P(L_n<\theta < U_n)=1-\alpha$ refers to the sampling distribution of the *random* interval bounds. The true but unknown value $theta$ is always a fixed constant.
+
+<https://rpsychologist.com/d3/ci/>
+-->
+</section><section id="example-bernoulli-data-coin-flip" class="level1"><h1>Example: Bernoulli data (coin flip)</h1>
+<p>To illustrate the concepts introduced above, let us consider the simplest possible inference problem. Imagine we have <em>binary</em> data:</p>
+<p><span class="math display">\[
+X_i
+=
+\begin{cases}
+1 &amp; \text{something happened}\\
+0 &amp; \text{something didn't happen.}
+\end{cases}
+\]</span></p>
+<p>Assuming the <span class="math inline">\(X_i\)</span> are independent and identically distributed (iid), there is really only one distribution that could have generated these data:</p>
+<p><span class="math display">\[
+X_1,\,X_2,\,X_3,\,...,\,X_{n-1},\,X_n\overset{\text{iid}}{\sim}\text{Bernoulli}(\theta).
+\]</span></p>
+<p>This becomes a statistics problem when we imagine that the probability of success <span class="math inline">\(\theta=P(X_1=1)\)</span> is unknown. This serves as a model for the archetypal statistics problem that we discussed in our <a href="../slides/2025-08-25-welcome.html#/an-archetypal-statistics-problem">first lecture</a>: given a mystery coin with an unknown probability of heads <span class="math inline">\(0\leq\theta\leq 1\)</span>, you flip the coin <span class="math inline">\(n\)</span> times and use the outcomes <span class="math inline">\(X_i\)</span> to guess what the underlying probability is. The goal of statistics is to use the data to learn what <span class="math inline">\(\theta\)</span> is <em>and also</em> to quantify our uncertainty about it. In other words, we want to construct an estimator and a confidence interval for <span class="math inline">\(\theta\)</span> that have good statistical properties.</p>
+<p>So, where do you even start? Confronted with a new statistical problem, how do you devise a reasonable estimator? In upcoming lectures we will study a generic principle (maximum likelihood) that automatically guides you to a reasonable starting point. But for now, let’s just go off vibes. The unknown parameter <span class="math inline">\(0\leq \theta\leq 1\)</span> is a probability representing the likelihood of an event occurring. Our dataset of binary variables <span class="math inline">\(X_1\)</span>, <span class="math inline">\(X_2\)</span>, …, <span class="math inline">\(X_n\)</span> is essentially a running tally of how often we actually observed the event of interest (eg the coin coming up heads), and so a reasonable estimator might be the proportion of successes that we observed:</p>
+<p><span class="math display">\[
+\hat{\theta}_n=\begin{matrix}\text{sample}\\\text{proportion}\end{matrix}=\frac{\#(X_i=1)}{n}=\frac{1}{n}\sum\limits_{i=1}^nX_i.
+\]</span></p>
+<p>Again, we will have firmer motivations for this choice later, but things are already looking promising. Why? Because this choice of estimator takes the form of an <em>average</em> of iid random variables, and we know a lot about how those behave.</p>
+<p>To begin, recall some facts about the <a href="../distributions/discrete-binomial.html">Bernoulli distribution</a>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E(X_1)&amp;=\theta\\
+\text{var}(X_1)&amp;=\theta(1-\theta).
+\end{aligned}
+\]</span></p>
+<p>Since <span class="math inline">\(X_i\overset{\text{iid}}{\sim}\text{Bernoulli}(\theta)\)</span> and <span class="math inline">\(\hat{\theta}_n\)</span> is their average, we know from <a href="../lecture-notes/sta240-notes-14-sums-and-averages.pdf">before</a> that</p>
+<p><span class="math display">\[
+\begin{aligned}
+E(\hat{\theta}_n)&amp;=\theta\\
+\text{var}(\hat{\theta}_n)&amp;=\frac{\theta(1-\theta)}{n}.
+\end{aligned}
+\]</span></p>
+<p>So already, we see that the sample proportion is unbiased: <span class="math inline">\(\text{bias}(\hat{\theta}_n,\,\theta)=E(\hat{\theta}_n)-\theta=\theta-\theta=0\)</span>. As such, <span class="math inline">\(\text{MSE}(\hat{\theta}_n,\,\theta)=\text{var}(\hat{\theta}_n)=\theta(1-\theta)/n\to0\)</span> as <span class="math inline">\(n\to\infty\)</span>, so the estimator is consistent as well.</p>
+<p>That’s a great start already, but we can go further and characterize the entire sampling distribution exactly for any <span class="math inline">\(n\)</span>. We know that <span class="math inline">\(X_i\sim \text{Bern}(\theta)\)</span> and <span class="math inline">\(\hat{\theta}_n=\frac{1}{n}\sum\limits_{i=1}^nX_i\)</span>. Since <span class="math inline">\(\sum\limits_{i=1}^nX_i\sim\text{Binom}(n,\,p)\)</span>, <span class="math inline">\(\hat{\theta}_n\)</span> is just a “rescaled” binomial with:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Range}(\hat{\theta}_n)&amp;=\left\{\frac{0}{n}=0,\,\frac{1}{n},\,\frac{2}{n},\,...,\,\frac{n-1}{n},\,\frac{n}{n}=1\right\}\\
+P\left(\hat{\theta}_n=\frac{k}{n}\right)&amp;=\binom{n}{k}\theta^k(1-\theta)^{n-k}.
+\end{aligned}
+\]</span></p>
+<p>This is visualized below, where you can see the unbiasedness and the consistency with the naked eye:</p>
+<pre class="shinylive-r" data-engine="r"><code><a href="https://shiny.posit.co/">#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 500
+
+library(shiny)
+
+ui &lt;- fluidPage(
+  titlePanel("Sampling distribution of the sample proportion"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("n", "Sample size (n):", min = 1, max = 200, value = 1, step = 1),
+      sliderInput("p", "True probability of success (θ):", min = 0, max = 1, value = 0.5, step = 0.01)
+    ),
+    
+    mainPanel(
+      plotOutput("distPlot")
+    )
+  )
+)
+
+server &lt;- function(input, output, session) {
+  
+  output$distPlot &lt;- renderPlot({
+    n &lt;- input$n
+    p &lt;- input$p
+    
+    plot((0:n) / n, dbinom(0:n, n, p), type = "h",
+         xlab = expression(bar(x)),
+         ylab = expression("P(" ~ bar(X)[n] ~ " = " ~ bar(x) ~ ")"),
+         main = expression("Average of iid" ~ X[i] ~ "~ Bernoulli(θ)"))
+    
+    mtext("θ", side = 1, at = p, col = "red", line = 2)
+  })
+}
+
+shinyApp(ui, server)
+
+</a></code></pre>
+<!--
+
+## Interval estimation
+
+
+### Review: standard normal quantiles
+
+Let $Z\sim\text{N}(0,\,1)$. This means that 
+
+
+$$
+\begin{aligned}
+f_Z(z)&=\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{1}{2}z^2\right), && -\infty<z<\infty\\
+F_Z(t)&=P(Z\leq z)\\
+&=\frac{1}{\sqrt{2\pi}}\int_{-\infty}^z\exp\left(-\frac{1}{2}t^2\right), && -\infty<z<\infty.
+\end{aligned}
+$$
+
+Use $z(p)=F_Z^{-1}(p)$ to denote the quantile function (ie the inverse cdf) of the standard normal. Some of its values are kinda famous: $z(1/2)=0$, $z(0.95)\approx 1.645$, $z(0.975)\approx 1.96$, etc. For $p>1/2$, $z(p)>0$, and so by symmetry of the bell curve about zero,
+
+$$
+\begin{aligned}
+P\left(-z(p)<Z<z(p)\right)
+&=
+F_Z(z(p))-F_Z(-z(p))
+\\
+&=
+F_Z(z(p))-[1-F_Z(z(p))]
+\\
+&=
+F_Z(F_Z^{-1}(p))-[1-F_Z(F_Z^{-1}(p))]
+\\
+&=
+p-(1-p)
+\\
+&=
+2p-1
+.
+\end{aligned}
+$$
+
+Here's the picture:
+
+
+::: {.cell}
+::: {.cell-output-display}
+![](sta240-notes-16-stats_files/figure-html/unnamed-chunk-1-1.png){width=672}
+:::
+:::
+
+
+So, if we have $0<\alpha<1/2$, and we seek lower and upper bounds that swallow the middle $1-\alpha$ of the density and place $\alpha/2$ in either tail, we can take $\pm z(1-\alpha/2)$, because 
+
+$$
+2(1-\alpha/2)-1=2-\alpha+1=1-\alpha,
+$$
+
+and so $P(-z(1-\alpha/2) < Z < z(1-\alpha/2))=1-\alpha$. Again:
+
+
+::: {.cell}
+::: {.cell-output-display}
+![](sta240-notes-16-stats_files/figure-html/unnamed-chunk-2-1.png){width=672}
+:::
+:::
+
+
+
+### Large sample confidence interval
+
+Since our estimator $\hat{\theta}_n$ is the average of iid random variables $X_i$ with finite mean $\theta$ and variance $\theta(1-\theta)$, the [central limit theorem](/lecture-notes/sta240-notes-16-clt.html) guarantees that 
+
+$$
+\frac{\hat{\theta}_n-\theta}{\sqrt{\theta(1-\theta)/n}}\overset{d}{\to}\text{N}(0,\,1).
+$$
+
+Furthermore, if you take a class like STA 332, you learn that this remains true if you replace the true but unknown $\theta$ in the denominator with the estimator. So
+
+$$
+\frac{\hat{\theta}_n-\theta}{\sqrt{\hat{\theta}_n(1-\hat{\theta}_n)/n}}\overset{d}{\to}\text{N}(0,\,1).
+$$
+
+Note that this is *not* what the central limit theorem says off the shelf. This is a new result that you have to work to prove. But for now we will take it for granted and use it to derive an approximate confidence interval for $\theta$.
+
+Practically speaking, these results give us permission to use N(0, 1) to approximate the distribution of the random variable on the left, provided $n$ is sufficiently large that the theorem has "kicked in." If the approximation is good, it means that we can use the results from the previous section to say that:
+
+$$
+P\left(-z\left(1-\frac{\alpha}{2}\right)<\frac{\hat{\theta}_n-\theta}{\sqrt{\hat{\theta}_n(1-\hat{\theta}_n)/n}}<z\left(1-\frac{\alpha}{2}\right)\right)\approx 1 - \alpha,\quad \alpha>1/2.
+$$
+
+By doing some itchy algebra, we can rewrite this statement in the form $P(L_n<\theta<U_n)\approx 1-\alpha$, which is exactly what we want for a confidence interval:
+
+$$
+\begin{aligned}
+1-\alpha
+&\approx
+P\left(-z\left(1-\frac{\alpha}{2}\right)<\frac{\hat{\theta}_n-\theta}{\sqrt{\hat{\theta}_n(1-\hat{\theta}_n)/n}}<z\left(1-\frac{\alpha}{2}\right)\right)
+\\
+&=
+P\left(-z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}<\hat{\theta}_n-\theta<z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}\right)
+\\
+&=
+P\left(-\hat{\theta}_n-z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}<-\theta<-\hat{\theta}_n+z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}\right)
+\\
+&=
+P\left(\hat{\theta}_n+z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}>\theta>\hat{\theta}_n-z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}\right)
+\\
+&=
+P\left(\hat{\theta}_n-z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}<\theta<\hat{\theta}_n+z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}\right)
+.
+\end{aligned}
+$$
+
+So, if we take $L_n=\hat{\theta}_n-z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}$ and $U_n=\hat{\theta}_n+z\left(1-\frac{\alpha}{2}\right)\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}$, we get an interval satisfying $P(L_n<\theta<U_n)\approx 1-\alpha$ for sufficiently large $n$.
+
+So, the asymptotically valid $100\times (1-\alpha)\%$ confidence interval for $\theta$ is 
+
+$$
+\underbrace{\hat{\theta}_n}_{\begin{matrix}\text{point}\\\text{estimate}\end{matrix}}\pm \underbrace{z\left(1-\frac{\alpha}{2}\right)}_{z-\text{score}}\underbrace{\sqrt{\frac{\hat{\theta}_n(1-\hat{\theta}_n)}{n}}}_{\text{standard error}}.
+$$
+
+This structure of "point estimate plus or minus quantile times standard error" is a familiar form that arises often in statistics. Intervals of this form are symmetric around the point estimate. The standard error is an estimate of the standard deviation of the sampling distribution of the estimator, and the larger it is, the more uncertainty there is, and the wider the interval will be. The quantile (which here comes from the standard normal but doesn't have to) governs the nominal coverage of the interval. A 90% interval will need to be wider than an 80% interval to swallow up the extra probability. 
+
+-->
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/anyakatsevich\.github\.io\/sta332-f26\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2026 John Zito and Anya Katsevich</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+</body></html>

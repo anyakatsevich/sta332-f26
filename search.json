@@ -1,0 +1,1308 @@
+[
+  {
+    "objectID": "math/series.html",
+    "href": "math/series.html",
+    "title": "Infinite series",
+    "section": "",
+    "text": "Roughly speaking, an infinite series is the sum of infinitely many numbers:\n\\[\n\\sum\\limits_{n=0}^\\infty a_n=a_0+a_1+a_2+a_3+\\cdots\n\\]\nStrictly speaking, it is the limit of the sequence of partial sums:\n\\[\n\\sum\\limits_{n=0}^\\infty a_n=\\lim_{k\\to\\infty}\\sum\\limits_{n=0}^ka_n.\n\\]\nThis limit may or may not be finite, and there are many famous examples of this.",
+    "crumbs": [
+      "Math Helpers",
+      "Infinite series"
+    ]
+  },
+  {
+    "objectID": "math/series.html#geometric-series",
+    "href": "math/series.html#geometric-series",
+    "title": "Infinite series",
+    "section": "Geometric series",
+    "text": "Geometric series\nDon’t you love this:\n\\[\n\\frac{a}{1-r}=\\sum\\limits_{n=0}^\\infty ar^n,\\quad |r|&lt;1.\n\\]\nThe partial sums are also well-behaved:\n\\[\n\\sum\\limits_{n=0}^k ar^n\n=\n\\begin{cases}\na(k+1) & r=1\\\\\na\\left(\\frac{1-r^{k+1}}{1-r}\\right) & \\text{else}.\n\\end{cases}\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Infinite series"
+    ]
+  },
+  {
+    "objectID": "math/series.html#p-series",
+    "href": "math/series.html#p-series",
+    "title": "Infinite series",
+    "section": "\\(p\\)-series",
+    "text": "\\(p\\)-series\nIf \\(p&gt;1\\), this converges:\n\\[\n\\sum\\limits_{n=1}^\\infty\\frac{1}{n^p}.\n\\]\nHere are concrete examples:\n\\[\n\\begin{aligned}\n\\sum\\limits_{n=1}^\\infty\\frac{1}{n}&=\\infty &&\\text{(harmonic series)}\\\\\n\\sum\\limits_{n=1}^\\infty\\frac{1}{n^2}&=\\frac{\\pi^2}{6}\\\\\n\\sum\\limits_{n=1}^\\infty\\frac{1}{n^3}&\\approx 1.202057.\n\\end{aligned}\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Infinite series"
+    ]
+  },
+  {
+    "objectID": "math/series.html#taylor-series",
+    "href": "math/series.html#taylor-series",
+    "title": "Infinite series",
+    "section": "Taylor series",
+    "text": "Taylor series\nIf a function \\(f\\) is infinitely differentiable at 0, then we can rewrite it using the Taylor expansion:\n\\[\nf(x)\n=\n\\sum\\limits_{n=0}^\\infty \\frac{f^{(n)}(0)}{n!}x^n,\\quad \\text{for some  }x.\n\\]\nThe set of \\(x\\)-values for which the Taylor expansion is valid is called the radius of convergence. Here are examples for specific functions:\n\\[\n\\begin{aligned}\n\\frac{1}{1-x}&=\\sum\\limits_{n=0}^\\infty x^n,&&-1&lt;x&lt;1\\\\\ne^x&=\\sum\\limits_{n=0}^\\infty\\frac{x^n}{n!},&&-\\infty &lt; x &lt; \\infty\\\\\n\\ln(1-x)&=-\\sum\\limits_{n=1}^\\infty\\frac{x^n}{n},&&-1\\leq x &lt; 1.\n\\end{aligned}\n\\]\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 500\n\n# app.R\nlibrary(shiny)\n\nui &lt;- fluidPage(\n  titlePanel(\"Taylor Polynomial Approximation\"),\n  \n  sidebarLayout(\n    sidebarPanel(\n      selectInput(\n        inputId = \"func\",\n        label = \"Choose a function:\",\n        choices = c(\"exp(x)\", \"sin(x)\")\n      ),\n      sliderInput(\n        inputId = \"degree\",\n        label = \"Degree of Taylor polynomial (n):\",\n        min = 0, max = 10, value = 1, step = 1\n      )\n    ),\n    \n    mainPanel(\n      plotOutput(\"taylorPlot\")\n    )\n  )\n)\n\nserver &lt;- function(input, output) {\n  output$taylorPlot &lt;- renderPlot({\n    # Define function and y-limits\n    f &lt;- switch(input$func,\n                \"exp(x)\" = function(x) exp(x),\n                \"sin(x)\" = function(x) sin(x))\n    x &lt;- seq(-5, 5, length.out = 400)\n    y_true &lt;- f(x)\n    \n    # Fix y-limits by function\n    ylims &lt;- switch(input$func,\n                    \"exp(x)\" = c(-1, 150),\n                    \"sin(x)\" = c(-1.5, 1.5))\n    \n    # Define Taylor polynomial\n    taylor_poly &lt;- function(x, n) {\n      sapply(x, function(xi) {\n        sum(sapply(0:n, function(k) {\n          deriv_k &lt;- switch(input$func,\n                            \"exp(x)\" = 1,\n                            \"sin(x)\" = if (k %% 4 == 0) 0 else if (k %% 4 == 1) 1 else if (k %% 4 == 2) 0 else -1)\n          deriv_k * xi^k / factorial(k)\n        }))\n      })\n    }\n    \n    y_approx &lt;- taylor_poly(x, input$degree)\n    \n    # Draw the plot\n    plot(x, y_true, type = \"l\", col = \"black\", lwd = 2,\n         ylim = ylims, xlab = \"x\", ylab = \"y\",\n         main = paste(\"Taylor approximation of\", input$func, \"around x = 0\"),\n         bty = \"n\", axes = FALSE)\n    \n    # Add axes through origin\n    abline(h = 0, v = 0, col = \"gray70\")\n    axis(1, pos = 0)\n    axis(2, pos = 0, las = 1)\n    \n    # Add Taylor curve\n    lines(x, y_approx, col = \"red\", lwd = 2)\n    \n    # Add legend\n    legend(\"topleft\",\n           legend = c(\"f(x)\", paste(\"Taylor polynomial (n = \", input$degree, \")\", sep = \"\")),\n           col = c(\"black\", \"red\"), lwd = 2, bty = \"n\")\n  })\n}\n\nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Math Helpers",
+      "Infinite series"
+    ]
+  },
+  {
+    "objectID": "math/logexp.html",
+    "href": "math/logexp.html",
+    "title": "Rules for exponents and logarithms",
+    "section": "",
+    "text": "Let \\(a\\), \\(b\\), \\(c\\), and \\(d\\) be arbitrary real numbers, and let \\(n\\) be a positive integer:\n\\[\n\\begin{aligned}\na^0&=1\\\\\na^1&=a\\\\\na^ca^d&=a^{c+d}\\\\\n\\frac{a^c}{a^d}&=a^{c - d}\\\\\na^{-c}&=\\frac{1}{a^c}\\\\\n(a^c)^d&=a^{cd}\\\\\n(ab)^c&=a^cb^c\\\\\n\\left(\\frac{a}{b}\\right)^c&=\\frac{a^c}{b^c}\\\\\na^{1/n}&=\\sqrt[n]{a}.\n\\end{aligned}\n\\]\nA particularly important function for us is the exponential function \\(e^x\\), where \\(e\\approx 2.71828\\) is Euler’s number. Because it is defined as an exponent, the exponential function obeys all the rules above: \\(e^xe^y=e^{x+y}\\), \\(e^0=1\\), etc.\nHere’s the graph of the function:\n\nCodepar(mar = c(4, 4, 4, 0.5))\ncurve(exp(x), \n      from = -3, \n      to = 3, \n      n = 500, \n      col = \"red\", \n      lwd = 2,\n      yaxt = \"n\", \n      yaxs = \"i\",\n      bty = \"n\",\n      ylab = expression(e^x),\n      main = \"Graph of the exponential function\",\n      ylim = c(0, 20))\naxis(2, pos = 0)\n\n\n\n\n\n\n\nA few things to notice:\n\nthe exponential is strictly increasing (never plateaus or goes down);\nit increases very quickly;\nit is defined for all real numbers \\(x\\);\nit is strictly positive: \\(e^x&gt;0\\) for all \\(x\\in\\mathbb{R}\\).\n\n\n\n\n\n\n\nTipAlternative notation\n\n\n\nSometimes we will write \\(\\exp(x)\\) instead of \\(e^x\\), but they mean the same thing. We do this to make complicated expressions like this a little easier to read: \\[\ne^{-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}}=\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right).\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Exponents and logarithms"
+    ]
+  },
+  {
+    "objectID": "math/logexp.html#exponent-rules",
+    "href": "math/logexp.html#exponent-rules",
+    "title": "Rules for exponents and logarithms",
+    "section": "",
+    "text": "Let \\(a\\), \\(b\\), \\(c\\), and \\(d\\) be arbitrary real numbers, and let \\(n\\) be a positive integer:\n\\[\n\\begin{aligned}\na^0&=1\\\\\na^1&=a\\\\\na^ca^d&=a^{c+d}\\\\\n\\frac{a^c}{a^d}&=a^{c - d}\\\\\na^{-c}&=\\frac{1}{a^c}\\\\\n(a^c)^d&=a^{cd}\\\\\n(ab)^c&=a^cb^c\\\\\n\\left(\\frac{a}{b}\\right)^c&=\\frac{a^c}{b^c}\\\\\na^{1/n}&=\\sqrt[n]{a}.\n\\end{aligned}\n\\]\nA particularly important function for us is the exponential function \\(e^x\\), where \\(e\\approx 2.71828\\) is Euler’s number. Because it is defined as an exponent, the exponential function obeys all the rules above: \\(e^xe^y=e^{x+y}\\), \\(e^0=1\\), etc.\nHere’s the graph of the function:\n\nCodepar(mar = c(4, 4, 4, 0.5))\ncurve(exp(x), \n      from = -3, \n      to = 3, \n      n = 500, \n      col = \"red\", \n      lwd = 2,\n      yaxt = \"n\", \n      yaxs = \"i\",\n      bty = \"n\",\n      ylab = expression(e^x),\n      main = \"Graph of the exponential function\",\n      ylim = c(0, 20))\naxis(2, pos = 0)\n\n\n\n\n\n\n\nA few things to notice:\n\nthe exponential is strictly increasing (never plateaus or goes down);\nit increases very quickly;\nit is defined for all real numbers \\(x\\);\nit is strictly positive: \\(e^x&gt;0\\) for all \\(x\\in\\mathbb{R}\\).\n\n\n\n\n\n\n\nTipAlternative notation\n\n\n\nSometimes we will write \\(\\exp(x)\\) instead of \\(e^x\\), but they mean the same thing. We do this to make complicated expressions like this a little easier to read: \\[\ne^{-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}}=\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right).\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Exponents and logarithms"
+    ]
+  },
+  {
+    "objectID": "math/logexp.html#logarithm-rules",
+    "href": "math/logexp.html#logarithm-rules",
+    "title": "Rules for exponents and logarithms",
+    "section": "Logarithm rules",
+    "text": "Logarithm rules\nThe natural logarithm function \\(\\ln(x)\\) is the inverse of the exponential function \\(e^x\\). So when we write \\(\\ln(4)\\), we’re asking “\\(e\\) raised to what power is equal to 4?” Turns out it’s \\(\\ln(4)\\approx 1.386\\), so \\(e^{1.386}\\approx 4\\).\nHere’s the graph of the function:\n\nCodepar(mar = c(4, 4, 1, 0.5))\ncurve(log(x), \n      from = 0, \n      to = 8, \n      n = 500, \n      col = \"red\", \n      lwd = 2,\n      xaxt = \"n\", \n      xaxs = \"i\",\n      bty = \"n\",\n      ylab = \"ln(x)\",\n      main = \"Graph of the natural logarithm\")\naxis(1, pos = 0)\n\n\n\n\n\n\n\nA few things to notice:\n\nthe natural log is strictly increasing (never plateaus or goes down);\nit increases veeery slowly;\nit is only defined for strictly positive numbers;\nit returns both positive and negative values;\nthere is a vertical asymptote at \\(x=0\\).\n\nSo, word to the wise: if you find yourself plugging negative numbers into the natural log, you’ve probably made a mistake someplace.\nAnyhow, the natural logarithm has several properties you need to know. Let \\(x\\) and \\(y\\) be arbitrary positive numbers, and let \\(c\\) be any real number (could be negative):\n\\[\n\\begin{aligned}\n\\ln(xy)&=\\ln(x)+\\ln(y)\\\\\n\\ln\\left(\\frac{x}{y}\\right)&=\\ln(x)-\\ln(y)\\\\\n\\ln(x^c)&=c\\ln(x)\\\\\n\\ln(1/x)&=-\\ln(x)\\\\\n\\ln(e^x)&=x\\\\\ne^{\\ln x}&=x\\\\\n\\ln(e)&=1\\\\\n\\ln(1)&=0.\n\\end{aligned}\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Exponents and logarithms"
+    ]
+  },
+  {
+    "objectID": "math/integration.html",
+    "href": "math/integration.html",
+    "title": "Integration",
+    "section": "",
+    "text": "Crudely, the definite integral of a function gives you the (signed) area between the graph of the function and the \\(x\\)-axis.\nWhen it exists, which it doesn’t always, the definite integral can be defined as the limit of Riemann sums:\n\\[\n\\int_a^b f(x)\\,\\text{d}x=\\lim_{\\Delta x\\to 0}\\sum\\limits_{i=1}^n f(x_i^*)\\Delta x.\n\\]\nJust as the derivative is the continuous analog to a discrete difference, the integral is the continuous analog to a discrete sum.",
+    "crumbs": [
+      "Math Helpers",
+      "Integration"
+    ]
+  },
+  {
+    "objectID": "math/integration.html#integral-rules",
+    "href": "math/integration.html#integral-rules",
+    "title": "Integration",
+    "section": "Integral rules",
+    "text": "Integral rules\n\n\n\n\n\n\nrule\nformula\n\n\n\ndummy variable\n\\(\\int_a^bf(x)\\,\\text{d}x=\\int_a^bf(t)\\,\\text{d}t=\\int_a^bf(u)\\,\\text{d}u=\\cdots\\)\n\n\nopposite\n\\(\\int_a^bf(x)\\,\\text{d}x=-\\int_b^af(x)\\,\\text{d}x\\)\n\n\nscaling\n\\(\\int_a^bcf(x)\\,\\text{d}x=c\\int_a^bf(x)\\,\\text{d}x\\)\n\n\nsum/difference\n\\(\\int_a^b[f(x)\\pm g(x)]\\text{d}x=\\int_a^bf(x)\\,\\text{d}x \\pm\\int_a^bg(x)\\text{d}x\\)\n\n\nlinearity\n\\(\\int_a^b[p\\cdot f(x)\\pm q\\cdot g(x)]\\text{d}x=p\\int_a^bf(x)\\,\\text{d}x \\pm q\\int_a^bg(x)\\text{d}x\\)\n\n\nsplit\n\\(\\int_a^bf(x)\\,\\text{d}x=\\int_a^cf(x)\\,\\text{d}x+\\int_c^bf(x)\\,\\text{d}x\\)",
+    "crumbs": [
+      "Math Helpers",
+      "Integration"
+    ]
+  },
+  {
+    "objectID": "math/integration.html#the-fundamental-theorem-of-calculus",
+    "href": "math/integration.html#the-fundamental-theorem-of-calculus",
+    "title": "Integration",
+    "section": "The fundamental theorem of calculus",
+    "text": "The fundamental theorem of calculus\nThe fundamental theorem of calculus is a bridge between the seemingly unrelated worlds of derivatives and integrals:\n\\[\n\\int_a^bf(x)\\,\\text{d}x=F(b)-F(a),\\quad f(x)=F'(x).\n\\]\nOn a practical level, it provides a route for evaluating definite integrals by antidifferentiation. The function you are trying to integrate (called the integrand) is \\(f\\). You imagine \\(f\\) is the derivative of some function \\(F\\) which you don’t yet know. If you can “undo” the differentiation and figure out what \\(F\\) is, then you can evaluate the integral.\n\n\n\n\n\n\nTipExample: antidifferentiation\n\n\n\nConsider \\[\n\\int_1^2\\frac{1}{x^2}\\,\\text{d}x.\n\\] What function, when you take its derivative, gives you \\(1/x^2=x^{-2}\\)? To answer that, you’re essentially undoing the power rule. After a while, you realize \\[\n\\frac{\\text{d}}{\\text{d}x}\\left(-\\frac{1}{x}\\right)=\\frac{1}{x^2},\n\\] and so\n\\[\n\\int_1^2\\frac{1}{x^2}\\,\\text{d}x=\\left[-\\frac{1}{x}\\right]_1^2=-\\frac{1}{2}-\\left(-\\frac{1}{1}\\right)=\\frac{1}{2}.\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Integration"
+    ]
+  },
+  {
+    "objectID": "math/integration.html#integration-by-substitution",
+    "href": "math/integration.html#integration-by-substitution",
+    "title": "Integration",
+    "section": "Integration by substitution",
+    "text": "Integration by substitution\nWhen you perform a \\(u\\)-substitution, you’re basically trying to undo the chain rule:\n\\[\n\\int_a^bf(g(x))g'(x)\\,\\text{d}x=\\int_{g(a)}^{g(b)}f(u)\\,\\text{d}u.\n\\]\nThe goal is ultimately to rewrite the integral in a nicer form so that you can recognize what the appropriate antiderivative is and then apply the FTOC.\n\n\n\n\n\n\nTipExample: \\(u\\)-sub\n\n\n\nCheck out this ugly thing:\n\\[\n\\int_0^2\n\\frac{x}{\\sqrt{x^2+1}}\\,\\text{d}x.\n\\]\nIt’s actually not too bad if you make the right substitution: \\(u=x^2+1\\) and \\(\\text{d}u=2x\\,\\text{d}x\\). Then you can polish it off by undoing the power rule:\n\\[\n\\begin{aligned}\n\\int_0^2\n\\frac{x}{\\sqrt{x^2+1}}\\,\\text{d}x\n&=\n\\frac{1}{2}\\int_1^5\\frac{\\text{d}u}{\\sqrt{u}}\n\\\\\n&=\n\\frac{1}{2}\\left[2u^{1/2}\\right]_1^5\n\\\\\n&=\n\\frac{1}{2}\n\\left(2\\sqrt{5}-2\\sqrt{1}\\right)\n\\\\\n&=\n\\sqrt{5}-1.\n\\end{aligned}\n\\]\nPlease please please do not forget to change the bounds of the integral when you do a substitution. We had \\(u=g(x)=x^2+1\\), so after the change of variables, the lower bound becomes \\(g(0)=1\\) and the upper bound becomes \\(g(2)=5\\).",
+    "crumbs": [
+      "Math Helpers",
+      "Integration"
+    ]
+  },
+  {
+    "objectID": "math/integration.html#integration-by-parts",
+    "href": "math/integration.html#integration-by-parts",
+    "title": "Integration",
+    "section": "Integration by parts",
+    "text": "Integration by parts\nLet’s face it; this sucks. But sometimes you have to integrate a funky product, and there’s no way around it, so you do this:\n\\[\n\\int_a^b u(x) v'(x) \\, \\text{d}x\n    = \\left[u(x) v(x)\\right]_a^b - \\int_a^b v(x)u'(x)  \\, \\text{d}x\n\\]\nThrough the subtlest of black magic, you have to decide what parts of the integrand to treat as \\(u\\) and \\(\\text{d}v=v'\\,\\text{d}x\\). Typically you make \\(u\\) something that is easy to differentiate, and you make \\(\\text{d}v\\) something that is easy to antidifferentiate. Good luck!\n\n\n\n\n\n\nTipExample: IBP\n\n\n\nConsider this integral:\n\\[\n\\int_1^2\\frac{\\ln(x)}{x^2}\\text{d}x\n\\] \\(\\ln(x)\\) is easier to differentiate, and \\(1/x^2\\) is easier to antidifferentiate, which suggests the following choice:\n\\[\n\\begin{aligned}\nu&=\\ln(x)\\\\\n\\text{d}u&=\\frac{\\text{d}x}{x}\\\\\nv&=-x^{-1}\\\\\n\\text{d}v&=x^{-2}\\,\\text{d}x.\n\\end{aligned}\n\\]\nLet the fun begin:\n\\[\n\\begin{aligned}\n\\int_1^2\\frac{\\ln(x)}{x^2}\\text{d}x\n&=\n\\left[-\\frac{\\ln(x)}{x}\\right]_1^2\n+\n\\int_1^2\\frac{\\text{d}x}{x^2}\n\\\\\n&=\n\\left[-\\frac{\\ln(x)}{x}\\right]_1^2\n+\n\\left[-x^{-1}\\right]_1^2\n\\\\\n&=\n\\left[-\\frac{\\ln(2)}{2}-\\left(-\\frac{\\ln(1)}{1}\\right)\\right]\n+\n\\left[-\\frac{1}{2}-\\left(-\\frac{1}{1}\\right)\\right]\n\\\\\n&=\n-\\frac{\\ln(2)}{2} + \\frac{1}{2}.\n\\end{aligned}\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Integration"
+    ]
+  },
+  {
+    "objectID": "math/integration.html#improper-integration-we-will-do-this-a-lot",
+    "href": "math/integration.html#improper-integration-we-will-do-this-a-lot",
+    "title": "Integration",
+    "section": "Improper integration (we will do this a lot!)",
+    "text": "Improper integration (we will do this a lot!)\nAn improper integral is the limit of a definite integral as one or more of the bounds tend toward some extreme value, typically \\(\\pm\\infty\\). So a one-sided improper integral is defined like this:\n\\[\n\\int_a^\\infty f(x)\\,\\text{d}x=\\lim_{b\\to\\infty}\\int_a^bf(x)\\,\\text{d}x.\n\\]\nA two-sided improper integral is defined as the sum of two one-sided improper integrals, where we make use of the “splitting” property:\n\\[\n\\begin{aligned}\n\\int_{-\\infty}^\\infty f(x)\\,\\text{d}x\n&=\n\\int_{-\\infty}^c f(x)\\,\\text{d}x + \\int_c^\\infty f(x)\\,\\text{d}x\n\\\\\n&=\n\\lim_{a\\to-\\infty}\\int_a^cf(x)\\,\\text{d}x+\\lim_{b\\to\\infty}\\int_c^bf(x)\\,\\text{d}x.\n\\end{aligned}\n\\]\nYou can pick whatever value of \\(c\\) is most convenient. Zero will be a common choice.\n\n\n\n\n\n\nTipExample: improper integral with infinite bound\n\n\n\n\\[\n\\begin{aligned}\n\\int_0^\\infty e^{-x}\\,\\text{d}x\n&=\n\\lim_{b\\to\\infty}\\int_0^be^{-x}\\,\\text{d}x\n\\\\\n&=\n\\lim_{b\\to\\infty}\n[-e^{-x}]_0^b\n\\\\\n&=\n\\lim_{b\\to\\infty}\n\\left(-e^{-b}-(-e^{-0})\\right)\n\\\\\n&=\n-\\lim_{b\\to\\infty}\\frac{1}{e^b}+1\n\\\\\n&=\n-0+1\n\\\\\n&=1.\n\\end{aligned}\n\\]\n\n\n\n\n\n\n\n\nTipExample: improper integral with finite bound\n\n\n\nYou still might need improper integration, even for an ordinary-looking thing like this:\n\\[\n\\int_0^1\\frac{1}{\\sqrt{x}}\\text{d}x.\n\\]\nYou can see why if you plot the integrand:\n\n\n\n\n\n\n\n\nThere’s a vertical asymptote at \\(x=0\\), so this is also an improper integral:\n\\[\n\\begin{aligned}\n\\int_0^1\\frac{1}{\\sqrt{x}}\\text{d}x\n&=\n\\lim_{a\\to 0}\\int_a^1\\frac{1}{\\sqrt{x}}\\text{d}x\n\\\\\n&=\n\\lim_{a\\to 0}\\left[2x^{1/2}\\right]_a^1\n\\\\\n&=\n\\lim_{a\\to 0}\\left[2\\cdot 1^{1/2}-2a^{1/2}\\right]\n\\\\\n&=2-2\\cdot0^{1/2}\n\\\\\n&=\n2.\n\\end{aligned}\n\\]\n\\(2x^{1/2}\\) is continuous at 0, so to evaluate the limit you can just plug-in.",
+    "crumbs": [
+      "Math Helpers",
+      "Integration"
+    ]
+  },
+  {
+    "objectID": "math/gamma-function.html",
+    "href": "math/gamma-function.html",
+    "title": "The gamma function",
+    "section": "",
+    "text": "The gamma function is a continuous function that interpolates the factorials. It is an interesting mathematical object in its own right, but for students of probability, it appears in the normalizing constant of the gamma density, and recognizing the gamma function is a useful technique for simplifying certain integrals.\nDefinition\nHere it is:\n\\[\n\\Gamma(x)=\\int_0^\\infty z^{x-1}e^{-z}\\,\\text{d}z,\\quad x &gt;0.\n\\]\nPay attention. \\(x\\) is the argument to the function. It’s treated as a constant. \\(z\\) is the dummy variable of integration. It doesn’t affect the actual value of the expression, and you can change it to whatever you want: \\(y\\), \\(u\\), \\(t\\), whatever. At the end of the day, the value of the integral is just a number; plug in different \\(x\\) values, and you get different numbers. That’s the gamma function. Figure 1 displays the picture.\n\n\n\n\n\n\n\nFigure 1\n\n\n\n\nR provides the gamma command for actually computing this:\n\ngamma(0.5) # √π\n\n[1] 1.772454\n\ngamma(1)   # 1\n\n[1] 1\n\ngamma(4)   # 3!\n\n[1] 6\n\ngamma(8)   # 7!\n\n[1] 5040\n\n\nProperties\nYou first met the gamma function on Problem Set 0, where you showed that it satisfies the following recursion:\n\\[\n\\Gamma(x+1) = x\\Gamma(x).\n\\]\nThat works for any real number \\(x&gt;0\\). But now let’s say you plug in an integer \\(n\\geq 2\\). As a result of the recursion, something cute happens:\n\\[\n\\begin{aligned}\n\\Gamma(n)&=\\Gamma(n-1+1)\\\\\n&=(n-1)\\Gamma(n-1)\\\\\n&=(n-1)(n-2)\\Gamma(n-2)\\\\\n&=(n-1)(n-2)(n-3)\\Gamma(n-3)\\\\\n&\\vdots\\\\\n&=(n-1)(n-2)(n-3)\\cdots 3\\cdot2\\cdot\\Gamma(2)\\\\\n&=(n-1)(n-2)(n-3)\\cdots 3\\cdot2\\cdot1\\cdot\\Gamma(1)\\\\\n&=(n-1)!\n\\end{aligned}\n\\]\nThe last line follows because \\(\\Gamma(1)=\\int_0^\\infty \\exp(-x)\\,\\textrm{d}x=1\\) (shown here, but make sure you can do it yourself). The punchline is that the gamma function is a continuous function that interpolates the factorials. That is, it’s a smooth curve that “connects the dots,” like you see in Figure 1.\nThe gamma function has many funky properties that have kept mathematicians busy for a long time. For instance, \\(\\Gamma(1/2)=\\sqrt{\\pi}\\), which you showed on Problem Set 5. If you’re interested, there’s more where that came from.",
+    "crumbs": [
+      "Math Helpers",
+      "Gamma function"
+    ]
+  },
+  {
+    "objectID": "explainers/vectors.html",
+    "href": "explainers/vectors.html",
+    "title": "Vectors",
+    "section": "",
+    "text": "A vector in R is just an ordered set of values that have the same type. The easiest way to create one is to manually list out the values, separated by commas, inside c():\n\nmyvec &lt;- c(pi, 5, 3.6, 2, 9, 6000) \nmyvec\n\n[1]    3.141593    5.000000    3.600000    2.000000    9.000000 6000.000000\n\n\nIf you want to list out all of the integers between some min and max, you can use this shortcut:\n\n5:15\n\n [1]  5  6  7  8  9 10 11 12 13 14 15\n\n\nMore generally, if you want a vector of evenly spaced numbers between a min and a max, do this:\n\na &lt;- seq(0, 1, length.out = 11) \na\n\n [1] 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0\n\n\nIf you want to create a “blank” vector that just has zeros in it, here you go:\n\nz &lt;- numeric(10)\nz\n\n [1] 0 0 0 0 0 0 0 0 0 0\n\n\nIn all of those cases, our vector contained numbers, but there is nothing special about numbers. Here is a vector where each value is a string (a piece of text):\n\npoetry &lt;- c(\"Mary\", \"had\", \"a\", \"little\", \"chainsaw\")\npoetry\n\n[1] \"Mary\"     \"had\"      \"a\"        \"little\"   \"chainsaw\"\n\n\nIf you have two vectors and you want to combine them into one, you can just use the c() command again. The “c” stands for “concatenate.” You’re concatenating, or joining, the vectors end-to-end:\n\nmore &lt;- c(\"whose\", \"chain\", \"was\", \"red\", \"as\")\n\nmasterpiece &lt;- c(poetry, more)\nmasterpiece\n\n [1] \"Mary\"     \"had\"      \"a\"        \"little\"   \"chainsaw\" \"whose\"   \n [7] \"chain\"    \"was\"      \"red\"      \"as\""
+  },
+  {
+    "objectID": "explainers/summary-statistics.html",
+    "href": "explainers/summary-statistics.html",
+    "title": "Summary statistics",
+    "section": "",
+    "text": "If you have a vector of numbers in R, there are many basic commands you can use to compute summary statistics. To illustrate, here is a vector of random numbers:\n\nset.seed(20)\nx &lt;- rnorm(100)\n\nOf course, these commands are useful no matter where the numbers came from:\n\nsum(x) # the total of the numbers\n\n[1] 0.4908104\n\nmean(x) # the average of the numbers\n\n[1] 0.004908104\n\nvar(x) # the variance\n\n[1] 0.9799034\n\nsd(x) # the standard deviation\n\n[1] 0.9899007\n\nmedian(x) # the median\n\n[1] -0.02486056\n\nmax(x) # the biggest number\n\n[1] 2.208443\n\nmin(x) # the smallest number\n\n[1] -2.889718"
+  },
+  {
+    "objectID": "explainers/sample.html",
+    "href": "explainers/sample.html",
+    "title": "The sample command",
+    "section": "",
+    "text": "The function sample() lets us pick random values. This is very useful in probability, because it allows us to simulate experiments like coin flips, die rolls, or drawing cards.\nThe pattern is:\nsample(x, size = n, replace = FALSE)"
+  },
+  {
+    "objectID": "explainers/sample.html#example-coin-flip",
+    "href": "explainers/sample.html#example-coin-flip",
+    "title": "The sample command",
+    "section": "Example: coin flip",
+    "text": "Example: coin flip\nThis chooses either heads (H) or tails (T) at random:\n\nsample(c(\"H\", \"T\"), size = 1)\n\n[1] \"H\""
+  },
+  {
+    "objectID": "explainers/sample.html#example-die-roll",
+    "href": "explainers/sample.html#example-die-roll",
+    "title": "The sample command",
+    "section": "Example: die roll",
+    "text": "Example: die roll\nThis rolls a fair die twenty times:\n\nsample(1:6, size = 20, replace = TRUE)\n\n [1] 6 3 2 4 3 3 2 1 4 1 2 6 5 1 1 4 5 4 4 5\n\n\nWe need replace = TRUE here, because after rolling a die, the next roll can be the same number again."
+  },
+  {
+    "objectID": "explainers/sample.html#example-spotify-shuffle",
+    "href": "explainers/sample.html#example-spotify-shuffle",
+    "title": "The sample command",
+    "section": "Example: Spotify shuffle",
+    "text": "Example: Spotify shuffle\nHere’s my playlist:\n\nplaylist &lt;- c(\"Ramble On\",\n              \"It's Raining Men\",\n              \"Tears\",\n              \"Tiptoe Through the Tulips\",\n              \"Gangsta's Paradise\",\n              \"Days of Wine and Roses\")\n\nThere are 6 songs, so if I generate a sample of size 6 without replacement, I will ultimately draw each song exactly once, but in a random order:\n\nsample(playlist, size = length(playlist), replace = FALSE)\n\n[1] \"Tears\"                     \"Tiptoe Through the Tulips\"\n[3] \"Gangsta's Paradise\"        \"Ramble On\"                \n[5] \"Days of Wine and Roses\"    \"It's Raining Men\""
+  },
+  {
+    "objectID": "explainers/quarto.html",
+    "href": "explainers/quarto.html",
+    "title": "Quarto",
+    "section": "",
+    "text": "Quarto is a technical publishing system that allows you to write documents where text, math, code, and the output of that code are seamlessly integrated in a reproducible way. Quarto is baller. I had never used it before coming to Duke, and now I am low-key obsessed. You will mainly use Quarto for the lab write-ups in this class, but if you wish to use it for your problem set solutions as well, be my guest!\nBelow is a very brief primer to get you started. If you took STA 101 or STA 199, you have already used Quarto extensively and can probably skip this. If you wish to go deeper and become a Quarto power user, what are you waiting for?"
+  },
+  {
+    "objectID": "explainers/quarto.html#quick-start",
+    "href": "explainers/quarto.html#quick-start",
+    "title": "Quarto",
+    "section": "Quick start",
+    "text": "Quick start\nHere is a screenshot of my RStudio container:\n\n\n\n\n\nIn the upper left, I have the editor open, and I’m working on a .qmd file. This is just a text file with a special format. When I’m done editing, I hit the Render button (circled in red), and if there are no errors, a nice .pdf file is produced in the Viewer tab in the bottom right.\nThat’s pretty much the whole ballgame:\n\nEdit the .qmd file → hit Render → get a .pdf\n\nAlright, so what goes in the .qmd file?\n\nAt the top, in between ---, you have the document’s metadata: title, author, date, and so forth. We are not going to get fancy with it, but there are loads of settings you can play with;\nYou can write text the same as you would in Google Docs or Microsoft Word. Quarto syntax is based on markdown, and you can learn about the formatting options here;\nThe grey block beginning with ```{r} and ending with ``` is called a code chunk. Chunks of code go in there. In the rendered document, the code will be nicely formatted and stylized amidst the text;\nWhen you render, the code in your code chunks is actually executed, and the output is included in the final document. This is super convenient for producing tables and figures;\nYou can also include nicely formatted equations and math notation in your Quarto documents. See here for details."
+  },
+  {
+    "objectID": "explainers/plot.html",
+    "href": "explainers/plot.html",
+    "title": "Plotting points",
+    "section": "",
+    "text": "Consider two vectors of the same length:\n\nx &lt;- c(0.3, 0.57, -0.11, -0.26, -0.77, pi, 4, 1, 1, 5)\ny &lt;- c(9, 4, 1, 8, 4, 1, 5, 7, 2, 0)\n\nIf you want to create a scatter plot of the (x, y) pairs, you can use the plot command:\n\nplot(x, y, pch = 19)\n\n\n\n\n\n\n\nIf you wanted, for example, to plot the PMF of the binomial distribution, then your x vector has every value in the range, and your y vector has all of the individual probabilities:\n\nn &lt;- 20\np &lt;- 0.5\nx &lt;- 0:n\npmf &lt;- dbinom(x, n, p)\nplot(x, pmf, pch = 19)\n\n\n\n\n\n\n\nNotice that we made use of the fact that the dbinom command is vectorized in its first argument; if you give it a vector with multiple values, it returns a vector with the probabilities for each one."
+  },
+  {
+    "objectID": "explainers/loops.html",
+    "href": "explainers/loops.html",
+    "title": "for loops",
+    "section": "",
+    "text": "A for loop is a way to repeat the same steps several times. It’s useful when we want to do something over and over again, like simulate a random experiment.\nThe pattern looks like this:\nfor (i in 1:N) {\n  do_something\n}"
+  },
+  {
+    "objectID": "explainers/loops.html#example-counting-sixes-in-100-dice-rolls",
+    "href": "explainers/loops.html#example-counting-sixes-in-100-dice-rolls",
+    "title": "for loops",
+    "section": "Example: Counting sixes in 100 dice rolls",
+    "text": "Example: Counting sixes in 100 dice rolls\n\nsix_count &lt;- 0  # start a counter\n\nfor (i in 1:100) {\n  roll &lt;- sample(1:6, size = 1)\n  if (roll == 6) {\n    six_count &lt;- six_count + 1\n  }\n}\n\nsix_count\n\n[1] 16\n\n\n\nThe loop goes through i = 1, 2, ..., 100.\n\nEach time, it rolls a die and checks if it’s a six.\n\nIf it is, it increments six_count by 1.\n\nAt the end, six_count is the total number of sixes rolled in 100 trials."
+  },
+  {
+    "objectID": "explainers/loops.html#example-plotting-many-lines",
+    "href": "explainers/loops.html#example-plotting-many-lines",
+    "title": "for loops",
+    "section": "Example: plotting many lines",
+    "text": "Example: plotting many lines\nIn this explainer, we saw how to use the curve function to plot lines. If you want a plot with many lines, you can just call the curve function many times with the add = TRUE argument to layer things. In that explainer, we just hard-coded the multiple calls to curve. A for loop can clean that up:\n\ncurve(1*x^2, from = -5, to = 5, n = 500, col = \"red\", ylab = \"\")\n\nfor(a in 2:25){\n  curve(a*x^2, from = -5, to = 5, n = 500, ylab = \"\", add = TRUE)\n}\n\n\n\n\n\n\n\nThat code plots the function \\(ax^2\\) every value of \\(a=1,\\,2,\\,3,\\,...,\\,25\\). Instead of writing 25 calls to the curve function, I consolidate with a loop."
+  },
+  {
+    "objectID": "explainers/latex.html",
+    "href": "explainers/latex.html",
+    "title": "Typesetting math with LaTeX and Quarto",
+    "section": "",
+    "text": "LaTeX is a software system for typesetting documents with a bunch of math in them1. It is fully integrated into Quarto, so you can do all of your writing and coding and plotting and math-ing in one place. Pretty neat. We’ll just show you a few things to get you going, but if you want to use the entire system for realz, you should make an Overleaf account and start playing."
+  },
+  {
+    "objectID": "explainers/latex.html#inline-math-goes-between-single-dollar-signs",
+    "href": "explainers/latex.html#inline-math-goes-between-single-dollar-signs",
+    "title": "Typesetting math with LaTeX and Quarto",
+    "section": "Inline math goes between single dollar signs",
+    "text": "Inline math goes between single dollar signs\n\n\n\n\n\n\n\nGoal\ninclude an equation in the middle of a sentence\n\n\nWhat you type in the .qmd file\nThe function $h(x)=\\ln x^2$ is my favorite\n\n\nHow it will look when you render\nThe function \\(h(x)=\\ln x^2\\) is my favorite."
+  },
+  {
+    "objectID": "explainers/latex.html#a-math-block-goes-between-double-dollar-signs",
+    "href": "explainers/latex.html#a-math-block-goes-between-double-dollar-signs",
+    "title": "Typesetting math with LaTeX and Quarto",
+    "section": "A math block goes between double dollar signs",
+    "text": "A math block goes between double dollar signs\nSay you want a whole bunch of math set off on a new line, in between your paragraphs, like this:\n\\[\nf(x)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right).\n\\]\nIn that case, you put this into your source .qmd file:\n\n$$\nf(x)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right).\n$$\n\nWhen you render, you’ll get the pretty math. Notice some of the commands we used:\n\n\n\\exp for \\(\\exp\\);\n\n\\sqrt{2} for the square root \\(\\sqrt{2}\\);\n\n\\frac{1}{2} to get a fraction \\(\\frac{1}{2}\\);\n\n(x-\\mu)^2 to get an exponent \\((x-\\mu)^2\\);\n\n\\mu, \\sigma, \\pi for the Greek letters \\(\\mu\\), \\(\\sigma\\), and \\(\\pi\\);\nand so on.\n\n\n\n\n\n\n\nTipMath commands in LaTeX\n\n\n\nHere is a bank of common LaTeX commands. You won’t use most of them. Alternatively, Detexify is a very useful site where you can draw a symbol and it will tell you what the LaTeX command is for it."
+  },
+  {
+    "objectID": "explainers/latex.html#lining-equations-up",
+    "href": "explainers/latex.html#lining-equations-up",
+    "title": "Typesetting math with LaTeX and Quarto",
+    "section": "Lining equations up",
+    "text": "Lining equations up\nIf you are typesetting a sequence of equalities, you should do it inside an aligned environment so that the equal signs are all lined up nice.\nIf you type this:\n\n$$\n\\begin{aligned}\nx(x+1)(x-1) &= (x^2+x)(x-1)\\\\\n&=x^3-x^2+x^2-x\\\\\n&=x^3-x.\n\\end{aligned}\n$$\n\nYou will get this:\n\\[\n\\begin{aligned}\nx(x+1)(x-1) &= (x^2+x)(x-1)\\\\\n&=x^3-x^2+x^2-x\\\\\n&=x^3-x.\n\\end{aligned}\n\\]\nThe \\\\ introduces a line break, and the & in each equation tells it where to line things up."
+  },
+  {
+    "objectID": "explainers/latex.html#footnotes",
+    "href": "explainers/latex.html#footnotes",
+    "title": "Typesetting math with LaTeX and Quarto",
+    "section": "Footnotes",
+    "text": "Footnotes\n\nThere is no consensus on how to pronounce “LaTeX.” JZ says “lah-tech.” Some folks say “lay-tech.” Some even say “lay-techs,” just like a latex glove. But we all agree that the emphasis is on the first syllable. Perhaps I’ll award 2.56 bonus points if you invent a new way to pronounce it. But probably not.↩︎"
+  },
+  {
+    "objectID": "explainers/histogram.html",
+    "href": "explainers/histogram.html",
+    "title": "Histogram",
+    "section": "",
+    "text": "To visualize the distribution of a set of numbers, you can plot a histogram. If you keep studying statistics, you will learn that a histogram is a statistical estimator of a probability density function. Neat!\nAnyway, this is super simple in R. Here is a vector of random numbers:\n\nset.seed(1)\nx &lt;- rgamma(5000, shape = 2, rate = 1)\n\nTo plot a histogram, use the hist command:\n\nhist(x, breaks = \"Scott\", freq = FALSE,\n     main = \"My histogram\",\n     xlab = \"x values\",\n     ylab = \"density\", \n     col = \"lightblue\", \n     border = \"white\")\n\n\n\n\n\n\n\nThe hist command has many arguments, and you can read the documentation for more detail. Apart from the cosmetic stuff controlling the labeling and the color, there are three main arguments to think about:\n\nthe first argument is obviously the vector of numbers whose distribution you want to visualize;\n\nbreaks determines the size of the bins (ie how many bars the histogram has). You can play around with different options, but I always set breaks = \"Scott\" because David Scott was one of JZ’s professors in graduate school and, to paraphrase JZ, he knows his stuff. So we pour one out for David and set breaks = \"Scott\";\nif you set freq = TRUE, the height of the bars will correspond to the count of how many values fall into the bin. freq = FALSE renormalizes the bar heights so that the area under the histogram is literally one, and the histogram can be directly compared with a density, which we will often do.\n\n\nhist(x, breaks = \"Scott\", freq = FALSE)\ncurve(dgamma(x, 2, 1), from = min(x), to = max(x), n = 1000, \n      col = \"red\", lwd = 3, add = TRUE)"
+  },
+  {
+    "objectID": "distributions/discrete-poisson.html",
+    "href": "distributions/discrete-poisson.html",
+    "title": "Poisson distribution",
+    "section": "",
+    "text": "The Poisson distribution can be used to model the number of random arrivals in a given window of time:\nThe distribution is governed by one parameter \\(\\lambda&gt;0\\) which is called the rate.",
+    "crumbs": [
+      "Distribution Families",
+      "Poisson"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-poisson.html#basic-properties",
+    "href": "distributions/discrete-poisson.html#basic-properties",
+    "title": "Poisson distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\n\n\nNotation\n\\(X\\sim\\text{Poisson}(\\lambda)\\)\n\n\nRange\n\\(\\mathbb{N}=\\{0,\\,1,\\,2,\\,3,\\,4,\\,...\\}\\)\n\n\nParameter space\n\\(\\lambda&gt;0\\)\n\n\nPMF\n\\(P(X=k)=e^{-\\lambda}\\frac{\\lambda^k}{k!}\\)\n\n\nMGF\n\n\\(M(t)=\\exp(\\lambda(e^t-1))\\), \\(t\\in\\mathbb{R}\\)\n\n\n\nExpectation\n\\(\\lambda\\)\n\n\nVariance\n\\(\\lambda\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Poisson"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-poisson.html#r-commands",
+    "href": "distributions/discrete-poisson.html#r-commands",
+    "title": "Poisson distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the Poisson distribution in R:\n\ndpois(x, lambda) # PMF: P(X = x)\nppois(q, lambda) # CDF: F(q) = P(X &lt;= q)\nqpois(p, lambda) # quantile function (inverse CDF)\nrpois(n, lambda) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Poisson"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-poisson.html#play-around",
+    "href": "distributions/discrete-poisson.html#play-around",
+    "title": "Poisson distribution",
+    "section": "Play around!",
+    "text": "Play around!\nAs \\(\\lambda\\) grows, the distribution shifts to the right and gets wider, which makes sense since \\(\\lambda\\) acts as both the mean and variance. Furthermore, the shape of the PMF becomes more bell-like as \\(\\lambda\\) gets big. This is not an accident.\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 500\n\nlibrary(shiny)\n\ndiscrete_pmf &lt;- function(x, p, xlim = c(min(x) - 1, max(x) + 1), label = \"\", add_mean = FALSE){\n  plot(x, p,\n       pch = 19,\n       cex = 0.5,\n       xlab = \"\",\n       ylab = \"\",\n       main = \"\",\n       ylim = c(0, 0.4),\n       yaxs = \"i\",\n       yaxt = \"n\",\n       xlim = xlim,\n       xaxt = \"n\",\n       bty = \"n\"\n  )\n  segments(x,\n           rep(0, length(x) + 1),\n           x1 = x,\n           y1 = p,\n           lwd = 3\n  )\n  axis(1, at = floor(xlim[1]):ceiling(xlim[2]), cex.axis = 1)\n  axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n  legend(\"topright\", label, bty = \"n\", cex = 3)\n  if(add_mean == TRUE){\n    mtext(\"E(X)\", side = 1, at = sum(x * p), col = \"red\", line = 2)\n  }\n}\n\ndiscrete_cdf &lt;- function(x, p, xlim = c(min(x) - 1, max(x) + 1), label = \"\"){\n  closeddot = cumsum(p)\n  opencircle = c(0, closeddot[1:length(x)-1])\n  plot(x, closeddot, pch = 19, cex = 0.5,\n       ylim = c(0, 1),\n       ylab = \"\", main = \"\", xlab = \"\",\n       yaxt = \"n\",\n       xlim = xlim,\n       xaxt = \"n\",\n       #yaxs = \"i\", \n       bty = \"n\")\n  points(x, opencircle, cex = 0.5)\n  segments(c(xlim[1], x), c(0, closeddot), c(x, xlim[2]), c(0, closeddot), lwd = 1)\n  axis(1, at = floor(xlim[1]):ceiling(xlim[2]), cex.axis = 1)\n  axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n  legend(\"bottomright\", label, bty = \"n\", cex = 3)\n}\n\n# Define UI for application that draws a histogram\nui &lt;- fluidPage(\n  \n  # Application title\n  titlePanel(\"Poisson distribution CDF and PMF\"),\n  \n  # Sidebar with a slider input for number of bins \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"lambda\",\n                  \"Rate (λ):\",\n                  min = 0,\n                  max = 100,\n                  value = 1,\n                  step = 0.1)\n    ),\n    \n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"distPlot\")\n    )\n  )\n)\n\n# Define server logic required to draw a histogram\nserver &lt;- function(input, output) {\n  \n  output$distPlot &lt;- renderPlot({\n    \n    lambda &lt;- input$lambda\n    n &lt;- 100\n\n    par(mfrow = c(2, 1), mar = c(4, 4, 2, 2))\n    \n    discrete_cdf(0:n, dpois(0:n, lambda))\n    discrete_pmf(0:n, dpois(0:n, lambda), add_mean = FALSE)\n    mtext(\"E(X)\", side = 1, at = lambda, col = \"red\", line = 2)\n  })\n}\n\n# Run the application \nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Distribution Families",
+      "Poisson"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-poisson.html#derivations",
+    "href": "distributions/discrete-poisson.html#derivations",
+    "title": "Poisson distribution",
+    "section": "Derivations",
+    "text": "Derivations\n\n\n\n\n\n\nNoteThe mean (via the definition)\n\n\n\n\n\nMassage and squint until you recognize the Taylor series of \\(e^x\\):\n\\[\n    \\begin{align*}\n    E(X)\n    &=\n\\sum\\limits_{n=0}^\\infty nP(X=n)\n    \\\\\n    &=\n    \\sum\\limits_{n=0}^\\infty\n    n\n    \\frac{\\lambda^n}{n!}e^{-\\lambda}\n    \\\\\n    &=\n    e^{-\\lambda}\n    \\sum\\limits_{n=0}^\\infty\n    n\n    \\frac{\\lambda^n}{n!}\n    &&\n    \\text{Pull out constant}\n    \\\\\n    &=\n    e^{-\\lambda}\n    \\sum\\limits_{n=1}^\\infty\n    n\n    \\frac{\\lambda^n}{n!}\n    &&\n    n=0\\text{ term is equal to 0}\n    \\\\\n    &=\n    e^{-\\lambda}\n    \\sum\\limits_{n=1}^\\infty\n    \\frac{\\lambda^n}{(n-1)!}\n    &&\n    n\\text{ cancels}\n    \\\\\n    &=\n    \\lambda e^{-\\lambda}\n    \\sum\\limits_{n=1}^\\infty\n    \\frac{\\lambda^{n-1}}{(n-1)!}\n    &&\n    \\text{Pull out }\\lambda\n    \\\\\n    &=\n    \\lambda e^{-\\lambda}\n    \\sum\\limits_{j=0}^\\infty\n    \\frac{\\lambda^{j}}{j!}\n    &&\n    \\text{Reindex}\n    \\\\\n    &=\n    \\lambda e^{-\\lambda}\n    e^\\lambda\n    &&\n    \\text{Recall Taylor series: } e^x=\\sum\\limits_{k=0}^\\infty \\frac{x^k}{k!}\\,\\forall\\,x\\in\\mathbb{R}\n    \\\\\n    &=\n    \\lambda\n    .\n\\end{align*}\n\\]\n\n\n\n\n\n\n\n\n\nTipThe moment-generating function\n\n\n\n\n\nMassage and squint until you recognize the Taylor series of \\(e^x\\):\n\\[\n\\begin{aligned}\nM(t)&=E[e^{tX}]\\\\\n&=\\sum\\limits_{k=0}^\\infty e^{tk}\\frac{\\lambda^k}{k!}e^{-\\lambda}\\\\\n&=\\sum\\limits_{k=0}^\\infty \\left(e^{t}\\right)^k\\frac{\\lambda^k}{k!}e^{-\\lambda}\\\\\n&=\\sum\\limits_{k=0}^\\infty \\frac{\\left(\\lambda e^{t}\\right)^k}{k!}e^{-\\lambda}\\\\\n&=e^{-\\lambda}\\sum\\limits_{k=0}^\\infty \\frac{\\left(\\lambda e^{t}\\right)^k}{k!}\\\\\n&=e^{-\\lambda}e^{\\lambda e^t}\\\\\n&=e^{\\lambda e^t-\\lambda}.\n\\end{aligned}\n\\]\nThis works for any \\(t\\in\\mathbb{R}\\).\n\n\n\n\n\n\n\n\n\nNoteThe mean and variance (via the MGF)\n\n\n\n\n\nUse the chain rule, product rule, etc to compute the first two derivatives of the MGF, and then plug in zero:\n\\[\n\\begin{aligned}\nM'(t)&=\\lambda e^t\\exp(\\lambda e^t-\\lambda)\\\\\nM''(t)&=(\\lambda e^t)^2\\exp(\\lambda e^t-\\lambda)+\\lambda e^t\\exp(\\lambda e^t-\\lambda)\\\\\n\\\\\nE(X)=M'(0)&=\\lambda\\\\\nE(X^2)=M''(0)&=\\lambda^2+\\lambda\n\\end{aligned}\n\\]\nSo \\(E(X) = \\lambda\\) and \\(\\text{var}(X) = E(X^2) - E(X)^2 = \\lambda^2 + \\lambda - \\lambda^2 = \\lambda\\).",
+    "crumbs": [
+      "Distribution Families",
+      "Poisson"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-geometric.html",
+    "href": "distributions/discrete-geometric.html",
+    "title": "Geometric distribution",
+    "section": "",
+    "text": "The geometric distribution is based on a (possibly infinite) sequence of independent and identically distributed binary trials, each with probability of success \\(p\\). There are two versions:",
+    "crumbs": [
+      "Distribution Families",
+      "Geometric"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-geometric.html#basic-properties",
+    "href": "distributions/discrete-geometric.html#basic-properties",
+    "title": "Geometric distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\nFor the first version of the distribution that we saw in lecture, the properties are:\n\n\nNotation\n\\(X\\sim\\text{Geom}(p)\\)\n\n\nRange\n\\(\\{1,\\,2,\\,3,\\,4,\\,...\\}\\)\n\n\nParameter space\n\\(p\\in[0,\\,1]\\)\n\n\nPMF\n\\(P(X=k)=(1-p)^{k-1}p\\)\n\n\nExpectation\n\\(1/p\\)\n\n\nVariance\n\\(\\frac{1-p}{p^2}\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Geometric"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-geometric.html#r-commands",
+    "href": "distributions/discrete-geometric.html#r-commands",
+    "title": "Geometric distribution",
+    "section": "\nR commands",
+    "text": "R commands\nFor the second version of the distribution, R provides:\n\ndgeom(x, prob) # PMF: P(X = x)\npgeom(q, prob) # CDF: P(X &lt;= q)\nqgeom(p, prob) # quantile function (inverse CDF)\nrgeom(n, prob) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Geometric"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-geometric.html#play-around",
+    "href": "distributions/discrete-geometric.html#play-around",
+    "title": "Geometric distribution",
+    "section": "Play around!",
+    "text": "Play around!\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 500\n\nlibrary(shiny)\n\ndiscrete_pmf &lt;- function(x, p, xlim = c(min(x) - 1, max(x) + 1), label = \"\", add_mean = FALSE){\n  plot(x, p,\n       pch = 19,\n       cex = 0.5,\n       xlab = \"\",\n       ylab = \"\",\n       main = \"\",\n       ylim = c(0, 0.4),\n       yaxs = \"i\",\n       yaxt = \"n\",\n       xlim = xlim,\n       xaxt = \"n\",\n       bty = \"n\"\n  )\n  segments(x,\n           rep(0, length(x) + 1),\n           x1 = x,\n           y1 = p,\n           lwd = 3\n  )\n  axis(1, at = floor(xlim[1]):ceiling(xlim[2]), cex.axis = 1)\n  axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n  legend(\"topright\", label, bty = \"n\", cex = 3)\n  if(add_mean == TRUE){\n    mtext(\"E(X)\", side = 1, at = sum(x * p), col = \"red\", line = 2)\n  }\n}\n\ndiscrete_cdf &lt;- function(x, p, xlim = c(min(x) - 1, max(x) + 1), label = \"\"){\n  closeddot = cumsum(p)\n  opencircle = c(0, closeddot[1:length(x)-1])\n  plot(x, closeddot, pch = 19, cex = 0.5,\n       ylim = c(0, 1),\n       ylab = \"\", main = \"\", xlab = \"\",\n       yaxt = \"n\",\n       xlim = xlim,\n       xaxt = \"n\",\n       #yaxs = \"i\", \n       bty = \"n\")\n  points(x, opencircle, cex = 0.5)\n  segments(c(xlim[1], x), c(0, closeddot), c(x, xlim[2]), c(0, closeddot), lwd = 1)\n  axis(1, at = floor(xlim[1]):ceiling(xlim[2]), cex.axis = 1)\n  axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n  legend(\"bottomright\", label, bty = \"n\", cex = 3)\n}\n\n# Define UI for application that draws a histogram\nui &lt;- fluidPage(\n  \n  # Application title\n  titlePanel(\"Geometric distribution CDF and PMF\"),\n  \n  # Sidebar with a slider input for number of bins \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"p\",\n                  \"Probability of success (p):\",\n                  min = 0,\n                  max = 1,\n                  value = 0.5,\n                  step = 0.01)\n    ),\n    \n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"distPlot\")\n    )\n  )\n)\n\n# Define server logic required to draw a histogram\nserver &lt;- function(input, output) {\n  \n  output$distPlot &lt;- renderPlot({\n    \n    p &lt;- input$p\n    n &lt;- 30\n\n    par(mfrow = c(2, 1), mar = c(4, 4, 2, 2))\n    \n    discrete_cdf(1:n, dgeom(0:(n-1), p))\n    plot(1:n, dgeom(0:(n-1), p), type = \"h\",\n         #ylim = c(0, 1),\n        yaxs = \"i\",\n       yaxt = \"n\",\n       ylab = \"\",\n       xlim = c(0, n + 1),\n       xlab = \"\",\n       xaxt = \"n\",\n       bty = \"n\")\n    axis(1, at = 0:(n+1), cex.axis = 1)\n    axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n    mtext(\"E(X)\", side = 1, at = 1 / p, col = \"red\", line = 2)\n  })\n}\n\n# Run the application \nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Distribution Families",
+      "Geometric"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-uniform.html",
+    "href": "distributions/continuous-uniform.html",
+    "title": "Continuous uniform distribution",
+    "section": "",
+    "text": "If \\(X\\) is a continuous random quantity that is “equally likely” to take on any value in a bounded interval \\([a,\\, b]\\), then we can model it with the continuous uniform distribution.",
+    "crumbs": [
+      "Distribution Families",
+      "Continuous uniform"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-uniform.html#basic-properties",
+    "href": "distributions/continuous-uniform.html#basic-properties",
+    "title": "Continuous uniform distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\n\n\n\n\n\n\n\nNotation\n\\(X\\sim\\text{Unif}(a,\\,b)\\)\n\n\nRange\n\\([a,\\,b]\\)\n\n\nParameter space\n\\(-\\infty &lt; a &lt; b &lt; \\infty\\)\n\n\nPDF\n\\(f(x)=\\begin{cases}\\frac{1}{b-a} & a\\leq x\\leq b\\\\0&\\text{else}\\end{cases}\\)\n\n\nCDF\n\\(F(x)=\\begin{cases}0 & x &lt; a\\\\\\frac{x-a}{b-a} & a\\leq x\\leq b\\\\1&b&lt;x\\end{cases}\\)\n\n\nExpectation\n\\(\\frac{a+b}{2}\\)\n\n\nVariance\n\\((b-a)^2/12\\)\n\n\n\nFun facts:\n\nUnif(0, 1) is called the standard uniform distribution.",
+    "crumbs": [
+      "Distribution Families",
+      "Continuous uniform"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-uniform.html#r-commands",
+    "href": "distributions/continuous-uniform.html#r-commands",
+    "title": "Continuous uniform distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the normal distribution in R:\n\ndunif(x, min, max) # PDF\npunif(q, min, max) # CDF: P(X &lt;= q)\nqunif(p, min, max) # quantile function\nrunif(n, min, max) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Continuous uniform"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-uniform.html#play-around",
+    "href": "distributions/continuous-uniform.html#play-around",
+    "title": "Continuous uniform distribution",
+    "section": "Play around!",
+    "text": "Play around!\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 600\n#| fig-asp: 1\n\nlibrary(shiny)\n\n# Define UI for application that draws a histogram\nui &lt;- fluidPage(\n  \n  # Application title\n  titlePanel(\"Uniform distribution CDF and PDF\"),\n  \n  # Sidebar with a slider input for number of bins \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"a\",\n                  \"Lower bound (a):\",\n                  min = 0,\n                  max = 2,\n                  value = 1,\n                  step = 0.1),\n      sliderInput(\"b\",\n                  \"Upper bound (b):\",\n                  min = 3,\n                  max = 5,\n                  value = 4,\n                  step = 0.1)\n    ),\n    \n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"distPlot\")\n    )\n  )\n)\n\n# Define server logic required to draw a histogram\nserver &lt;- function(input, output) {\n  \n  output$distPlot &lt;- renderPlot({\n    \n    a &lt;- input$a\n    b &lt;- input$b\n\n    par(mfrow = c(2, 1), mar = c(4, 4, 2, 2))\n    \n    curve(punif(x, min = a, max = b), from = -1, to = 6, n = 1000,\n          ylab = \"\", col = \"red\", xlim = c(0, 5))\n    curve(0*x, from = -1, to = a, n = 1000, \n          ylim = c(0, 1), ylab = \"\", col = \"red\", xlim = c(0, 5))\n    curve(dunif(x, min = a, max = b), from = a, to = b, n = 1000, \n          ylim = c(0, 1), ylab = \"\", col = \"red\", add = TRUE)\n    curve(0*x, from = b, to = 6, n = 1000, \n          ylim = c(0, 1), ylab = \"\", col = \"red\", add = TRUE)\n  })\n}\n\n# Run the application \nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Distribution Families",
+      "Continuous uniform"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-uniform.html#derivations",
+    "href": "distributions/continuous-uniform.html#derivations",
+    "title": "Continuous uniform distribution",
+    "section": "Derivations",
+    "text": "Derivations\n\n\n\n\n\n\nNoteThe pdf integrates to 1\n\n\n\n\n\n\\[\n\\begin{aligned}\n    \\int_{-\\infty}^\\infty f_X(x)\\,\\text{d} x\n    &=\n    \\int_{-\\infty}^a f_X(x)\\,\\text{d} x\n    +\n    \\int_{a}^b f_X(x)\\,\\text{d} x\n    +\n    \\int_{b}^\\infty f_X(x)\\,\\text{d} x\n    \\\\\n    &=\n    {\\int_{-\\infty}^a 0\\,\\text{d} x}\n    +\n    \\int_{a}^b \\frac{1}{b-a}\\,\\text{d} x\n    +\n    {\\int_{b}^\\infty 0\\,\\text{d} x}\n    \\\\\n    &=\n    \\frac{1}{b-a}\\int_a^b1\\,\\text{d} x\n    \\\\\n    &=\n    \\frac{1}{b-a}\n    [x]_a^b\n    \\\\\n    &=\n    \\frac{1}{b-a}(b-a)\n    \\\\\n    &=\n    1\n    .\n\\end{aligned}\n\\]\n\n\n\n\n\n\n\n\n\nTipThe CDF\n\n\n\n\n\nThe cdf is \\(F_X(x)=P(X\\leq x)=\\int_{-\\infty}^x f_X(t)\\,\\text{d} t\\). If \\(x&lt; a\\), then\n\\[\nF_X(x)=\\int_{-\\infty}^xf_X(t)\\,\\text{d} t=\\int_{-\\infty}^x0\\,\\text{d} t=0.\n\\]\nIf \\(a\\leq x\\leq b\\), then\n\\[\n\\begin{aligned}\n    F_X(x)\n    &=\n    \\int_{-\\infty}^xf_X(t)\\,\\text{d} t\n    \\\\\n    &=\n    \\int_{-\\infty}^af_X(t)\\,\\text{d} t\n    +\n    \\int_{a}^xf_X(t)\\,\\text{d} t\n    \\\\\n    &=\n    {\\int_{-\\infty}^a0\\,\\text{d} t}\n    +\n    \\int_{a}^x\\frac{1}{b-a}\\,\\text{d} t\n    \\\\\n    &=\n    \\frac{1}{b-a}[t]_a^x\n    \\\\\n    &=\n    \\frac{x-a}{b-a}\n    .\n\\end{aligned}\n\\]\nIf \\(b &lt; x\\), then\n\\[\n\\begin{aligned}\n    F_X(x)\n    &=\n    \\int_{-\\infty}^xf_X(t)\\,\\text{d} t\n    \\\\\n    &=\n    \\int_{-\\infty}^af_X(t)\\,\\text{d} t\n    +\n    \\int_{a}^bf_X(t)\\,\\text{d} t\n    +\n    \\int_{b}^xf_X(t)\\,\\text{d} t\n    \\\\\n        &=\n    {\\int_{-\\infty}^a0\\,\\text{d} t}\n    +\n    \\int_{a}^b\\frac{1}{b-a}\\,\\text{d} t\n    +\n    {\\int_{b}^x0\\,\\text{d} t}\n    \\\\\n    &=1.\n\\end{aligned}\n\\]\nSo the cdf of \\(X\\sim\\text{Unif}(a,\\, b)\\) is\n\\[\n    F_X(x)\n    =\n    \\begin{cases}\n        0 & x&lt;a \\\\\n        \\frac{x-a}{b-a} & a\\leq x\\leq b \\\\\n        1 & b&lt;x.\n    \\end{cases}\n\\]\n\n\n\n\n\n\n\n\n\nNoteThe mean\n\n\n\n\n\nThe expected value is the midpoint of the interval:\n\\[\n\\begin{align*}\n    E(X)\n    &=\n    \\int_{-\\infty}^\\infty\n    xf_X(x)\\,\\text{d} x\n    \\\\\n    &=\n    \\int_{-\\infty}^a\n    xf_X(x)\\,\\text{d} x\n    +\n    \\int_{a}^b\n    xf_X(x)\\,\\text{d} x\n    +\n    \\int_{b}^\\infty\n    xf_X(x)\\,\\text{d} x\n    \\\\\n        &=\n    {\\int_{-\\infty}^a\n    x\\cdot0\\,\\text{d} x}\n    +\n    \\int_{a}^b\n    x\\frac{1}{b-a}\\,\\text{d} x\n    +\n    {\\int_{b}^\\infty\n    x\\cdot0\\,\\text{d} x}\n    \\\\\n    &=\n    0+\\frac{1}{b-a}\\int_a^b x\\,\\text{d} x+0\n    \\\\\n    &=\n    \\frac{1}{b-a}\\left[\\frac{1}{2}x^2\\right]_a^b\n    \\\\\n    &=\n    \\frac{1}{b-a}\\left[\\frac{1}{2}b^2-\\frac{1}{2}a^2\\right]\n    \\\\\n        &=\n    \\frac{1}{2(b-a)}\\left[b^2-a^2\\right]\n    \\\\\n        &=\n    \\frac{1}{2{(b-a)}}{(b-a)}(b+a)\n    \\\\\n    &=\\frac{b+a}{2}.\n\\end{align*}\n\\]\nThat’s the proper derivation, but without the math, we could have reasoned our way to this answer by noting that the range is bounded, so the mean is guaranteed to exist, and the distribution is symmetric, so the mean matches the point of symmetry.",
+    "crumbs": [
+      "Distribution Families",
+      "Continuous uniform"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-gamma.html",
+    "href": "distributions/continuous-gamma.html",
+    "title": "Gamma distribution",
+    "section": "",
+    "text": "The gamma distribution is a common choice for modeling continuous quantities that are non-negative: dollar amounts, waiting times, etc. It is governed by two positive parameters: the shape \\(\\alpha&gt;0\\) and the rate \\(\\beta&gt;0\\). Don’t worry about interpreting what those words mean. They’re just labels.",
+    "crumbs": [
+      "Distribution Families",
+      "Gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-gamma.html#basic-properties",
+    "href": "distributions/continuous-gamma.html#basic-properties",
+    "title": "Gamma distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\nThe gamma distribution gets its name because it is related to the so-called gamma function, which appears in the normalizing constant:\n\\[\n\\Gamma(\\alpha) = \\int_0^\\infty x^{\\alpha-1}e^{-x}\\,\\text{d}x.\n\\]\nWe have a lil’ math explainer where you can read more about it.\n\n\n\n\n\n\n\nNotation\n\\(X\\sim\\text{Gamma}(\\alpha,\\,\\beta)\\)\n\n\nRange\n\\([0,\\,\\infty)\\)\n\n\nParameter space\n\\(\\alpha,\\,\\beta&gt;0\\)\n\n\nPDF\n\\(f(x)=\\begin{cases}\\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}x^{\\alpha-1}e^{-\\beta x} &x\\geq 0\\\\0 & x&lt;0.\\end{cases}\\)\n\n\nMGF\n\n\\(M(t)=\\left(\\frac{\\beta}{\\beta-t}\\right)^\\alpha\\), \\(t&lt;\\beta\\)\n\n\n\nExpectation\n\\(\\alpha/\\beta\\)\n\n\nVariance\n\\(\\alpha/\\beta^2\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-gamma.html#special-cases",
+    "href": "distributions/continuous-gamma.html#special-cases",
+    "title": "Gamma distribution",
+    "section": "Special cases",
+    "text": "Special cases\nParticular special cases of the gamma distribution get special nicknames:\n\nIf \\(X\\sim\\text{Gamma}(1,\\,\\beta)\\), then \\(X\\) has the exponential distribution, denoted \\(X\\sim\\text{Exp}(\\beta)\\) This special case is nice because we get closed-form expressions for the CDF and the quantile function:\n\n\\[\n\\begin{aligned}\nf(x)&=\\beta e^{-\\beta x}\\\\\nF(x)&=1-e^{-\\beta x}\\\\\nF^{-1}(p)&=-\\frac{\\ln(1-p)}{\\beta}.\n\\end{aligned}\n\\]\n\nIf \\(X\\sim\\text{Gamma}(\\nu/2,\\, 1/2)\\), then \\(X\\) has the chi-squared distribution, denoted \\(X\\sim\\chi^2_\\nu\\). In this context we call the parameter \\(\\nu&gt;0\\) the degrees of freedom of the chi-squared distribution.\nIf \\(X\\sim\\text{Gamma}(k,\\,\\beta)\\) for some integer \\(k\\), then \\(X\\) has the Erlang distribution, denoted \\(X\\sim\\text{Erlang}(k,\\, \\beta)\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-gamma.html#r-commands",
+    "href": "distributions/continuous-gamma.html#r-commands",
+    "title": "Gamma distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the gamma distribution in R:\n\ndgamma(x, shape, rate = 1) # PDF\npgamma(q, shape, rate = 1) # CDF: P(X &lt;= q)\nqgamma(p, shape, rate = 1) # quantile function (inverse CDF)\nrgamma(n, shape, rate = 1) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-gamma.html#play-around",
+    "href": "distributions/continuous-gamma.html#play-around",
+    "title": "Gamma distribution",
+    "section": "Play around!",
+    "text": "Play around!\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 700\n\nlibrary(shiny)\n\nui &lt;- fluidPage(\n  titlePanel(\"Gamma distribution CDF and PDF\"),\n  \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"alpha\", \"Shape (α):\",\n                  min = 0.5, max = 5, value = 2, step = 0.1),\n      sliderInput(\"beta\", \"Rate (β):\",\n                  min = 0.2, max = 2, value = 0.5, step = 0.05),\n      hr(),\n      verbatimTextOutput(\"moments\")\n    ),\n    \n    mainPanel(\n      plotOutput(\"gammaPlot\", height = \"600px\")\n    )\n  )\n)\n\nserver &lt;- function(input, output) {\n  output$moments &lt;- renderText({\n    alpha &lt;- input$alpha\n    beta  &lt;- input$beta\n    mu &lt;- alpha / beta\n    sd &lt;- sqrt(alpha) / beta\n    paste0(\"E(X) = \", round(mu, 3),\n           \"\\nsd(X) = \", round(sd, 3))\n  })\n  \n  output$gammaPlot &lt;- renderPlot({\n    alpha &lt;- input$alpha\n    beta  &lt;- input$beta\n    \n    # Fixed plotting range\n    x_min &lt;- -2\n    x_max &lt;- 25\n    x &lt;- seq(x_min, x_max, length.out = 2000)\n    \n    # PDF and CDF\n    pdf_vals &lt;- ifelse(x &gt;= 0, dgamma(x, shape = alpha, rate = beta), 0)\n    cdf_vals &lt;- ifelse(x &gt;= 0, pgamma(x, shape = alpha, rate = beta), 0)\n    \n    mu &lt;- alpha / beta\n    \n    # Fixed y-limits\n    pdf_ylim &lt;- c(0, 0.8)\n    cdf_ylim &lt;- c(0, 1)\n    \n    par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))\n    \n    # --- CDF ---\n    plot(x, cdf_vals, type = \"l\", lwd = 2, col = \"blue\",\n         xlim = c(x_min, x_max), ylim = cdf_ylim,\n         main = \"Cumulative Distribution Function (CDF)\",\n         xlab = \"\", ylab = \"F(x)\")\n    abline(h = c(0, 1), col = \"gray80\", lty = 2)\n    #abline(v = mu, col = \"gray60\", lty = 3)\n    \n    # --- PDF ---\n    plot(x, pdf_vals, type = \"l\", lwd = 2, col = \"darkred\",\n         xlim = c(x_min, x_max), ylim = pdf_ylim,\n         main = \"Probability Density Function (PDF)\",\n         xlab = \"x\", ylab = \"f(x)\")\n    #abline(v = mu, col = \"gray60\", lty = 3)\n    \n    # Label E(X) with mtext along x-axis\n    if (mu &gt;= x_min && mu &lt;= x_max) {\n      mtext(\"E(X)\",\n            side = 1, line = 2.2, at = mu, cex = 1.0)\n    }\n  })\n}\n\nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Distribution Families",
+      "Gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-binormal.html",
+    "href": "distributions/continuous-binormal.html",
+    "title": "Bivariate normal distribution",
+    "section": "",
+    "text": "\\[\n    \\begin{aligned}\n        f_{XY}(x, y)\n        =\n        &\\frac{1}{2\\pi\\sigma_x\\sigma_y\\sqrt{1-\\rho^2}}\n        \\\\\n        &\n        \\times\n        \\exp\\left(-\\frac{1}{2(1-\\rho^2)}\\left[\n        \\left(\\frac{x-\\mu_x}{\\sigma_x}\\right)^2\n        -\n        2\\rho\n        \\left(\\frac{x-\\mu_x}{\\sigma_x}\\right)\n        \\left(\\frac{y-\\mu_y}{\\sigma_y}\\right)\n        +\n        \\left(\\frac{y-\\mu_y}{\\sigma_y}\\right)^2\n        \\right]\\right),\n        \\\\\n        &\n        \\\\\n        &\n        (x, y)\\in\\mathbb{R}^2,\n    \\end{aligned}\n\\]\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 700\n\nfxy = function(x, y, mu, Sig, sd1, sd2, rho) {\n  \n  if(missing(mu)) mu=c(0,0)\n  \n  if(!missing(Sig)) {\n    sd1 = sqrt(Sig[1,1])\n    sd2 = sqrt(Sig[2,2])\n    if(Sig[1,2] != Sig[2,1]) {\n      print(\"Covariance matrix is not symmetric... Returning .\")\n      return(NULL)\n    }\n    rho = Sig[1,2]/(sd1*sd2)\n  }\n  else if(missing(rho) || missing(sd1) || missing(sd2)) {\n    sd1 = sd2 = 1\n    rho = 0\n  }\n  \n  Q = (x-mu[1])^2/sd1^2 + (y-mu[2])^2/sd2^2 -\n    2*rho*(x-mu[1])*(y-mu[2])/(sd1*sd2)\n  \n  1/(2*pi*sd1*sd2*sqrt(1-rho^2))*exp(-Q/(2*(1-rho^2)))\n}\n\n\n## Calls persp() with preferred arguments\npersp.plot = function(x, y, z, main=\"Bivariate Normal Density\",\n                      theta=30, phi=25, r=50, d=.1, expand=0.5, ltheta=90, lphi=180,\n                      shade=0.5, ticktype=\"simple\", nticks=5, col=\"lightgreen\", zlab=\"\", ...) {\n  \n  persp(x, y, z, main=main,\n        theta=theta, phi=phi, r=r, d=d, expand=expand, ltheta=ltheta,\n        lphi=lphi, shade=shade, ticktype=ticktype, nticks=nticks,\n        col=col, zlab=zlab, ...)\n}\n\n\n## Creates covariance matrix from sd.x, sd.y, and rho\ncalc.Sig = function(sd.x, sd.y, rho) {\n  \n  sig.xy = rho*sd.x*sd.y\n  matrix(c(sd.x^2, sig.xy, sig.xy, sd.y^2), nrow=2)\n}\n\n\n## Returns bivariate normal density for specified x-y grid\ndmvnorm = function(x, y, mu, Sig) {\n  \n  if(missing(mu)) mu = c(0,0)\n  if(missing(Sig)) Sig = diag(2)\n  \n  outer(x, y, fxy, mu, Sig)\n}\n\n\n## This is only the kernel of the bivariate Normal density\n## x is a 2x1 vector\nf = function(x, y, mu=c(0,0), sd.x=1, sd.y=1, rho=0) {\n  \n  #t(X-mu)%*%solve(Sig)%*%(X-mu)\n  mu.x = mu[1]\n  mu.y = mu[2]\n  A = (x-mu.x)^2/sd.x^2 + (y-mu.y)^2/sd.y^2\n  B = 2*rho/(sd.x*sd.y)*(x-mu.x)*(y-mu.y)\n  return((A-B)/(1-rho^2))\n}\n\n\n### End: Function definitions ###\n\n\n\n\nlibrary(shiny)\n\n# Define UI for application that draws a histogram\nui &lt;- fluidPage(\n  \n  # Application title\n  titlePanel(\"The bivariate normal density\"),\n  \n  # Sidebar with a slider input for number of bins \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"sd.x\",\n                  \"X standard deviation:\",\n                  min = 0,\n                  max = 1,\n                  value = 0.5,\n                  step = 0.01),\n      sliderInput(\"sd.y\",\n                  \"Y standard deviation:\",\n                  min = 0,\n                  max = 1,\n                  value = 0.5,\n                  step = 0.01),\n      sliderInput(\"rho\",\n                  \"Correlation:\",\n                  min = -1,\n                  max = 1,\n                  value = 0,\n                  step = 0.01)\n    ),\n    \n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"distPlot\")\n    )\n  )\n)\n\n# Define server logic required to draw a histogram\nserver &lt;- function(input, output) {\n  \n  output$distPlot &lt;- renderPlot({\n    \n    ## Define sequence of parameter\n    \n    p.seq = c(.8, .9, .95, .99)\n    cont.lev = qchisq(p.seq, 2)\n    cont.lab = c(\"80%\", \"90%\", \"95%\", \"99%\")\n    \n    \n    ## Plotting starts here\n    \n    par(cex.lab=2)\n    par(cex.axis=1.75)\n    par(las=1)\n    par(mfrow=c(1,2))  # 1.5:1 aspect ratio\n    \n    sd.x = input$sd.x\n    sd.y = input$sd.y\n    rho = input$rho\n    N = 100\n    x = y = seq(-3.2,3.2,le=N)  # create x-y grid of size NxN\n    mu = c(0,0)\n    \n    \n    z = dmvnorm(x, y, mu, calc.Sig(sd.x, sd.y, rho))\n    persp.plot(x, y, z, main=\"\", col=\"lightblue\", border=NA, cex.lab=1.5,\n               axes=F)\n    \n    ## Contour Plot\n    z = outer(x, y, f, mu, sd.x, sd.y, rho)\n    contour(x, y, z, levels=cont.lev, cex.axis=1.4, labels=cont.lab,\n            xlab=\"x\", ylab=\"y\", cex.lab=1.5)\n    abline(v=0, h=0, lty=3, col=\"darkgrey\")\n    \n  })\n}\n\n# Run the application \nshinyApp(ui = ui, server = server)"
+  },
+  {
+    "objectID": "problems/pset-0.html",
+    "href": "problems/pset-0.html",
+    "title": "Problem Set 0",
+    "section": "",
+    "text": "Nature laughs at the difficulties of integration.\nThis is ostensibly calculus review, but each problem is a piece of probability in disguise. We will illuminate these connections throughout the semester, and I will refer to Problem Set 0 often. Stay tuned!",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-0",
+    "href": "problems/pset-0.html#problem-0",
+    "title": "Problem Set 0",
+    "section": "Problem 0",
+    "text": "Problem 0\nRecommend some music for us to listen to while we grade this.",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-1",
+    "href": "problems/pset-0.html#problem-1",
+    "title": "Problem Set 0",
+    "section": "Problem 1",
+    "text": "Problem 1\nExplain why this is horrific notation:\n\\[\n    \\int_0^x f(x)\\,\\textrm{d} x.\n\\]\nHow should it be fixed?",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-2",
+    "href": "problems/pset-0.html#problem-2",
+    "title": "Problem Set 0",
+    "section": "Problem 2",
+    "text": "Problem 2\nSimplify this:\n\\[\n\\ln\\left(e^{a_1}e^{a_2}e^{a_3}\\cdots e^{a_n}\\right).\n\\]",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-3",
+    "href": "problems/pset-0.html#problem-3",
+    "title": "Problem Set 0",
+    "section": "Problem 3",
+    "text": "Problem 3\nAssume \\(\\lambda&gt;0\\) is a constant and compute\n\\[\n    \\sum\\limits_{n=0}^\\infty n \\frac{\\lambda^n}{n!}e^{-\\lambda}\n    .\n\\]",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-4",
+    "href": "problems/pset-0.html#problem-4",
+    "title": "Problem Set 0",
+    "section": "Problem 4",
+    "text": "Problem 4\nHere is a very silly function:\n\\[\nh(x)\n=\n\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\n,\\quad\n-\\infty&lt;x&lt;\\infty\n.\n\\]\nTreat \\(-\\infty&lt;\\mu&lt;\\infty\\) and \\(\\sigma&gt;0\\) as constants and compute the value(s) of \\(x\\) at which \\(h\\) has inflection points.\n\n\n\n\n\n\nTipHint\n\n\n\n\n\nHere is an example of what \\(h\\) might look like in the special case where \\(\\mu = 1\\) and \\(\\sigma=2\\):\n\nCodem = 1\ns = 2\npar(mar = c(4, 4, 0.1, 4))\ncurve(exp(-0.5 * ((x - m) / s)^2), \n      from = -6, to = 8, n = 500,\n      xlab = \"x\", ylab = \"h(x)\",\n      xaxt = \"n\")\naxis(1, at = -6:8)\n\n\n\n\n\n\n\nBefore you start doing any math, can you use the picture to guess what the answer will be?",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-5",
+    "href": "problems/pset-0.html#problem-5",
+    "title": "Problem Set 0",
+    "section": "Problem 5",
+    "text": "Problem 5\nHere is another inordinately silly function:\n\\[\n\\Gamma(x)=\\int_0^\\infty y^{x-1}e^{-y}\\,\\textrm{d} y,\\quad x&gt;0.\n\\]\nProve that \\(\\Gamma(x+1)=x\\Gamma(x)\\).\n\n\n\n\n\n\nTipHint\n\n\n\n\n\nStart on the left-hand side by writing out \\(\\Gamma(x+1)\\) and evaluating the integral by parts.",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-6",
+    "href": "problems/pset-0.html#problem-6",
+    "title": "Problem Set 0",
+    "section": "Problem 6",
+    "text": "Problem 6\nLet \\(f\\) be any function with the following properties:\n\n\n\\(f\\) is twice continuously differentiable in a neighborhood of zero1;\n\n\\(f(0) = 0\\);\n\n\\(f'(0) = 0\\);\n\n\\(f''(0) = 1\\).\n\nAssume \\(t\\) is a constant and compute\n\\[\n    \\lim_{x\\to\\infty} xf\\left(\\frac{t}{\\sqrt{x}}\\right)\n    .\n\\]\n\n\n\n\n\n\nWarningContinuity?\n\n\n\nA full credit solution must clearly explain how and why continuity is being used along the way.",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#problem-7",
+    "href": "problems/pset-0.html#problem-7",
+    "title": "Problem Set 0",
+    "section": "Problem 7",
+    "text": "Problem 7\nConsider this integral:\n\\[\n    \\int_2^\\infty\n    \\frac{1}{x(\\ln x)^p}\\textrm{d} x\n    .\n\\]\n\n\nUse R to create a single plot with many lines, each graphing the integrand for a different value of \\(p\\). Consider \\(p\\) equal to -2, -1.5, -1, 0, 1, and 5, and make the \\(x\\)-axis of your plot run from 2 to 15.\nShow that \\(\\lim_{x\\to\\infty}\\frac{1}{x(\\ln x)^p}=0\\) for all values of \\(-\\infty&lt;p&lt;\\infty\\).\nFor what values of \\(p\\) does the integral converge? When it does converge, what is its value?\nConsult the picture you created in part (a), and write a few sentences explaining conceptually why the integral converges for some values of \\(p\\) but not others.\n\n\n\n\n\n\n\nTipHint\n\n\n\n\n\nWhen taking the limit or evaluating the integral, can you use the same technique for all values of \\(p\\), or do you need a different technique depending on what \\(p\\) is?",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#submission",
+    "href": "problems/pset-0.html#submission",
+    "title": "Problem Set 0",
+    "section": "Submission",
+    "text": "Submission\nYou are free to compose your solutions for this problem set however you wish (scan or photograph written work, handwriting capture on a tablet device, LaTeX, Quarto, whatever) as long as the final product is a single PDF file. You must upload this to Gradescope and mark the pages associated with each problem.\nDo not forget to include the following:\n\nFor each problem, please acknowledge your collaborators;\nIf a problem required you to code something, please include both the code and the output. “Including the code” can be as crude as a screenshot, but you might also use Quarto to get a pdf that you can merge with the rest of your submission.",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "problems/pset-0.html#footnotes",
+    "href": "problems/pset-0.html#footnotes",
+    "title": "Problem Set 0",
+    "section": "Footnotes",
+    "text": "Footnotes\n\nThis means that \\(f\\) and its first two derivatives are all continuous functions at and around zero.↩︎",
+    "crumbs": [
+      "Problem Sets",
+      "Problem Set 0"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_resources.html",
+    "href": "syllabus/syllabus_resources.html",
+    "title": "University resources",
+    "section": "",
+    "text": "If you are having difficulty with the costs associated with this course (obtaining a laptop, mostly), here are some resources:\n\nKarsh Office of Undergraduate Support: Regardless of your aid package, Karsh offers loans and resources for connecting students with campus programs that might help alleviate course costs.\nDukeLIFE: The Course Material Assistance program offers assistance for eligible students, including through the LIFE Loaner Laptop Program. Students who are eligible for DukeLIFE benefits are notified before the start of the semester; program resources are limited.\nDuke Link: They have a small supply of laptops that can be rented out for five days at a time.",
+    "crumbs": [
+      "Syllabus",
+      "University resources"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_resources.html#course-costs",
+    "href": "syllabus/syllabus_resources.html#course-costs",
+    "title": "University resources",
+    "section": "",
+    "text": "If you are having difficulty with the costs associated with this course (obtaining a laptop, mostly), here are some resources:\n\nKarsh Office of Undergraduate Support: Regardless of your aid package, Karsh offers loans and resources for connecting students with campus programs that might help alleviate course costs.\nDukeLIFE: The Course Material Assistance program offers assistance for eligible students, including through the LIFE Loaner Laptop Program. Students who are eligible for DukeLIFE benefits are notified before the start of the semester; program resources are limited.\nDuke Link: They have a small supply of laptops that can be rented out for five days at a time.",
+    "crumbs": [
+      "Syllabus",
+      "University resources"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_resources.html#tech-support",
+    "href": "syllabus/syllabus_resources.html#tech-support",
+    "title": "University resources",
+    "section": "Tech support",
+    "text": "Tech support\nContact the Duke OIT Service Desk at oit.duke.edu/help.",
+    "crumbs": [
+      "Syllabus",
+      "University resources"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_resources.html#academic-support",
+    "href": "syllabus/syllabus_resources.html#academic-support",
+    "title": "University resources",
+    "section": "Academic support",
+    "text": "Academic support\nThere are times you may need help with the class that is beyond what can be provided by the teaching team. In those instances, I encourage you to visit the Academic Resource Center. The Academic Resource Center (the ARC) offers services to support students academically during their undergraduate careers at Duke. The ARC can provide support with time management, academic skills and strategies, course-specific tutoring, and more. ARC services are available free to all Duke undergraduate student studying any discipline.\nYou can contact the Academic Resource Center by phone at (919) 684-5917, by email at theARC@duke.edu, or by visiting http://arc.duke.edu/.",
+    "crumbs": [
+      "Syllabus",
+      "University resources"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_resources.html#accessibility",
+    "href": "syllabus/syllabus_resources.html#accessibility",
+    "title": "University resources",
+    "section": "Accessibility",
+    "text": "Accessibility\nIf any portion of the course is not accessible to you due to challenges with technology or the course format, please let me know so we can make appropriate accommodations.\nThe Student Disability Access Office (SDAO) is available to ensure that students can engage with their courses and related assignments. Students should contact the SDAO to request or update accommodations under these circumstances.",
+    "crumbs": [
+      "Syllabus",
+      "University resources"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_resources.html#mental-health-and-well-being",
+    "href": "syllabus/syllabus_resources.html#mental-health-and-well-being",
+    "title": "University resources",
+    "section": "Mental health and well-being",
+    "text": "Mental health and well-being\nDuke is committed to holistic student wellbeing, which includes one’s mental, emotional, and physical health. The university offers resources to help students manage daily stress, to encourage intentional self-care, and to access just-in-time support. If you find you need support, your mental and/or emotional health concerns are impacting your day-to-day activities, your academic performance, or you need someone to talk to, the resources below are available to you:\n\nDukeReach: DukeReach provides comprehensive outreach services to support students in managing all aspects of wellbeing, including referrals and follow-up services for students who are experiencing significant challenges related to mental health, physical health, social adjustment, and/or a variety of other stressors. You can contact the DukeReach team at dukereach@duke.edu;\nCounseling and Psychological Services (CAPS): CAPS offers counseling services to Duke students including virtual appointments, and referrals in the community. You do not need an appointment for an initial assessment. You may walk in or call 919-660-1000 to get started. Hours: Monday-Friday 9:00am - 4:00pm. After hours counseling services are available at no additional cost to students, you can call: 919-660-1000 Option 2;\nTimelyCare: TimelyCare is an online platform that is a convenient, confidential, and free way for Duke students to receive 24/7 mental health support through TalkNow and scheduled counseling;\nDuke Student Health: Student Health offers a wide range of healthcare services for all Duke students, many of which are covered by the student health fee. To make an appointment call (919) 681-9355. Hours: Monday - Friday, 8am - 4:30pm, Thursday 9am - 4:30pm. Closed from 12-12:30 each day.",
+    "crumbs": [
+      "Syllabus",
+      "University resources"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_overview.html",
+    "href": "syllabus/syllabus_overview.html",
+    "title": "Course overview",
+    "section": "",
+    "text": "This is a course on the mathematics of probability and statistics. In probability, we describe the distribution of a random phenomenon and then study how the realizations of that phenomenon typically behave. In statistics, we do the reverse; we observe realizations of a random phenomenon with unknown distribution, and then use the data to figure out what the distribution is. We will spend twelve weeks on the first, and then three weeks on the second. Topics include set theory, probability spaces, counting methods, conditional probability, discrete and (absolutely) continuous random variables, transformations of random variables, (pseudo)random number generation, bivariate distributions, concentration inequalities, limit theorems, maximum likelihood estimation, and Bayesian inference with conjugate priors.\nAside from the concrete topics, the course emphasizes four generic intellectual themes:\n\nStudents in this class will improve their mathematical maturity. They will deepen their experience with all of the main ideas and techniques of univariate calculus, they will encounter topics like set theory and combinatorics, which may be new to them, and they will get a taste of rigorous mathematical proof;\nProbability and statistics weasel their way into pretty much everything these days, and students will study a wide variety of famous and obscure applications coming from the natural and social sciences, technology and industry, and even arts and culture;\nProbability and statistics are often counterintuitive, and humans frequently make silly and harmful mistakes in reasoning. Students will use their mathematical knowledge to identify and critique these errors…and hopefully avoid them themselves;\nThis is a course about doing the math, but in the modern era, this has a symbiotic relationship with computer simulation. Simulation is used both to verify and probe mathematical results, as well as to substitute for them when a proof remains beyond the frontier. Students will learn the basics of the R programming language and use it to simulate probabilistic environments and reinforce their mathematical reasoning.\n\nPrerequisites: single-variable calculus.",
+    "crumbs": [
+      "Syllabus",
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_overview.html#description",
+    "href": "syllabus/syllabus_overview.html#description",
+    "title": "Course overview",
+    "section": "",
+    "text": "This is a course on the mathematics of probability and statistics. In probability, we describe the distribution of a random phenomenon and then study how the realizations of that phenomenon typically behave. In statistics, we do the reverse; we observe realizations of a random phenomenon with unknown distribution, and then use the data to figure out what the distribution is. We will spend twelve weeks on the first, and then three weeks on the second. Topics include set theory, probability spaces, counting methods, conditional probability, discrete and (absolutely) continuous random variables, transformations of random variables, (pseudo)random number generation, bivariate distributions, concentration inequalities, limit theorems, maximum likelihood estimation, and Bayesian inference with conjugate priors.\nAside from the concrete topics, the course emphasizes four generic intellectual themes:\n\nStudents in this class will improve their mathematical maturity. They will deepen their experience with all of the main ideas and techniques of univariate calculus, they will encounter topics like set theory and combinatorics, which may be new to them, and they will get a taste of rigorous mathematical proof;\nProbability and statistics weasel their way into pretty much everything these days, and students will study a wide variety of famous and obscure applications coming from the natural and social sciences, technology and industry, and even arts and culture;\nProbability and statistics are often counterintuitive, and humans frequently make silly and harmful mistakes in reasoning. Students will use their mathematical knowledge to identify and critique these errors…and hopefully avoid them themselves;\nThis is a course about doing the math, but in the modern era, this has a symbiotic relationship with computer simulation. Simulation is used both to verify and probe mathematical results, as well as to substitute for them when a proof remains beyond the frontier. Students will learn the basics of the R programming language and use it to simulate probabilistic environments and reinforce their mathematical reasoning.\n\nPrerequisites: single-variable calculus.",
+    "crumbs": [
+      "Syllabus",
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_overview.html#meetings",
+    "href": "syllabus/syllabus_overview.html#meetings",
+    "title": "Course overview",
+    "section": "Meetings",
+    "text": "Meetings\n\n\n\n\n\n\n\n\nMeeting\nLocation\nTime\n\n\n\n\nLecture\nGross Hall 103\nTueThu 3:05 PM - 4:20 PM",
+    "crumbs": [
+      "Syllabus",
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html",
+    "href": "syllabus/syllabus_assignments.html",
+    "title": "Assignments and grading",
+    "section": "",
+    "text": "Your final course grade will be calculated as follows:\nYour final letter grade will be determined based on the usual thresholds:",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html#labs-10",
+    "href": "syllabus/syllabus_assignments.html#labs-10",
+    "title": "Assignments and grading",
+    "section": "Labs (10%)",
+    "text": "Labs (10%)\nIn lab every Thursday, you will complete a guided activity that introduces you to special topics, extensions, or applications of the latest course material. Along the way, we will teach you how to implement some of the ideas from the course in the R programming language. Ideally you should be able to finish the activity by the end of your lab period, but in any case, you must submit your lab work by 11:59 ET PM that same day.\nEach lab assignment will be graded on the following scale:\n\n1.0: a complete, good faith attempt at every part of every problem;\n0.5: partially complete;\n0.0: no submission, or mostly incomplete.\n\n\n\n\n\n\n\nNoteGrace\n\n\n\nYour two lowest lab scores will be dropped at the end of the semester.",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html#problem-sets-21",
+    "href": "syllabus/syllabus_assignments.html#problem-sets-21",
+    "title": "Assignments and grading",
+    "section": "Problem Sets (21%)",
+    "text": "Problem Sets (21%)\nMathematics is like everything else in life; if you practice, you improve. As such, the problem sets are really the heart of the course. They will mostly consist of pencil-and-paper math problems, but sometimes you will be asked to do some coding. You may compose you solutions however you like (scan or photograph written work, LaTeX, Quarto, handwriting capture on a tablet, whatever) so long as you ultimately upload a single .pdf file to Gradescope.\n\n\n\n\n\n\nNoteGrace\n\n\n\nYour lowest problem set score will be dropped at the end of the semester.",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html#exams-23-each",
+    "href": "syllabus/syllabus_assignments.html#exams-23-each",
+    "title": "Assignments and grading",
+    "section": "Exams (23% each)",
+    "text": "Exams (23% each)\nThere will be three exams. The dates, times, and locations are firm, so mark your calendar now:\n\nMidterm 1: Wednesday February 18 during lecture;\nMidterm 2: Wednesday April 1 during lecture;\nFinal: Monday April 27 from 9 AM - 12 PM in Old Chem 116.\n\nThese will be old school, pencil-and-paper, in-class exams. You are allowed only one resource:\n\nboth sides of one 8.5” x 11” sheet of notes, prepared by you and you alone. It must be handwritten directly onto the piece of paper (not handwritten on a tablet).\n\nIf you seek testing accommodations, make sure the Student Disability Access Office sends me a letter, and then please make your appointments in the Testing Center as soon as possible.\n\n\n\n\n\n\nNoteGrace\n\n\n\nIf you do better on the final exam than you did on one of the midterms, we will replace your lowest midterm exam score with your final exam score.\n\n\n\n\n\n\n\n\nWarningNo make-up exams\n\n\n\nIf you are absent from one of the midterms for whatever reason, there will not be a make-up. Pursuant to the above policy, we will simply replace the missed midterm score with the final exam score. If you miss the final exam, you get a zero unless you have a Dean’s Excuse.",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "STA 332 Statistical Inference",
+    "section": "",
+    "text": "Below is a prospective outline for the course. Due dates are firm, but topics may change with advanced notice.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWEEK\nDATE\nPREPARE\nTOPIC\nMATERIALS\nDUE\n\n\n\n1\nWed, Jan 7\nDS: 1.1 - 1.2\nLec 1: Intro\n\n\n\n\n\nThu, Jan 8\n\nLab 0: calculus review\nNotes\n\n\n\n2\nMon, Jan 12\nDS: 1.3 - 1.4\nLec 2: Set theory\nNotes\n\n\n\n\nWed, Jan 14\nDS: 1.5\nLec 3: Probability spaces\nNotes\n\n\n\n\nThu, Jan 15\n\nLab 1: hello R\n\n\nLab 1 @11:59 PM\n\n\n\nSun, Jan 18\n\n\n\n\nPset 0 @11:59 PM\n\n\n3\nMon, Jan 19\n\nMLK Day - No class\n\n\n\n\n\nWed, Jan 21\nDS: 1.6-1.8\nLec 4: Counting\nNotes for Lec 4 and 5\n\n\n\n\nThu, Jan 22\n\nLab 2: counting\n\n\nLab 2 @11:59 PM\n\n\n\nSun, Jan 25\n\n\n\n\nPset 1 @11:59 PM\n\n\n4\nMon, Jan 26\nDS: 1.6-1.8\nLec 5: Counting\n\nZoom recording, Notes for Lec 4 and 5\n\n\n\n\n\nWed, Jan 28\nDS: 2\nLec 6: Conditional probability\n\nNotes, Play around!\n\n\n\n\n\nThu, Jan 29\n\nLab 3: disease testing\n\n\nLab 3 @11:59 PM\n\n\n\nSun, Feb 1\n\n\nProblem 2 proof\n\nPset 2 @11:59 PM\n\n\n5\nMon, Feb 2\nDS: 2\nLec 7: Independence\n\nZoom recording, Notes\n\n\n\n\n\nWed, Feb 4\nDS: 3.1, 3.3, 4.1\nLec 8: Random variables intro\nNotes\n\n\n\n\nThu, Feb 5\n\nLab 4: ChatGPT\n\n\nLab 4 @11:59 PM\n\n\n\nSun, Feb 8\n\n\n\n\nPset 3 @11:59 PM\n\n\n6\nMon, Feb 9\nDS: 5.1-5.4\nLec 9: Discrete families\nNotes\n\n\n\n\nWed, Feb 11\nDS: 4.2\nLec 10: Expected value\nNotes\n\n\n\n\nThu, Feb 12\n\nMidterm 1 review\n\n\n\n\n\nSun, Feb 15\n\n\n\n\nPset 4 @11:59 PM\n\n\n7\nMon, Feb 16\nDS: 4.3\nLec 11: Variance\nNotes\n\n\n\n\nWed, Feb 18\n\nMidterm 1\n\n\n\n\n\nThu, Feb 19\n\nLab 5: random dating\n\n\nLab 5 @11:59 PM\n\n\n8\nMon, Feb 23\nDS: 3.3\nLec 12: Continuous random vars\nNotes for Lec 12 and 13\n\n\n\n\nWed, Feb 25\nDS: 3.2\nLec 13: Continuous random vars\n\n\n\n\n\nThu, Feb 26\n\nLab 6: normal and gamma\n\n\nLab 6 @11:59 PM\n\n\n9\nMon, Mar 2\nDS: 5.6-5.7\nLec 14: Normal, gamma\nNotes\n\n\n\n\nWed, Mar 4\nDS: 4.4-4.5\nLec 15: Moments and quantiles\nNotes\n\n\n\n\nThu, Mar 5\nDS: 3.8\nLab 7: transformations\n\n\nLab 7 @11:59 PM\n\n\n10\nMon, Mar 9\n\nSpring Break - No classes\n\n\n\n\n11\nMon, Mar 16\nDS: 4.4-4.5\nLec 16: MGF\nNotes\n\n\n\n\nWed, Mar 18\nDS: 3.4-3.7\nLec 17: Joint discrete r.v.’s\nNotes\n\n\n\n\nThu, Mar 19\nDS: 12\nLab 8: simulation\n\n\nLab 8 @11:59 PM\n\n\n\nSun, Mar 22\n\n\n\n\nPset 5 @11:59 PM\n\n\n12\nMon, Mar 23\nDS: 3.4-3.7\nLec 18: Joint continuous r.v.’s\nNotes\n\n\n\n\nWed, Mar 25\nDS: 6\nLec 19: Sums and averages\nNotes\n\n\n\n\nThu, Mar 26\n\nMidterm 2 review\n\n\n\n\n\nSun, Mar 29\n\n\n\n\nPset 6 @11:59 PM\n\n\n13\nMon, Mar 30\nDS: 6\nLec 20: CLT\nNotes\n\n\n\n\nWed, Apr 1\n\nMidterm 2\n\n\n\n\n\nThu, Apr 2\n\nLab 9: insurance\n\n\nLab 9 @11:59 PM\n\n\n14\nMon, Apr 6\n\nLec 21: What is statistics?\nNotes\n\n\n\n\nWed, Apr 8\n\nLec 22: What is statistics?\n\nNotes: stats part 2, Notes: intro to MLE\n\n\n\n\n\nThu, Apr 9\n\nLab 10: MLE\n\n\nLab 10 @11:59 PM\n\n\n15\nMon, Apr 13\n\nLec 23: Maximum likelihood\nNotes\n\n\n\n\nWed, Apr 15\n\nLec 24: MLE+intro to Bayes\nNotes\n\n\n\n\nThu, Apr 16\n\nLab 11: Bayes\n\n\nLab 11 @11:59 PM\n\n\n16\nMon, Apr 20\n\nLec 25: Bayesian inference\nNotes\n\n\n\n\nWed, Apr 22\n\nFinal exam review\n\n\n\n\n\nSat, Apr 25\n\n\n\n\nPset 7 @11:59 PM\n\n\n17\nMon, Apr 27\n\nFinal exam (9am-12pm)",
+    "crumbs": [
+      "Syllabus",
+      "Schedule"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_materials.html",
+    "href": "syllabus/syllabus_materials.html",
+    "title": "Course materials",
+    "section": "",
+    "text": "You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are all good options:\n\n[Ross] A First Course in Probability by Sheldon Ross;\n[HTZ] Probability and Statistical Inference by Robert Hogg, Elliot Tanis, and Dale Zimmerman;\n[DS] Probability and Statistics by Morris DeGroot and Mark Schervish;\n[Wass] All of Statistics by Larry Wasserman.\n\nIn the PREPARE column of the course schedule, I will indicate which parts of a book correspond to the lectures.",
+    "crumbs": [
+      "Syllabus",
+      "Materials"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_materials.html#textbooks",
+    "href": "syllabus/syllabus_materials.html#textbooks",
+    "title": "Course materials",
+    "section": "",
+    "text": "You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are all good options:\n\n[Ross] A First Course in Probability by Sheldon Ross;\n[HTZ] Probability and Statistical Inference by Robert Hogg, Elliot Tanis, and Dale Zimmerman;\n[DS] Probability and Statistics by Morris DeGroot and Mark Schervish;\n[Wass] All of Statistics by Larry Wasserman.\n\nIn the PREPARE column of the course schedule, I will indicate which parts of a book correspond to the lectures.",
+    "crumbs": [
+      "Syllabus",
+      "Materials"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_materials.html#technology",
+    "href": "syllabus/syllabus_materials.html#technology",
+    "title": "Course materials",
+    "section": "Technology",
+    "text": "Technology\nLecture will largely be a low tech affair: pencil and paper should be sufficient most of the time. You should always plan to bring a laptop or tablet device to lab. In general, you will need access to a device with internet so that you can use the following:\n\nThis course page that you are on right now;\nR/RStudio via the Duke Container Manager;\nCanvas, through which you can access…\n\nGradescope;\nEd Discussion;\n\nZoom (e.g. for remote office hours).\n\nIf access to technology becomes a concern for you during the semester, contact the instructor immediately to discuss options.",
+    "crumbs": [
+      "Syllabus",
+      "Materials"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html",
+    "href": "syllabus/syllabus_policies.html",
+    "title": "Policies",
+    "section": "",
+    "text": "You are enthusiastically encouraged to work together and help one another on labs and problem sets. I would much rather you consult your peers than some daft language model. What I ask is that you acknowledge your collaborators. So, at the end of each problem in your write-up, leave a comment like “Ursula, Ignatius and I worked together on this problem,” or “Ethel explained to me how to do part b.” You are not being judged based on your acknowledgements, and there is no penalty for getting “too much” help from others. If you omit acknowledgements, I will assume you did your work solo. If your classmates tell a different story, I will have questions. But otherwise, so long as you are thorough and honest, there will be no problems.\nHaving said all of that, you should not be crassly handing your solutions to others for them to brainlessly copy. This is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#collaboration",
+    "href": "syllabus/syllabus_policies.html#collaboration",
+    "title": "Policies",
+    "section": "",
+    "text": "You are enthusiastically encouraged to work together and help one another on labs and problem sets. I would much rather you consult your peers than some daft language model. What I ask is that you acknowledge your collaborators. So, at the end of each problem in your write-up, leave a comment like “Ursula, Ignatius and I worked together on this problem,” or “Ethel explained to me how to do part b.” You are not being judged based on your acknowledgements, and there is no penalty for getting “too much” help from others. If you omit acknowledgements, I will assume you did your work solo. If your classmates tell a different story, I will have questions. But otherwise, so long as you are thorough and honest, there will be no problems.\nHaving said all of that, you should not be crassly handing your solutions to others for them to brainlessly copy. This is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#use-of-outside-resources-including-ai",
+    "href": "syllabus/syllabus_policies.html#use-of-outside-resources-including-ai",
+    "title": "Policies",
+    "section": "Use of outside resources, including AI",
+    "text": "Use of outside resources, including AI\nThere are at least two reasons you might seek outside resources:\n\n✅ Extra practice or alternative instruction: Go crazy. Knock yourself out. Have a ball. The internet is saturated with good (and horrible) resources for learning this material, so if you find something that really resonates with you, have at it;\n❌ Doing the problems for you: If you find a solution online, or ask a language model to generate one, and you copy it down and submit it as your own work, that is plagiarism. If we detect it, you will earn a zero for that part of your write-up.\n\n“Using ChatGPT to complete assignments is like bringing a forklift into the weight room; you will never improve your cognitive fitness that way.” Furthermore, 69% of your final course grade is determined by your performance on old school, no-tech exams. As such, outsourcing all of your thinking to an AI will probably end in humiliating disaster. To avoid this, I suggest you abstain from using language models to do the problems for you.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#communication",
+    "href": "syllabus/syllabus_policies.html#communication",
+    "title": "Policies",
+    "section": "Communication",
+    "text": "Communication\nIf you wish to ask content-related questions in writing, please do not do so via e-mail. Instead, please use the course discussion forum Ed Discussion. That way all members of the teaching team can see your question, and all students can benefit from the ensuing discussion. You are also encouraged to answer one another’s questions.\nIf you have questions about personal matters that may not be appropriate for the public course forum (e.g. illness, accommodations, etc), then please e-mail the instructor directly (anya.katsevich@duke.edu).\n\n\n\n\n\n\nNote\n\n\n\nYou can ask questions anonymously on Ed. The teaching team will still know your identity, but your peers will not.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#late-work-and-extensions",
+    "href": "syllabus/syllabus_policies.html#late-work-and-extensions",
+    "title": "Policies",
+    "section": "Late work and extensions",
+    "text": "Late work and extensions\nNo late work will be accepted unless you request an extension in advance by e-mailing the instructor directly (anya.katsevich@duke.edu). All reasonable requests will be entertained, but extensions will not be long.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#regrade-requests",
+    "href": "syllabus/syllabus_policies.html#regrade-requests",
+    "title": "Policies",
+    "section": "Regrade requests",
+    "text": "Regrade requests\nIf you receive a graded assignment back, and you believe that some part of it was graded incorrectly, you may dispute the grade by submitting a regrade request in Gradescope. Note the following:\n\nYou have one week after you receive a grade to submit a regrade request;\nYou should submit separate regrade requests for each question you wish to dispute, not a single catch-all request;\nRequests will be considered if there was an error in the grade calculation or if a correct answer was mistakenly marked as incorrect;\nRequests to dispute the number of points deducted for an incorrect response will not be considered;\nNo grades will be changed after the final exam has been administered on Monday April 27.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#attendance",
+    "href": "syllabus/syllabus_policies.html#attendance",
+    "title": "Policies",
+    "section": "Attendance",
+    "text": "Attendance\nLive your life. Attendance is not strictly required for any of the class meetings. The responsibility lies with us to make class meetings sufficiently engaging and informative that you choose to attend. Having said that, success in this class and regular attendance are probably highly positively correlated. Furthermore, while lab attendance is not required, regular attendance is probably the path of least resistance to earning full credit for the lab component of your final grade. The labs are designed so that they can be completed in one sitting more or less, and they are due at midnight the same day. So show up to lab, bang it out, and move on with your life.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#accommodations",
+    "href": "syllabus/syllabus_policies.html#accommodations",
+    "title": "Policies",
+    "section": "Accommodations",
+    "text": "Accommodations\nIf you need accommodations for this class, you will need to register with the Student Disability Access Office (SDAO) and provide them with documentation related to your needs. SDAO will work with you to determine what accommodations are appropriate for your situation. Please note that accommodations are not retroactive and disability accommodations cannot be provided until a Faculty Accommodation Letter has been given to me. Please contact SDAO for more information: sdao@duke.edu or access.duke.edu.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_policies.html#duke-community-standard",
+    "href": "syllabus/syllabus_policies.html#duke-community-standard",
+    "title": "Policies",
+    "section": "Duke Community Standard",
+    "text": "Duke Community Standard\nDuke University is a community dedicated to scholarship, leadership, and service and to the principles of honesty, fairness, respect, and accountability. Members of this community commit to reflect upon and uphold these principles in all academic and non-academic endeavors, and to protect and promote a culture of integrity.\nDuke University has high expectations for students’ scholarship and conduct. In accepting admission, students indicate their willingness to subscribe to and be governed by the rules and regulations of the university, which flow from the Duke Community Standard (DCS).\nRegardless of course delivery format, it is the responsibility of all students to understand and follow all Duke policies, including but not limited to the academic integrity policy (e.g., completing one’s own work, following proper citation of sources, adhering to guidance around group work projects, and more). Ignoring these requirements is a violation of the DCS.\nStudents can direct any questions or concerns regarding academic integrity to the Office of Student Conduct and Community Standards at conduct@duke.edu and can access the DCS guide at https://dukecommunitystandard.students.duke.edu/.\nIn STA 240 specifically…\n\nIf a conduct violation results in a zero on a lab or problem set, that zero will not be dropped;\nIf a conduct violation results in a zero on a midterm, that zero will not be replaced with your final exam score;\nIf we discover that students are sharing and copying assignment solutions, all students involved will be penalized equally, the sharers the same as the recipients.",
+    "crumbs": [
+      "Syllabus",
+      "Policies"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_team.html",
+    "href": "syllabus/syllabus_team.html",
+    "title": "Teaching team",
+    "section": "",
+    "text": "Mug\nName\nRole\nOffice Hours\n\n\n\n\n\nGwen Jacobson\nHead TA\nFri 1:00 PM - 2:00 PM, 5:00 PM - 6:00 PM \nOld Chem 203B\n\n\n\nFederico Lazzarini\nTA\nTue, Thu 5:00 PM - 6:00 PM \nOld Chem 203B\n\n\n\nAnya Katsevich\nInstructor\nMon, Wed 3:00 PM - 4:00 PM \nOld Chem 216",
+    "crumbs": [
+      "Syllabus",
+      "Teaching team"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-beta.html",
+    "href": "distributions/continuous-beta.html",
+    "title": "Beta distribution",
+    "section": "",
+    "text": "You first saw the beta distribution in Problem Set 6 #9. The beta distribution plays many roles in probability and statistics. One of them is as the conjugate prior for the Bernoulli and geometric distributions. These distributions have one parameter \\(p\\), the probability of success for some binary trial. You can pick a particular beta distribution to represent your beliefs about where the unknown \\(p\\) is likely to lie.",
+    "crumbs": [
+      "Distribution Families",
+      "Beta"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-beta.html#basic-properties",
+    "href": "distributions/continuous-beta.html#basic-properties",
+    "title": "Beta distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\nThe beta has bounded range, so all moments are finite. Sadly, we do not have closed-form expressions for the cdf or the mgf.\n\n\n\n\n\n\n\nNotation\n\\(X\\sim\\text{Beta}(\\alpha,\\,\\beta)\\)\n\n\nRange\n\\((0,\\,1)\\)\n\n\nParameter space\n\\(\\alpha,\\,\\beta&gt;0\\)\n\n\nPDF\n\\(f(x)=\\begin{cases}\\frac{\\Gamma(\\alpha+\\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)}x^{\\alpha-1}(1-x)^{\\beta-1} &0&lt;x&lt;1\\\\0 & \\text{else}.\\end{cases}\\)\n\n\nExpectation\n\\(\\frac{\\alpha}{\\alpha+\\beta}\\)\n\n\nVariance\n\\(\\frac{\\alpha\\beta}{(\\alpha+\\beta)^2(\\alpha+\\beta+1)}\\)\n\n\n\nEvery probability density is an integral identity in disguise, so we have that:\n\\[\n\\int_0^1\nx^{\\alpha-1}(1-x)^{\\beta-1}\n\\,\\text{d}x\n=\n\\frac{\\Gamma(\\alpha)\\Gamma(\\beta)}{\\Gamma(\\alpha+\\beta)}\n.\n\\]",
+    "crumbs": [
+      "Distribution Families",
+      "Beta"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-beta.html#r-commands",
+    "href": "distributions/continuous-beta.html#r-commands",
+    "title": "Beta distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the beta distribution in R:\n\ndbeta(x, shape1, shape2) # PDF\npbeta(q, shape1, shape2) # CDF: P(X &lt;= q)\nqbeta(p, shape1, shape2) # quantile function (inverse CDF)\nrbeta(n, shape1, shape2) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Beta"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-beta.html#play-around",
+    "href": "distributions/continuous-beta.html#play-around",
+    "title": "Beta distribution",
+    "section": "Play around!",
+    "text": "Play around!\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 700\nlibrary(shiny)\n\nui &lt;- fluidPage(\n  titlePanel(\"Beta Distribution Viewer\"),\n  \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"alpha\", \"Alpha (shape1):\",\n                  min = 0.5, max = 10, value = 2, step = 0.1),\n      sliderInput(\"beta\", \"Beta (shape2):\",\n                  min = 0.5, max = 10, value = 2, step = 0.1)\n    ),\n    \n    mainPanel(\n      plotOutput(\"betaPlot\", height = \"600px\")\n    )\n  )\n)\n\nserver &lt;- function(input, output, session) {\n  \n  output$betaPlot &lt;- renderPlot({\n    a &lt;- input$alpha\n    b &lt;- input$beta\n    x &lt;- seq(0, 1, length.out = 500)\n    \n    par(mfrow = c(2,1), mar = c(4,4,2,1))\n    \n    ## --- CDF ---\n    plot(x, pbeta(x, a, b), type = \"l\", lwd = 2,\n         xlab = \"\", ylab = \"CDF\", main = \"Beta CDF\",\n         ylim = c(0,1))\n    \n    ## --- PDF ---\n    plot(x, dbeta(x, a, b), type = \"l\", lwd = 2,\n         xlab = \"x\", ylab = \"PDF\", main = \"Beta PDF\",\n         ylim = c(0,7))   # fixed y-axis range\n  })\n}\n\nshinyApp(ui, server)",
+    "crumbs": [
+      "Distribution Families",
+      "Beta"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-beta.html#derivations",
+    "href": "distributions/continuous-beta.html#derivations",
+    "title": "Beta distribution",
+    "section": "Derivations",
+    "text": "Derivations\n\n\n\n\n\n\nTipMean\n\n\n\n\n\n\\[\n\\begin{aligned}\nE(X)\n&=\n\\int_0^1\nx\nf(x)\n\\,\\text{d}x\n\\\\\n&=\n\\int_0^1\nx\n\\frac{\\Gamma(\\alpha+\\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)}x^{\\alpha-1}(1-x)^{\\beta-1}\n\\,\\text{d}x\n\\\\\n&=\n\\frac{\\Gamma(\\alpha+\\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)}\n\\int_0^1\n\\underbrace{x^{\\alpha+1-1}(1-x)^{\\beta-1}}_{\\text{kernel of Beta}(\\alpha+1,\\,\\beta)}\n\\,\\text{d}x\n\\\\\n&=\n\\frac{\\Gamma(\\alpha+\\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)}\\frac{\\Gamma(\\alpha+1)\\Gamma(\\beta)}{\\Gamma(\\alpha+\\beta+1)}\n\\\\\n&=\n\\frac{\\Gamma(\\alpha+\\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)}\\frac{\\alpha\\Gamma(\\alpha)\\Gamma(\\beta)}{(\\alpha+\\beta)\\Gamma(\\alpha+\\beta)}\n\\\\\n&=\n\\frac{\\alpha}{\\alpha+\\beta}\n.\n\\end{aligned}\n\\]\nThis is classic “massage and squint.” We do a kernel-trick with the beta density, and we recall the properties of the gamma function from Problem Set 0.",
+    "crumbs": [
+      "Distribution Families",
+      "Beta"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-inverse-gamma.html",
+    "href": "distributions/continuous-inverse-gamma.html",
+    "title": "Inverse gamma distribution",
+    "section": "",
+    "text": "If \\(X\\sim\\text{Gamma}(\\alpha,\\,\\beta)\\), then the new random variable \\(Y=1/X\\) has the inverse gamma distribution. We denote this \\(Y\\sim\\text{IG}(\\alpha,\\,\\beta)\\). You derived this on Problem Set 6 #6d.",
+    "crumbs": [
+      "Distribution Families",
+      "Inverse gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-inverse-gamma.html#basic-properties",
+    "href": "distributions/continuous-inverse-gamma.html#basic-properties",
+    "title": "Inverse gamma distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\n\n\n\n\n\n\n\nNotation\n\\(X\\sim\\text{IG}(\\alpha,\\,\\beta)\\)\n\n\nRange\n\\((0,\\,\\infty)\\)\n\n\nParameter space\n\\(\\alpha,\\,\\beta&gt;0\\)\n\n\nPDF\n\\(f(x)=\\begin{cases}\\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}x^{-\\alpha-1}e^{-\\beta /x} &x&gt; 0\\\\0 & x\\leq0.\\end{cases}\\)\n\n\nExpectation\n\\(\\frac{\\beta}{\\alpha-1}\\) if \\(\\alpha&gt;1\\)\n\n\nVariance\n\\(\\frac{\\beta^2}{(\\alpha-1)^2(\\alpha-2)}\\) if \\(\\alpha&gt;2\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Inverse gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-inverse-gamma.html#derivations",
+    "href": "distributions/continuous-inverse-gamma.html#derivations",
+    "title": "Inverse gamma distribution",
+    "section": "Derivations",
+    "text": "Derivations\n\n\n\n\n\n\nTipDeriving the density from a change-of-variables\n\n\n\n\n\nLet \\(X\\sim\\text{Gamma}(\\alpha,\\,\\beta)\\) and consider \\(Y=1/X\\). So the forward transformation is \\(g(x) = 1/ x\\), and the inverse is \\(g^{-1}(y) = 1/ y\\). These are strictly decreasing, and they map positive numbers to positive numbers. So \\(\\text{Range}(Y)=(0,\\, \\infty)\\). Fix \\(y&gt;0\\). The change-of-variables formula says:\n\\[\n\\begin{aligned}\nf_Y(y) &= f_X \\left( g^{-1}(y) \\right) \\left| \\frac{d}{dy} g^{-1}(y) \\right| \\\\[6pt]\n&= \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} \\left( \\frac{1}{y} \\right)^{\\alpha-1} \\exp \\left(  \\frac{-\\beta}{y}  \\right)  \\left|-\\frac{1}{y^2}\\right| \\\\[6pt]\n&= \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} \\left( \\frac{1}{y} \\right)^{\\alpha-1} \\exp \\left(  \\frac{-\\beta}{y}  \\right)  \\frac{1}{y^2} \\\\[6pt]\n&= \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} \\left( \\frac{1}{y} \\right)^{\\alpha+1} \\exp \\left(  \\frac{-\\beta}{y}  \\right)   \\\\[6pt]\n&= \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} y^{-\\alpha-1} \\exp \\left(  \\frac{-\\beta}{y}  \\right),&& y&gt;0.\n\\end{aligned}\n\\]\n\n\n\n\n\n\n\n\n\nNoteGeneral formula for the raw moments\n\n\n\n\n\nLet \\(X\\sim\\text{Gamma}(\\alpha,\\,\\beta)\\) and \\(Y=1/X\\sim\\text{IG}(\\alpha,\\,\\beta)\\). Furthermore, assume \\(\\alpha &gt; k\\) for some \\(k\\in\\mathbb{N}\\). Then the \\(k\\)th raw moment of the inverse gamma variate \\(Y\\) is\n\\[\n\\begin{aligned}\nE(Y^k)\n&=\nE\\left(\\frac{1}{X^k}\\right)\n\\\\\n&=\n\\int_0^\\infty\n\\frac{1}{x^k}\nf_X(x)\n\\,\\text{d}x\n\\\\\n&=\n\\int_0^\\infty\n\\frac{1}{x^k}\n\\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}x^{\\alpha-1}e^{-\\beta x}\n\\,\\text{d}x\n\\\\\n&=\n\\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}\n\\int_0^\\infty\n\\underbrace{x^{\\alpha-k-1}e^{-\\beta x}}_{\\text{kernel of Gamma}(\\alpha-k,\\,\\beta)}\n\\,\\text{d}x\n\\\\\n&=\n\\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}\n\\frac{\\Gamma(\\alpha-k)}{\\beta^{\\alpha-k}}\n\\\\\n&=\n\\beta^k\\frac{\\Gamma(\\alpha-k)}{\\Gamma(\\alpha)}.\n\\end{aligned}\n\\]\nSo\n\\[\n\\begin{aligned}\nE(Y)\n&=\n\\beta\\frac{\\Gamma(\\alpha-1)}{\\Gamma(\\alpha)}=\\beta\\frac{\\Gamma(\\alpha-1)}{\\Gamma(\\alpha-1+1)}=\\beta\\frac{\\Gamma(\\alpha-1)}{(\\alpha-1)\\Gamma(\\alpha-1)}=\\frac{\\beta}{\\alpha-1}\n\\\\\n\\\\\nE(Y^2)\n&=\n\\beta^2\\frac{\\Gamma(\\alpha-2)}{\\Gamma(\\alpha)}\n\\\\\n&=\n\\beta^2\\frac{\\Gamma(\\alpha-2)}{\\Gamma(\\alpha-1+1)}\n\\\\\n&=\n\\beta^2\\frac{\\Gamma(\\alpha-2)}{(\\alpha-1)\\Gamma(\\alpha-1)}\n\\\\\n&=\n\\beta^2\\frac{\\Gamma(\\alpha-2)}{(\\alpha-1)\\Gamma(\\alpha-2+1)}\n\\\\\n&=\n\\beta^2\\frac{\\Gamma(\\alpha-2)}{(\\alpha-1)(\\alpha-2)\\Gamma(\\alpha-2)}\n\\\\\n&=\n\\frac{\\beta^2}{(\\alpha-1)(\\alpha-2)}\n\\\\\n\\\\\n\\text{var}(Y)\n&=\nE(Y^2)-E(Y)^2\n\\\\\n&=\n\\frac{\\beta^2}{(\\alpha-1)(\\alpha-2)}\n-\n\\frac{\\beta^2}{(\\alpha-1)^2}\n\\\\\n&=\n\\beta^2\n\\left[\n\\frac{1}{(\\alpha-1)(\\alpha-2)}\n-\n\\frac{1}{(\\alpha-1)^2}\n\\right]\n\\\\\n&=\n\\beta^2\n\\frac{\\alpha-1-(\\alpha-2)}{(\\alpha-1)^2(\\alpha-2)}\n\\\\\n&=\n\\beta^2\n\\frac{\\alpha-1-\\alpha+2}{(\\alpha-1)^2(\\alpha-2)}\n\\\\\n&=\n\\frac{\\beta^2}{(\\alpha-1)^2(\\alpha-2)}\n.\n\\end{aligned}\n\\]",
+    "crumbs": [
+      "Distribution Families",
+      "Inverse gamma"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-normal.html",
+    "href": "distributions/continuous-normal.html",
+    "title": "Normal distribution",
+    "section": "",
+    "text": "I usually have a little blurb up here describing how the distribution arises or when you might use it, but the normal distribution is so central to probability and statistics that words fail. It shows up everywhere.",
+    "crumbs": [
+      "Distribution Families",
+      "Normal"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-normal.html#basic-properties",
+    "href": "distributions/continuous-normal.html#basic-properties",
+    "title": "Normal distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\n\n\n\n\n\n\n\nNotation\n\\(X\\sim\\text{N}(\\mu,\\,\\sigma^2)\\)\n\n\nRange\n\\(\\mathbb{R}=(-\\infty,\\,\\infty)\\)\n\n\nParameter space\n\\(\\begin{matrix}-\\infty&lt;\\mu&lt;\\infty\\\\\\sigma^2&gt;0\\end{matrix}\\)\n\n\nPDF\n\\(f(x)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\\)\n\n\nCDF\n\\(F(x)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}\\int_{-\\infty}^x\\exp\\left(-\\frac{1}{2}\\frac{(t-\\mu)^2}{\\sigma^2}\\right)\\,\\text{d}t\\)\n\n\nMGF\n\n\\(M(t) = \\exp\\left(\\mu t+\\frac{\\sigma^2}{2}t^2\\right)\\), \\(t\\in\\mathbb{R}\\)\n\n\n\nExpectation\n\\(\\mu\\)\n\n\nVariance\n\\(\\sigma^2\\)\n\n\n\nFun facts:\n\nThis is also known as the Gaussian distribution;\nN(0, 1) is called the standard normal;\nThe density of the normal is the familiar bell curve;\nWe do not have a closed-form for the CDF. We can approximate it arbitrarily well in a computer, but we can’t actually simplify the integral and get a neat formula. Bummer!",
+    "crumbs": [
+      "Distribution Families",
+      "Normal"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-normal.html#r-commands",
+    "href": "distributions/continuous-normal.html#r-commands",
+    "title": "Normal distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the normal distribution in R:\n\ndnorm(x, mean = 0, sd = 1) # PDF\npnorm(q, mean = 0, sd = 1) # CDF: F(q) = P(X &lt;= q)\nqnorm(p, mean = 0, sd = 1) # quantile function (inverse CDF)\nrnorm(n, mean = 0, sd = 1) # random numbers\n\n\n\n\n\n\n\nImportantThe commands take the standard deviation, not the variance!\n\n\n\nYou will get burned by this at least once. I guarantee it. But please take note. If you want to compute \\(P(X\\leq -2.4)\\) for \\(X\\sim\\text{N}(4, 9)\\), you call pnorm(-2.4, 4, 3), because \\(\\text{sd}(X)=\\sqrt{\\text{var}(X)}=3\\).",
+    "crumbs": [
+      "Distribution Families",
+      "Normal"
+    ]
+  },
+  {
+    "objectID": "distributions/continuous-normal.html#play-around",
+    "href": "distributions/continuous-normal.html#play-around",
+    "title": "Normal distribution",
+    "section": "Play around!",
+    "text": "Play around!\nAs we have seen, the parameters \\(\\mu\\) and \\(\\sigma\\) have multiple interpretations. From a probabilistic point-of-view, they are the mean \\(\\mu=E(X)\\) and the standard deviation \\(\\sigma=\\sqrt{\\text{var}(X)}\\). From a purely geometric point-of-view, they control the shape of the density curve. \\(\\mu\\) is the location of the peak, and \\(\\sigma\\) controls how far the inflection points are from \\(\\mu\\). You worked that out on Problem Set 0.\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 700\n\nlibrary(shiny)\n\nui &lt;- fluidPage(\n  titlePanel(\"Normal distribution CDF and PDF\"),\n  \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"mu\", \"Mean (μ):\", \n                  min = -5, max = 5, value = 0, step = 0.1),\n      sliderInput(\"sigma\", \"Standard Deviation (σ):\", \n                  min = 0.5, max = 3, value = 1, step = 0.1)\n    ),\n    \n    mainPanel(\n      plotOutput(\"distPlot\", height = \"600px\")\n    )\n  )\n)\n\nserver &lt;- function(input, output) {\n  output$distPlot &lt;- renderPlot({\n    mu &lt;- input$mu\n    sigma &lt;- input$sigma\n    \n    # Fixed x range\n    x &lt;- seq(-10, 10, length.out = 1000)\n    \n    # Compute values\n    pdf_vals &lt;- dnorm(x, mean = mu, sd = sigma)\n    cdf_vals &lt;- pnorm(x, mean = mu, sd = sigma)\n    \n    # Inflection points at mu ± sigma\n    inflect_left &lt;- mu - sigma\n    inflect_right &lt;- mu + sigma\n    \n    # Fixed y limits\n    pdf_ylim &lt;- c(0, 0.8)\n    \n    par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))\n    \n    # --- CDF Plot ---\n    plot(x, cdf_vals, type = \"l\", lwd = 2, col = \"blue\",\n         xlim = c(-10, 10), ylim = c(0, 1),\n         main = \"Cumulative Distribution Function (CDF)\",\n         xlab = \"\", ylab = \"F(x)\")\n    abline(h = c(0, 1), col = \"gray80\", lty = 2)\n    abline(v = mu, col = \"gray60\", lty = 3)\n    \n    # --- PDF Plot ---\n    plot(x, pdf_vals, type = \"l\", lwd = 2, col = \"darkred\",\n         xlim = c(-10, 10), ylim = pdf_ylim,\n         main = \"Probability Density Function (PDF)\",\n         xlab = \"x\", ylab = \"f(x)\")\n    \n    # Vertical lines at mean and inflection points\n    abline(v = mu, col = \"gray60\", lty = 3)\n    abline(v = c(inflect_left, inflect_right), col = \"gray70\", lty = 2)\n    \n    # Arrows showing sigma distance\n    y_arrow &lt;- 0.05\n    arrows(mu, y_arrow, inflect_right, y_arrow, code = 3, angle = 10, length = 0.1)\n    arrows(mu, y_arrow, inflect_left, y_arrow, code = 3, angle = 10, length = 0.1)\n    \n    # Label σ between mean and inflection points\n    text(mu + sigma / 2, y_arrow + 0.03, expression(sigma), cex = 1.1)\n    text(mu - sigma / 2, y_arrow + 0.03, expression(sigma), cex = 1.1)\n    \n    # Label μ in the margin below the x-axis\n    mtext(expression(mu), side = 1, line = 2.2, at = mu, cex = 1.2)\n  })\n}\n\nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Distribution Families",
+      "Normal"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-binomial.html",
+    "href": "distributions/discrete-binomial.html",
+    "title": "Binomial distribution",
+    "section": "",
+    "text": "The binomial distribution is our model for the total number of successes in \\(n\\) independent binary trials, each with identical probability of success \\(p\\in[0,\\,1]\\).",
+    "crumbs": [
+      "Distribution Families",
+      "Binomial"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-binomial.html#basic-properties",
+    "href": "distributions/discrete-binomial.html#basic-properties",
+    "title": "Binomial distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\n\n\nNotation\n\\(X\\sim\\text{Binom}(n,\\,p)\\)\n\n\nRange\n\\(\\{0,\\,1,\\,2,\\,...,\\,n-1,\\,n\\}\\)\n\n\nParameter space\n\\(p\\in[0,\\,1]\\)\n\n\nPMF\n\\(P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}\\)\n\n\nExpectation\n\\(np\\)\n\n\nVariance\n\\(np(1-p)\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Binomial"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-binomial.html#r-commands",
+    "href": "distributions/discrete-binomial.html#r-commands",
+    "title": "Binomial distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the binomial distribution in R:\n\ndbinom(x, size, prob) # PMF: P(X = x)\npbinom(q, size, prob) # CDF: P(X &lt;= q)\nqbinom(p, size, prob) # quantile function (inverse CDF)\nrbinom(n, size, prob) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Binomial"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-binomial.html#play-around",
+    "href": "distributions/discrete-binomial.html#play-around",
+    "title": "Binomial distribution",
+    "section": "Play around!",
+    "text": "Play around!\nNotice that, for all values of \\(p\\in(0,\\,1)\\), the shape of the PMF becomes more like the bell curve as \\(n\\) grows:\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 500\n\nlibrary(shiny)\n\ndiscrete_pmf &lt;- function(x, p, xlim = c(min(x) - 1, max(x) + 1), label = \"\", add_mean = FALSE){\n  plot(x, p,\n       pch = 19,\n       cex = 1,\n       xlab = \"\",\n       ylab = \"\",\n       main = \"\",\n       ylim = c(0, 1.05 * max(p)),\n       yaxs = \"i\",\n       yaxt = \"n\",\n       xlim = xlim,\n       xaxt = \"n\",\n       bty = \"n\"\n  )\n  segments(x,\n           rep(0, length(x) + 1),\n           x1 = x,\n           y1 = p,\n           lwd = 3\n  )\n  axis(1, at = floor(xlim[1]):ceiling(xlim[2]), cex.axis = 1)\n  axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n  legend(\"topright\", label, bty = \"n\", cex = 3)\n  if(add_mean == TRUE){\n    mtext(\"E(X)\", side = 1, at = sum(x * p), col = \"red\", line = 2)\n  }\n}\n\ndiscrete_cdf &lt;- function(x, p, xlim = c(min(x) - 1, max(x) + 1), label = \"\"){\n  closeddot = cumsum(p)\n  opencircle = c(0, closeddot[1:length(x)-1])\n  plot(x, closeddot, pch = 19, cex = 1,\n       ylim = c(0, 1),\n       ylab = \"\", main = \"\", xlab = \"\",\n       yaxt = \"n\",\n       xlim = xlim,\n       xaxt = \"n\",\n       #yaxs = \"i\", \n       bty = \"n\")\n  points(x, opencircle, cex = 1)\n  segments(c(xlim[1], x), c(0, closeddot), c(x, xlim[2]), c(0, closeddot), lwd = 1)\n  axis(1, at = floor(xlim[1]):ceiling(xlim[2]), cex.axis = 1)\n  axis(2, at = seq(0, 1, length.out = 11), las = 1, cex.axis = 1.5)\n  legend(\"bottomright\", label, bty = \"n\", cex = 3)\n}\n\n# Define UI for application that draws a histogram\nui &lt;- fluidPage(\n  \n  # Application title\n  titlePanel(\"Binomial distribution CDF and PMF\"),\n  \n  # Sidebar with a slider input for number of bins \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"p\",\n                  \"Probability of success (p):\",\n                  min = 0,\n                  max = 1,\n                  value = 0.5,\n                  step = 0.01),\n      sliderInput(\"n\",\n                  \"Number of trials (n):\",\n                  min = 1,\n                  max = 100,\n                  value = 5,\n                  step = 1)\n    ),\n    \n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"distPlot\")\n    )\n  )\n)\n\n# Define server logic required to draw a histogram\nserver &lt;- function(input, output) {\n  \n  output$distPlot &lt;- renderPlot({\n    \n    p &lt;- input$p\n    n &lt;- input$n\n\n    par(mfrow = c(2, 1), mar = c(4, 4, 2, 2))\n    \n    discrete_cdf(0:n, dbinom(0:n, n, p))\n    discrete_pmf(0:n, dbinom(0:n, n, p), add_mean = TRUE)\n    \n  })\n}\n\n# Run the application \nshinyApp(ui = ui, server = server)",
+    "crumbs": [
+      "Distribution Families",
+      "Binomial"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-hypergeometric.html",
+    "href": "distributions/discrete-hypergeometric.html",
+    "title": "Hypergeometric distribution",
+    "section": "",
+    "text": "Imagine we have a finite population containing \\(m\\) “success” cases and \\(n\\) “failure” cases, for a total population size of \\(m+n\\). If we sample \\(k\\) cases from the population without replacement, then a hypergeometric random variable counts the number of sampled cases that are a success.\nYou first met this distribution on Problem Set 4 when studying contested elections.",
+    "crumbs": [
+      "Distribution Families",
+      "Hypergeometric"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-hypergeometric.html#basic-properties",
+    "href": "distributions/discrete-hypergeometric.html#basic-properties",
+    "title": "Hypergeometric distribution",
+    "section": "Basic properties",
+    "text": "Basic properties\n\n\nNotation\n\\(X\\sim\\text{HG}(m, n, k)\\)\n\n\nRange\n\\(\\{0,\\,1,\\,2,\\,3,\\,...,\\,k-1,\\,k\\}\\)\n\n\nPMF\n\\(P(X = x) = \\binom{m}{x} \\binom{n}{k-x}/\\binom{m+n}{k}\\)\n\n\nExpectation\n\\(km/(m+n)\\)",
+    "crumbs": [
+      "Distribution Families",
+      "Hypergeometric"
+    ]
+  },
+  {
+    "objectID": "distributions/discrete-hypergeometric.html#r-commands",
+    "href": "distributions/discrete-hypergeometric.html#r-commands",
+    "title": "Hypergeometric distribution",
+    "section": "\nR commands",
+    "text": "R commands\nHere is the documentation for the suite of commands that let you work with the hypergeometric distribution in R:\n\ndhyper(x, m, n, k)     # PMF: P(X = x)\nphyper(q, m, n, k)     # CDF: P(X &lt;= q)\nqhyper(p, m, n, k)     # quantile function (inverse CDF)\nrhyper(ndraw, m, n, k) # random numbers",
+    "crumbs": [
+      "Distribution Families",
+      "Hypergeometric"
+    ]
+  },
+  {
+    "objectID": "explainers/hello-rstudio.html",
+    "href": "explainers/hello-rstudio.html",
+    "title": "The Lay of the Land",
+    "section": "",
+    "text": "R is a programming language, like Python, C++, Java, Julia, etc. RStudio is an IDE (integrated development environment) that allows you to interacts with R in a convenient way. So if R is the engine, RStudio is the dashboard.\nWhen you launch RStudio, you see something like this:\n\n\n\n\n\nThere are four panes:\n\n(bottom left) this is the console. It’s a command line where you can type input and get output. At the very least, you can use R as an overgrown calculator;\n(top left) this is the editor. If you are writing a bunch of code you want to save for later (like on your labs), you can edit the text file here;\n(top right) this is the environment. It’s a list of all the data and variables you have loaded;\n(bottom right) this panel is multipurpose. Depending on the tab you select, it can display the file directory, the plot you created, the documentation, or your rendered pdf."
+  },
+  {
+    "objectID": "explainers/if-else.html",
+    "href": "explainers/if-else.html",
+    "title": "if-else statements and logical conditions",
+    "section": "",
+    "text": "Sometimes we want our code to make a decision: do one thing if a condition is true, and something else if it’s false. In R, the tool for this is if ... else. The pattern looks like this:\n\nif (condition) {\n  do_something\n} else {\n  do_something_else\n}\n\nSuppose we roll a six-sided die:\n\nroll &lt;- sample(1:6, size = 1)\nroll\n\n[1] 2\n\n\nWe might want to check whether the outcome is “big” (4, 5, or 6) or “small” (1, 2, or 3). Here’s how we can use if else to do that:\n\nif (roll &gt;= 4) {\n  result &lt;- \"Big\"\n} else {\n  result &lt;- \"Small\"\n}\n\nresult\n\n[1] \"Small\"\n\n\nLet’s unpack:\n\nFirst, sample(1:6, size = 1) chooses a random number from 1 to 6;\nThen the if else checks: if the roll is 4 or higher, we call it “Big.” Otherwise, we call it “Small.”\n\nThis is how you can make simple decisions in R code.\nLogical conditions\nIn the condition of if, you can use logical comparisons. Here are the most common ones:\n\n\n\n\n\n\n\nOperator\nMeaning\nExample\n\n\n\n==\nequal to\n\nx == 3 is TRUE if x is 3\n\n\n!=\nnot equal to\n\nx != 3 is TRUE if x is not 3\n\n\n&lt;\nless than\n\nx &lt; 5 is TRUE if x is less than 5\n\n\n&lt;=\nless than or equal\nx &lt;= 5\n\n\n&gt;\ngreater than\nx &gt; 10\n\n\n&gt;=\ngreater than or equal\nx &gt;= 10\n\n\n&\nAND (both conditions true)\nx &gt; 0 & x &lt; 5\n\n\n|\nOR (at least one true)\nx &lt; 0 | x &gt; 10\n\n\n!\nNOT (negates a condition)\n!(x == 3)\n\n\n%in%\nelement of a vector\n\nx %in% c(1,2,3) is TRUE if x is 1, 2, or 3\n\n\n\nHere they are in action:\n\nx &lt;- 4\nx &gt; 3       \n\n[1] TRUE\n\nx &lt; 3       \n\n[1] FALSE\n\nx &gt;= 3 & x &lt;= 5   \n\n[1] TRUE\n\nx &lt; 3 | x &gt; 5     \n\n[1] FALSE\n\n!(x == 4)   \n\n[1] FALSE\n\n\nHere is how these might be deployed in the context of if-else:\n\nif (x &gt; 0 & x %% 2 == 0) {\n  result &lt;- \"Positive even\"\n} else {\n  result &lt;- \"Other\"\n}\nresult\n\n[1] \"Positive even\""
+  },
+  {
+    "objectID": "explainers/lineplot.html",
+    "href": "explainers/lineplot.html",
+    "title": "Plotting lines",
+    "section": "",
+    "text": "You can use the curve function to plot a line graph of a function. If that function were \\(f(x) = x^2\\) for example, you would type this:\n\ncurve(x^2, from = -5, to = 5, n = 500, col = \"red\", ylab = \"f(x)\")\n\n\n\n\n\n\n\nThis function takes many arguments.\n\nthe first argument is a formula for the function you want to graph. The curve command implicitly assumes that x is the argument, and everything else is constant;\n\nfrom and to give the bounds of the \\(x\\)-axis;\nThis command is basically evaluating the function at many points and connecting the dots. n specifies how many dots. Too few, and the picture would look all cattywampus:\n\n\ncurve(x^2, from = -5, to = 5, n = 5)\n\n\n\n\n\n\n\nIf you want multiple lines on one graph, you can call curve multiple times, and include the add argument in all but the first call:\n\ncurve(1*x^2, from = -5, to = 5, n = 500, col = \"red\", ylab = \"\")\ncurve(2*x^2, from = -5, to = 5, n = 500, col = \"blue\", ylab = \"\", add = TRUE)\ncurve(3*x^2, from = -5, to = 5, n = 500, col = \"darkgreen\", ylab = \"\", add = TRUE)\nlegend(\"bottomleft\", c(\"a = 1\", \"a = 2\", \"a = 3\"), \n       col = c(\"red\", \"blue\", \"darkgreen\"), lty = 1, bty = \"n\")"
+  },
+  {
+    "objectID": "explainers/math.html",
+    "href": "explainers/math.html",
+    "title": "Basic math in R\n",
+    "section": "",
+    "text": "Using R for the calculator is like buying a plane ticket to get free peanuts. But I have done my taxes in R, so…\n\n2 + 2 # addition\n\n[1] 4\n\n5 - 2 # subtraction\n\n[1] 3\n\n0.5 * 6 # multiplication\n\n[1] 3\n\n3 / 4 # division\n\n[1] 0.75\n\nsqrt(2) # square root\n\n[1] 1.414214\n\n4 ^ 2 # exponent\n\n[1] 16\n\nexp(4.9) # base-e exponent\n\n[1] 134.2898\n\nlog(7) # natural log\n\n[1] 1.94591\n\nabs(-6) # absolute value\n\n[1] 6\n\nceiling(4.6) # round up\n\n[1] 5\n\nfloor(4.6) # round down\n\n[1] 4\n\nfactorial(4) # n! = n x (n-1) x ... x 2 x 1\n\n[1] 24\n\nchoose(8, 3) # binomial coefficient (we'll get there)\n\n[1] 56"
+  },
+  {
+    "objectID": "explainers/probabilities.html",
+    "href": "explainers/probabilities.html",
+    "title": "Computing probabilities",
+    "section": "",
+    "text": "R provides basic commands that compute probabilities for our special families of distributions:\nEach family has its own commands, but the pattern is the same."
+  },
+  {
+    "objectID": "explainers/probabilities.html#evaluating-the-pmf",
+    "href": "explainers/probabilities.html#evaluating-the-pmf",
+    "title": "Computing probabilities",
+    "section": "Evaluating the PMF",
+    "text": "Evaluating the PMF\nTo evaluate the PMF \\(P(X=x)\\), you use a d- command:\n\ndbinom(x, size, prob)\ndgeom(x, prob)\ndpois(x, lambda)\n\nFor example:\n\n# P(X = 0)\ndbinom(0, 5, 0.5)       \n\n[1] 0.03125\n\n# P(X = 1)\ndbinom(1, 5, 0.5)\n\n[1] 0.15625\n\n# P(X = 0 or X = 1)\ndbinom(c(0, 1), 5, 0.5)\n\n[1] 0.03125 0.15625\n\n# Add up every probability\nsum(dbinom(0:5, 5, 0.2))\n\n[1] 1\n\n# P(0 &lt;= Z &lt;- 6)\ndpois(0:6, 5)\n\n[1] 0.006737947 0.033689735 0.084224337 0.140373896 0.175467370 0.175467370\n[7] 0.146222808\n\n\nNotice that these d- commands are vectorized."
+  },
+  {
+    "objectID": "explainers/probabilities.html#evaluating-the-cdf",
+    "href": "explainers/probabilities.html#evaluating-the-cdf",
+    "title": "Computing probabilities",
+    "section": "Evaluating the CDF",
+    "text": "Evaluating the CDF\nTo evaluate the CDF \\(F(q) = P(X\\leq q)\\), you use a p- command:\n\npbinom(q, size, prob)\npgeom(q, prob)\nppois(q, lambda)\n\nNotice right away that the p- commands and d- commands are consistent with one another:\n\n# P(X &lt;= 2)\npbinom(2, 5, 0.3)\n\n[1] 0.83692\n\n# P(X = 0) + P(X = 1) + P(X = 2)\nsum(dbinom(0:2, 5, 0.3))\n\n[1] 0.83692"
+  },
+  {
+    "objectID": "explainers/rng-seed.html",
+    "href": "explainers/rng-seed.html",
+    "title": "Setting a random number seed",
+    "section": "",
+    "text": "Statistical computing software like R can generate (pseudo)random numbers, like this:\n\nsample(c(1, 2, 3, 4, 5, 6), 5, replace = TRUE)\n\n[1] 1 4 1 2 5\n\n\nOr this:\n\nrbinom(5, 50, 0.3)\n\n[1] 20 16 16 10 12\n\n\nOr this:\n\nrnorm(5)\n\n[1] -0.928567035 -0.294720447 -0.005767173  2.404653389  0.763593461\n\n\nLook pretty random to me. This allows us to perform simulations, which is an important part of the modern statistician’s toolkit. Having said that, when you’re working with computer-generated random numbers, you want your work to be reproducible so that other people can check it. This means that you want to set a random number seed before you do a simulation. This ensures that the stream of random numbers in your simulation is the same every time, and someone else could run your code and get the exact same results that you did.\nSetting a seed looks like this:\n\nset.seed(8675309)\n\nrnorm(5)\n\n[1] -0.9965824  0.7218241 -0.6172088  2.0293916  1.0654161\n\n\nEvery time you run that code, you will get the same numbers:\n\nset.seed(8675309)\n\nrnorm(5)\n\n[1] -0.9965824  0.7218241 -0.6172088  2.0293916  1.0654161\n\n\nSo, if you ever write a code chunk that generates random numbers (eg. using the sample function or one of the r- functions), you should begin the code chunk by setting a random number seed so that you get the same results every time you run your stuff. The syntax as you saw above is set.seed(INTEGER). Sometimes we will tell you what number to use. Other times (and once you exit the course), you can put whatever you want. It doesn’t really matter. If you require inspiration, try these:\n\n1\n20\n988\n24601\n362436\n525600\n8675309\n8005882300"
+  },
+  {
+    "objectID": "explainers/setup.html",
+    "href": "explainers/setup.html",
+    "title": "Getting started",
+    "section": "",
+    "text": "The path of least resistance to using R in this class is to reserve a container from the Duke Container Manager. It’s hosted in the cloud, and it has all of the software you will ever need for this class.\n\nGo here: https://cmgr.oit.duke.edu/containers. You may have to log in with your NetID at some point;\n(The first time you do this, you look for STA240 under “Reservations available” on the righthand side, and click “reserve STA240”. After you do that once, STA240 will appear under “My reservations” on the lefthand side forever more)\nClick STA240 under “My reservations”;\nLogin;\nStart. It may take a while, but then RStudio should launch in your browser."
+  },
+  {
+    "objectID": "explainers/setup.html#option-1-reserve-a-container",
+    "href": "explainers/setup.html#option-1-reserve-a-container",
+    "title": "Getting started",
+    "section": "",
+    "text": "The path of least resistance to using R in this class is to reserve a container from the Duke Container Manager. It’s hosted in the cloud, and it has all of the software you will ever need for this class.\n\nGo here: https://cmgr.oit.duke.edu/containers. You may have to log in with your NetID at some point;\n(The first time you do this, you look for STA240 under “Reservations available” on the righthand side, and click “reserve STA240”. After you do that once, STA240 will appear under “My reservations” on the lefthand side forever more)\nClick STA240 under “My reservations”;\nLogin;\nStart. It may take a while, but then RStudio should launch in your browser."
+  },
+  {
+    "objectID": "explainers/setup.html#option-2-download-it-yourself",
+    "href": "explainers/setup.html#option-2-download-it-yourself",
+    "title": "Getting started",
+    "section": "Option 2: download it yourself",
+    "text": "Option 2: download it yourself\nOf course, you won’t have containers after you graduate, so maybe it’s a good idea to hike up your big girl pants and actually install something. It’s pretty easy:\n\nDownload R: https://cran.r-project.org\nDownload RStudio: https://posit.co/download/rstudio-desktop/\n(optional) Install tinytex: https://yihui.org/tinytex/"
+  },
+  {
+    "objectID": "explainers/vectorization.html",
+    "href": "explainers/vectorization.html",
+    "title": "Vectorization",
+    "section": "",
+    "text": "Functions in R are often vectorized. For example:\n\nexp(2)\n\n[1] 7.389056\n\n\nI give it one number, and it returns one number. If instead, I supply a vector, I get this:\n\nexp(c(-3, 0.001, 2, 5, 600, 1, 0))\n\n[1]  4.978707e-02  1.001001e+00  7.389056e+00  1.484132e+02 3.773020e+260\n[6]  2.718282e+00  1.000000e+00\n\n\nSo when I supply a regular ol’ number as an argument, the exp function returns a number. When I supply a vector, it returns a vector; the exp function knows to act entry-wise and give me back a vector with the output of each entry-wise computation. In other words, I didn’t have to write a loop to manually do this. The function is vectorized, so it effectively runs the loop for me.\nSo consider for instance the set of numbers \\(A = \\{-100, -6, 0.001, \\pi, 30\\}\\), and this stupid function:\n\\[\nf(x) = \\ln^2\\left|\\frac{2x}{1-\\sin(x)}\\right|.\n\\]\nIf I wanted to compute the value of \\(f\\) for each of the arguments in \\(A\\), I could write a loop that goes entry-by-entry through \\(A\\) and applies the function \\(f\\) to it. But in R, because arithmetic operations are vectorized, I can do this:\n\nA = c(-100, -6, 0.001, pi, 30)\n\nlog( abs( (2 * A) / ( 1 - sin(A) ) ) ) ^ 2 \n\n[1] 36.051349  7.910714 38.608919  3.377792 11.609009\n\n\nDumb!\nAll of the basic arithmetic operations are vectorized like this:\n\nc(1, 2, 3) + 2\n\n[1] 3 4 5\n\n\n\nc(1, 2, 3) + c(1, 2, 3)\n\n[1] 2 4 6\n\n\n\nfloor(c(4, 5.1, 6.9))\n\n[1] 4 5 6"
+  },
+  {
+    "objectID": "math/differentiation.html",
+    "href": "math/differentiation.html",
+    "title": "Differentiation",
+    "section": "",
+    "text": "The derivative of a function \\(f(x)\\) is its instantaneous rate of change. On a graph, this corresponds to the slope of the tangent line. We will denote derivatives by \\(f'(x)\\) or \\(\\text{d}f/\\text{d}x\\) or something like that.\nWhen it exists, which it doesn’t always, the derivative is defined as the limit of difference quotients:\n\\[\nf'(x)=\\lim_{\\Delta x\\to0}\\frac{f(x+\\Delta x)-f(x)}{\\Delta x}.\n\\]\nSo, “rise over run” as the “run” bit gets arbitrarily small.\nAs such, the derivative is the continuous analog to a discrete difference.",
+    "crumbs": [
+      "Math Helpers",
+      "Differentiation"
+    ]
+  },
+  {
+    "objectID": "math/differentiation.html#derivative-rules",
+    "href": "math/differentiation.html#derivative-rules",
+    "title": "Differentiation",
+    "section": "Derivative rules",
+    "text": "Derivative rules\n\n\n\n\n\n\n\nrule\nfunction\nderivative\n\n\n\nconstant\n\\(h(x)=c\\)\n\\(h'(x)=0\\)\n\n\nscaling\n\\(h(x)=c\\cdot f(x)\\)\n\\(h'(x)=c\\cdot f'(x)\\)\n\n\nsum/difference\n\\(h(x)=f(x)\\pm g(x)\\)\n\\(h'(x)=f'(x)\\pm g'(x)\\)\n\n\nlinearity\n\\(h(x)=a\\cdot f(x)\\pm b\\cdot g(x)\\)\n\\(h'(x)=a\\cdot f'(x)\\pm b\\cdot g'(x)\\)\n\n\npower\n\\(h(x)=x^n\\)\n\\(h'(x)=nx^{n-1}\\)\n\n\nproduct\n\\(h(x)=f(x)g(x)\\)\n\\(h'(x)=f'(x)g(x)+f(x)g'(x)\\)\n\n\nquotient\n\\(h(x)=f(x)/g(x)\\)\n\\(h'(x)=\\frac{f'(x)g(x)+f(x)g'(x)}{g(x)^2}\\)\n\n\nchain\n\\(h(x)=f(g(x))\\)\n\\(h'(x)=f'(g(x))g'(x)\\)\n\n\nexponential\n\\(h(x)=e^x\\)\n\\(h'(x)=e^x\\)\n\n\nnatural log\n\\(h(x)=\\ln(x)\\)\n\\(h'(x)=1/x\\)",
+    "crumbs": [
+      "Math Helpers",
+      "Differentiation"
+    ]
+  },
+  {
+    "objectID": "math/differentiation.html#curvature",
+    "href": "math/differentiation.html#curvature",
+    "title": "Differentiation",
+    "section": "Curvature",
+    "text": "Curvature\nIf you take the derivative of \\(f\\), you get the first derivative \\(f'\\). If you take the derivative of the derivative, you get the second derivative \\(f''\\). The derivative of the derivative of the derivative is the third derivative \\(f'''\\), and on and on. But let’s focus on the first two. The derivatives contain information about the shape of the original function:\n\nthe first derivative tells you if the function is increasing or decreasing;\n\nif \\(f'(x)&gt;0\\), then \\(f\\) is increasing at \\(x\\);\nif \\(f'(x)&lt;0\\), then \\(f\\) is decreasing at \\(x\\);\nif \\(f'(x)=0\\), then \\(f\\) is not changing at \\(x\\);\n\n\nif the second derivative tells you about the curvature (aka concavity) of the function:\n\nif \\(f''(x)&gt;0\\), then \\(f\\) is concave up (\\(\\cup\\), smiling) at \\(x\\);\nif \\(f''(x)&lt;0\\), then \\(f\\) is concave down (\\(\\cap\\), frowning) at \\(x\\).\n\n\n\nHere is an illustration with the function \\(f(x)=x^3-x\\) and its derivatives \\(f'(x)=3x^2-1\\) and \\(f''(x)=6x\\) (power rule!):\n\n\n\n\n\n\n\nFigure 1\n\n\n\n\nWhen the first derivative changes sign (at \\(x^\\star=\\pm1/\\sqrt{3}\\)), that corresponds to the original function switching from increasing to decreasing, or vice versa. When the second derivative changes sign (at \\(x_0=0\\)), that corresponds to the original function switching from concave down (frowning) to concave up (smiling). A point like \\(x=0\\) in this example where the concavity changes is called an inflection point. If \\(x_0\\) is an inflection point, then that means it’s also a root of the second derivative: \\(f''(x_0)=0\\). In order for the second derivative to change sign, it has to cross the \\(x\\)-axis.\nHowever, just because the second derivative is zero doesn’t mean there was inflection. Consider \\(f(x)=x^4\\) and its derivatives \\(f'(x)=4x^3\\) and \\(f''(x)=12x^2\\):\n\n\n\n\n\n\n\nFigure 2\n\n\n\n\nIn this case, we see that while the second derivative has a root at zero, it doesn’t actually cross the \\(x\\)-axis. It’s just swooping down and giving it a gentle lil’ smooch from above. Correspondingly, we see that the original function never changes concavity. Therefore, we say that \\(f''=0\\) is a necessary but not sufficient condition for the original \\(f\\) to change concavity. To verify, you must actually check that the second derivative has different sign before and after the root. Bummer!",
+    "crumbs": [
+      "Math Helpers",
+      "Differentiation"
+    ]
+  },
+  {
+    "objectID": "math/differentiation.html#optimization",
+    "href": "math/differentiation.html#optimization",
+    "title": "Differentiation",
+    "section": "Optimization",
+    "text": "Optimization\nDifferentiation is useful when we seek to optimize a function. That is, find where it has local maxima or minima. For purposes of illustration, I’ll focus on maxima. Formally, given an objective function \\(f\\), we seek to find the \\(x\\)-values at which \\(f\\) has a maximum:\n\\[\n\\underset{x\\in\\mathbb{R}}{\\arg\\max}\\,f(x).\n\\]\nNotice that I did not write \\(\\max f(x)\\). In this class, it turns out that we will seldom care about the actual largest value that the function obtains. Instead, we care only for where that value occurs. So we are interested in the maximizer; the location of the maximum; the \\(x\\)-value that does the maximizing. Hence, argmax and not max. Here’s an illustration:\n\n\n\n\n\n\n\n\nInspecting this picture, we notice that the maximum corresponds to a point where the derivative (slope of the tangent line) is zero. In order for the function to “top out,” it must at some point have switched from being increasing (positive derivative) to decreasing (negative derivative). When we ask where the maximum occurs, that’s the same as asking where the first derivative switched sign (ie crossed the \\(x\\)-axis). So to optimize \\(f\\), perhaps we can compute its first derivative, set it equal to 0, and solve.\n\\[\n\\begin{aligned}\nf'(x)\n=\n-2x+6&=0\n\\quad\n\\implies\n\\quad\nx^\\star=3.\n\\end{aligned}\n\\]\nA point like \\(x^\\star\\) in this example is called a critical point. A critical point may be the location of a maximum, but you have to check. If you recall the example in Figure 1, there are two critical points \\(x^\\star = \\pm 1/\\sqrt{3}\\), but they correspond to different things: one is a minimum and one is a maximum. In order to classify the critical points as maximizers or minimizers, you perform the second derivative test:\n\nif \\(f'(x^\\star)=0\\) and \\(f''(x^\\star)&lt;0\\), then \\(x^\\star\\) is a maximizer;\nif \\(f'(x^\\star)=0\\) and \\(f''(x^\\star)&gt;0\\), then \\(x^\\star\\) is a minimizer;\nif \\(f'(x^\\star)=0\\) and \\(f''(x^\\star)=0\\), then the test is inconclusive.",
+    "crumbs": [
+      "Math Helpers",
+      "Differentiation"
+    ]
+  },
+  {
+    "objectID": "math/greeks.html",
+    "href": "math/greeks.html",
+    "title": "Greek alphabet",
+    "section": "",
+    "text": "For better or worse, Greek letters will be flying in this class, so you should have a working knowledge of the most common ones used in mathematics:\n\n\n\n\nGreek Letter\nEnglish Name\n\n\n\n\n\\(A, \\alpha\\)\nalpha\n\n\n\\(B, \\beta\\)\nbeta\n\n\n\\(\\Gamma, \\gamma\\)\ngamma\n\n\n\\(\\Delta, \\delta\\)\ndelta\n\n\n\\(E, \\epsilon\\)\nepsilon\n\n\n\\(Z, \\zeta\\)\nzeta\n\n\n\\(H, \\eta\\)\neta\n\n\n\\(\\Theta, \\theta\\)\ntheta\n\n\n\\(I, \\iota\\)\niota\n\n\n\\(K, \\kappa\\)\nkappa\n\n\n\\(\\Lambda, \\lambda\\)\nlambda\n\n\n\\(M, \\mu\\)\nmu (“mew”)\n\n\n\\(N, \\nu\\)\nnu\n\n\n\\(\\Xi, \\xi\\)\nxi\n\n\n\\(O, o\\)\nomicron\n\n\n\\(\\Pi, \\pi\\)\npi\n\n\n\\(P, \\rho\\)\nrho (“row”)\n\n\n\\(\\Sigma, \\sigma\\)\nsigma\n\n\n\\(T, \\tau\\)\ntau\n\n\n\\(Y, \\upsilon\\)\nupsilon\n\n\n\\(\\Phi, \\phi\\)\nphi\n\n\n\\(X, \\chi\\)\nchi (“kai”)\n\n\n\\(\\Psi, \\psi\\)\npsi\n\n\n\\(\\Omega, \\omega\\)\nomega",
+    "crumbs": [
+      "Math Helpers",
+      "Greek alphabet"
+    ]
+  },
+  {
+    "objectID": "math/limits.html",
+    "href": "math/limits.html",
+    "title": "Limits and continuity",
+    "section": "",
+    "text": "The limit of a function \\(f(x)\\) at a point \\(c\\) is the value that the function approaches as \\(x\\) approaches \\(c\\). We denote this:\n\\[\n\\lim_{x\\to c}f(x).\n\\]\nIf the limit of the function and the actual value of the function agree, then the function is continuous:\n\\[\n\\lim_{x\\to c}f(x)=f(c)\n\\] If a function is continuous, that makes it especially convenient to evaluate limits because it means you can just plug-in and evaluate the darn function. But as Figure 1 illustrates, not all functions are continuous. Some functions have breaks and jumps and holes that make them discontinuous.\nBut not all discontinuities are created equal:",
+    "crumbs": [
+      "Math Helpers",
+      "Limits and continuity"
+    ]
+  },
+  {
+    "objectID": "math/limits.html#limit-rules",
+    "href": "math/limits.html#limit-rules",
+    "title": "Limits and continuity",
+    "section": "Limit rules",
+    "text": "Limit rules\nAssume \\(\\lim_{x\\to c}f(x)\\) and \\(\\lim_{x\\to c}g(x)\\) exist, let \\(a,\\,b\\in\\mathbb{R}\\) be arbitrary constants, and let \\(r&gt;0\\). Then:\n\n\n\n\n\n\n\nrule\nformula\n\n\n\n\nscaling\n\\[\\lim_{x\\to c}[a\\cdot f(x)]=a\\lim_{x\\to c}f(x)\\]\n\n\nsum/difference\n\\[\\lim_{x\\to c}[f(x)\\pm g(x)]=\\lim_{x\\to c}f(x)\\pm\\lim_{x\\to c}g(x)\\]\n\n\nlinearity\n\\[\\lim_{x\\to c}[a\\cdot f(x)\\pm b\\cdot g(x)]=a\\lim_{x\\to c}f(x)\\pm b\\lim_{x\\to c}g(x)\\]\n\n\nproduct\n\\[\\lim_{x\\to c}f(x)g(x)=\\left[\\lim_{x\\to c}f(x)\\right]\\left[\\lim_{x\\to c}g(x)\\right]\\]\n\n\nquotient\n\\[\\lim_{x\\to c}\\frac{f(x)}{g(x)}=\\frac{\\lim_{x\\to c} f(x)}{\\lim_{x\\to c} g(x)},\\quad \\text{if }\\lim_{x\\to c} g(x)\\neq0\\]\n\n\npower\n\\[\\lim_{x\\to c}f(x)^r=\\left[\\lim_{x\\to c}f(x)\\right]^r,\\quad \\text{if }c&gt;0,\\, \\lim_{x\\to c} f(x)\\geq0\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Limits and continuity"
+    ]
+  },
+  {
+    "objectID": "math/limits.html#indeterminate-forms-and-lhôpitals-rule",
+    "href": "math/limits.html#indeterminate-forms-and-lhôpitals-rule",
+    "title": "Limits and continuity",
+    "section": "Indeterminate forms and L’Hôpital’s rule",
+    "text": "Indeterminate forms and L’Hôpital’s rule\nMost of the time, we hope that we can appeal to continuity and evaluate limits by simply “plugging-in.” But sometimes plugging in gives loony stuff:\n\\[\n\\begin{aligned}\n\\lim_{x\\to 0}\\frac{\\sin x}{x}=1, &\\text{ but }\\frac{\\sin(0)}{0}=\\frac{0}{0};\\\\\n\\lim_{x\\to \\infty}\\frac{\\ln x}{x}=0, &\\text{ but }\\frac{\\ln\\infty}{\\infty}=\\frac{\\infty}{\\infty}.\\\\\n\\end{aligned}\n\\]\nThings like \\(0/0\\), \\(\\infty/\\infty\\), and \\(0\\times\\infty\\) are examples of indeterminate forms. If you get one, it doesn’t necessarily mean that the limit does not exist. It just means that the jury is still out; it’s indeterminate. To continue investigating, you can use a tool called L’Hôpital’s rule. Whenever \\(\\lim_{x\\to c}f(x)=\\lim_{x\\to c}g(x)=0\\) or \\(\\pm\\infty\\), the rule says that\n\\[\n\\lim_{x\\to c}\\frac{f(x)}{g(x)}=\\lim_{x\\to c}\\frac{f'(x)}{g'(x)}.\n\\] The hope is that the new function \\(f'(x)/g'(x)\\) will be well-behaved at \\(c\\), meaning you can simplify by just plugging in. However, after applying L’Hôpital’s rule once and trying to plug-in, you may still get an indeterminate form. In that case, you’ll have to take another round of derivatives, and maybe another after that, until the clouds finally part and the sun shines upon you.\n\n\n\n\n\n\nTipExample: multiple rounds of L’Hôpital’s\n\n\n\nConsider:\n\\[\n\\lim_{x\\to\\infty}\\frac{(\\ln x)^2}{x}.\n\\]\n\\(\\lim_{x\\to\\infty}(\\ln x)^2=\\infty\\) and \\(\\lim_{x\\to\\infty}x=\\infty\\), so let’s take some derivatives:\n\\[\n\\begin{aligned}\n\\frac{\\text{d}}{\\text{d}x}(\\ln x)^2&=\\frac{2\\ln x}{x}\\\\\n\\frac{\\text{d}}{\\text{d}x}x&=1.\n\\end{aligned}\n\\] The ratio of derivatives is thus \\(2(\\ln x)/x\\), but this still gives an indeterminate form because \\(\\lim_{x\\to\\infty}2\\ln x=\\infty\\) and \\(\\lim_{x\\to\\infty}x=\\infty\\), so we have to go again:\n\\[\n\\begin{aligned}\n\\frac{\\text{d}}{\\text{d}x}2\\ln x&=\\frac{2}{x}\\\\\n\\frac{\\text{d}}{\\text{d}x}x&=1.\n\\end{aligned}\n\\] The ratio of these derivatives is just \\(2/x\\), and that goes to 0 as \\(x\\to \\infty\\). In sum,\n\\[\n\\lim_{x\\to\\infty}\\frac{(\\ln x)^2}{x}\n\\overset{\\text{L'H}}{=}\n\\lim_{x\\to\\infty}\\frac{2\\ln x}{x}\n\\overset{\\text{L'H}}{=}\n\\lim_{x\\to\\infty}\\frac{2}{x}\n=\n0.\n\\]",
+    "crumbs": [
+      "Math Helpers",
+      "Limits and continuity"
+    ]
+  },
+  {
+    "objectID": "math/massage-and-squint.html",
+    "href": "math/massage-and-squint.html",
+    "title": "“Massage and squint”",
+    "section": "",
+    "text": "In this class, we have to simplify many sums, infinite series, and integrals (eg when computing expected values). Sometimes, we have to do this using the formal techniques we learned in Calc II, but other times, the sum or integral is just a familiar object in disguise. If we can recognize that, we can avoid doing any hardcore math.\nHere’s the principle:\n\nTake your sum or integral and rewrite it (“massage” it) until you recognize (after “squinting” at it) that it is equivalent to a familiar object. Then plug in what you know.\n\nLet’s unpack that:\n\nmassaging: u-substitution if it’s an integral, re-indexing if it’s a sum, multiply by a cleverly written 1, add a cleverly written 0, complete the square, etc;\nfamiliar object: geometric series, Taylor series of a friendly function (probably \\(e^x\\)), binomial theorem, gamma function, kernel of special density like the Gaussian, etc.\n\n\n\n\n\n\n\nWarningPay attention!\n\n\n\nIf you are going to be a stats major/minor, I know for an absolute fact that you will be doing this stuff early and often in STA 332 and STA 402, so take the practice seriously.\n\n\n\nKernel tricks\n\nProbability density functions must integrate to 1.\n\nLike “energy is conserved” or “demand curves slope down,” the above statement is true and simple, but surprisingly powerful.\nAs we have seen several times, all densities have the following format:\n\\[\nf(x;\\,\\boldsymbol{\\theta})=\\underbrace{c(\\boldsymbol{\\theta})}_{\\text{normalizing constant}}\\underbrace{k(x;\\,\\boldsymbol{\\theta})}_{\\text{kernel}}.\n\\]\nHere, \\(\\boldsymbol{\\theta}\\) is generic notation for the parameters of the distribution. So \\(\\boldsymbol{\\theta}=(\\mu,\\, \\sigma^2)\\) for the normal, or \\(\\boldsymbol{\\theta}=(\\alpha,\\,\\beta)\\) for the gamma. \\(k(x;\\,\\boldsymbol{\\theta})\\) is the density kernel or unnormalized density. It’s the part of the density formula that actually depends on the argument \\(x\\). \\(c(\\boldsymbol{\\theta})\\) is the normalizing constant that hangs out in the front and serves just to make sure that the whole thing integrates to 1. Since\n\\[\n\\int_{-\\infty}^\\infty f(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x\n=\n\\int_{-\\infty}^\\infty c(\\boldsymbol{\\theta})k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x\n=\nc(\\boldsymbol{\\theta})\\int_{-\\infty}^\\infty k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x=1,\n\\]\nthen\n\\[\n\\int_{-\\infty}^\\infty k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x=\\frac{1}{c(\\boldsymbol{\\theta})},\n\\]\nSo, the integral of the kernel is the inverse of the normalizing constant. Based on this simple fact, every probability density function you encounter gives you a free integral identity that you can use in subsequent computations.\n\n\n\n\n\n\nTipExample: Gaussian integral\n\n\n\nFor the Gaussian density:\n\\[\n\\begin{align*}\n    c(\\boldsymbol{\\theta})\n    &=\n    \\frac{1}{\\sqrt{2\\pi\\sigma^2}}\n    \\\\\n    k(x;\\,\\boldsymbol{\\theta})\n    &=\n    \\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\n    .\n\\end{align*}\n\\]\nSo for any values of \\(\\mu\\in\\mathbb{R}\\) and \\(\\sigma&gt;0\\), we get\n\\[\n\\int_{-\\infty}^\\infty\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\\text{d} x=\\sqrt{2\\pi\\sigma^2}.\n\\]\nUse this fact to make your life easier!\n\n\n\n\n\n\n\n\nNoteExample: gamma integral\n\n\n\nFor the gamma density:\n\\[\n\\begin{align*}\n    c(\\boldsymbol{\\theta})\n    &=\n    \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}\n    \\\\\n    k(x;\\,\\boldsymbol{\\theta})\n    &=\n    x^{\\alpha-1}\n    e^{-\\beta x}\n\\end{align*}\n\\]\nSo for any values of \\(\\alpha,\\,\\beta&gt;0\\), we get\n\\[\n\\int_0^\\infty x^{\\alpha-1}e^{-\\beta x}\\,\\text{d} x=\\frac{\\Gamma(\\alpha)}{\\beta^\\alpha}\n\\]\nUse this fact to make your life easier!\n\n\n\n\nExamples\n“Massage and squint” is just a grand exercise in pattern recognition, so here is a running list of examples from the course. Study these carefully:\n\nPoisson mean from PSET 0 #3;\nPoisson MGF from lecture;\nStandard normal MGF from lecture;\nGamma MGF from lecture;\nPSET 5 #4: \\(\\Gamma(1/2)=\\sqrt{\\pi}\\);\nPSET 5 #6c;\nPSET 6 #7;\nPoisson-binomial hierarchy from lecture;\nGamma-normal hierarchy from lecture;\nPSET 6 #9: the beta-gamma hierarchy;\nPSET 6 #10: gamma-gamma hierarchy.",
+    "crumbs": [
+      "Math Helpers",
+      "Massage and squint"
+    ]
+  }
+]

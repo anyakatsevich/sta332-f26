@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Central limit theorem – STA 332 Fall 2026</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-d640c705e8c17715bca3574aa719063f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d0086a85466981861881e17a07507999.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content="..">
+<script src="../site_libs/quarto-contrib/shinylive-0.9.1/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="../site_libs/quarto-contrib/shinylive-0.9.1/shinylive/run-python-blocks.js" type="module"></script>
+<link href="../site_libs/quarto-contrib/shinylive-0.9.1/shinylive/shinylive.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+<meta property="og:title" content="Central limit theorem – STA 332 Fall 2026">
+<meta property="og:description" content="Homepage for STA 332: Statistical Inference">
+<meta property="og:image" content="https://anyakatsevich.github.io/sta332-f26/lecture-notes/images/conv-in-dist.gif">
+<meta property="og:site_name" content="STA 332 Fall 2026">
+</head>
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Central limit theorem</li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto"><div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../img/logo.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../img/logo.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <div class="sidebar-tools-main tools-wide">
+    <a href="https://cmgr.oit.duke.edu/containers" title="RStudio Containers" class="quarto-navigation-tool px-1" aria-label="RStudio Containers"><i class="bi bi-code-square"></i></a>
+    <a href="https://go.canvas.duke.edu/" title="Canvas" class="quarto-navigation-tool px-1" aria-label="Canvas"><i class="bi bi-megaphone"></i></a>
+    <a href="https://edstem.org/us/courses/89558/discussion" title="Ed Discussion" class="quarto-navigation-tool px-1" aria-label="Ed Discussion"><i class="bi bi-people"></i></a>
+    <a href="https://www.gradescope.com/courses/1195780" title="Gradescope" class="quarto-navigation-tool px-1" aria-label="Gradescope"><i class="bi bi-file-arrow-up"></i></a>
+</div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Syllabus</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_team.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Teaching team</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_materials.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Materials</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_assignments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignments and grading</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_policies.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policies</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../syllabus/syllabus_resources.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">University resources</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Schedule</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Math Helpers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/greeks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Greek alphabet</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/logexp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exponents and logarithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/differentiation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Differentiation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/integration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Integration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/limits.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Limits and continuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/series.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Infinite series</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/gamma-function.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gamma function</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../math/massage-and-squint.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Massage and squint</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Distribution Families</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-binomial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binomial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-geometric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Geometric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-hypergeometric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hypergeometric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/discrete-poisson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-uniform.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous uniform</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-normal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Normal</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-gamma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gamma</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-inverse-gamma.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inverse gamma</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../distributions/continuous-beta.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Problem Sets</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-0.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 0</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 5</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 6</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../problems/pset-7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Problem Set 7</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#recap-sums-and-averages-of-iid-random-variables" id="toc-recap-sums-and-averages-of-iid-random-variables" class="nav-link active" data-scroll-target="#recap-sums-and-averages-of-iid-random-variables">Recap: sums and averages of iid random variables</a></li>
+  <li><a href="#convergence-in-distribution" id="toc-convergence-in-distribution" class="nav-link" data-scroll-target="#convergence-in-distribution">Convergence in distribution</a></li>
+  <li>
+<a href="#the-central-limit-theorem" id="toc-the-central-limit-theorem" class="nav-link" data-scroll-target="#the-central-limit-theorem">The central limit theorem</a>
+  <ul class="collapse">
+<li><a href="#partial-proof-of-the-clt" id="toc-partial-proof-of-the-clt" class="nav-link" data-scroll-target="#partial-proof-of-the-clt">Partial proof of the CLT</a></li>
+  </ul>
+</li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Central limit theorem</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><section id="recap-sums-and-averages-of-iid-random-variables" class="level1"><h1>Recap: sums and averages of iid random variables</h1>
+<p>In the <a href="https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-14-sums-and-averages.pdf">last lecture</a>, we studied iid collections of several random variables:</p>
+<p><span class="math display">\[
+X_1,\,X_2,\,X_3,\,X_4,\,...\overset{\text{iid}}{\sim}P.
+\]</span></p>
+<p>Because these are <em>identically distributed</em>, we introduced notation for the common mean <span class="math inline">\(\mu=E(X_1)\)</span>, common variance <span class="math inline">\(\sigma^2=\text{var}(X_1)\)</span>, and common moment-generating function <span class="math inline">\(M(t)=E(e^{tX_1})\)</span> shared by all <span class="math inline">\(X_i\)</span> in the collection. Obviously, we are assuming these objects exist to begin with, which is not always the case (think Cauchy).</p>
+<p>Based on the iid collection, we defined the running sum and the running average of the first <span class="math inline">\(n\)</span> variables:</p>
+<p><span class="math display">\[
+\begin{aligned}
+S_n&amp;=\sum\limits_{i=1}^n X_i\\
+\bar{X}_n&amp;=\frac{1}{n}\sum\limits_{i=1}^n X_i=\frac{1}{n}S_n.
+\end{aligned}
+\]</span></p>
+<p>Because these depend on the <span class="math inline">\(X_i\)</span>, <span class="math inline">\(S_n\)</span> and <span class="math inline">\(\bar{X}_n\)</span> are themselves random variables with their own distributions, and we sought to itemize their properties: mean, variance, full distribution, etc. Here’s what we came up with:</p>
+<p><span class="math display">\[
+\begin{aligned}
+E(S_n)&amp;=n\mu\\
+E(\bar{X}_n)&amp;=\mu\\
+\\
+\text{var}(S_n)&amp;=n\sigma^2\\
+\text{var}(\bar{X}_n)&amp;=\sigma^2/n\\
+\\
+M_{S_n}(t)&amp;=M(t)^n\\
+M_{\bar{X}_n}(t)&amp;=M(t/n)^n.\\
+\end{aligned}
+\]</span></p>
+<p>In the case of the mean and the variance, we have generic formulas that work for any <span class="math inline">\(P\)</span>. If we want to say what the exact distribution is, then we need to know what the original <span class="math inline">\(P\)</span> was. Using those updating formulas for the MGF, we worked several special cases:</p>
+<p><span class="math display">\[
+\begin{aligned}
+P=\text{Bern}(p) \quad &amp; \implies &amp;&amp;S_n\sim\text{Binom}(n,\,p)\\
+\\
+P=\text{Poisson}(\lambda) \quad &amp; \implies &amp;&amp;S_n\sim\text{Poisson}(n\lambda)\\
+\\
+P=\text{Gamma}(\alpha,\,\beta) \quad &amp; \implies &amp;&amp;S_n\sim\text{Gamma}(n\alpha,\,\beta)\\
+\quad &amp; \implies &amp;&amp;\bar{X}_n\sim\text{Gamma}(n\alpha,\,n\beta)\\
+\\
+P=\text{N}(\mu,\,\sigma^2) \quad &amp; \implies &amp;&amp;S_n\sim\text{N}(n\mu,\,n\sigma^2)\\
+\quad &amp; \implies &amp;&amp;\bar{X}_n\sim\text{N}(\mu,\,\sigma^2/n)\\
+\end{aligned}
+\]</span></p>
+<p>Neat! Now, here’s the $<span class="math inline">\(10^6\)</span> question. What happens as <span class="math inline">\(n\to\infty\)</span>? As you average more and more of these iid random variables, what happens to the distribution? Let’s see:</p>
+<pre class="shinylive-r" data-engine="r"><code><a href="https://shiny.posit.co/">#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 500
+
+library(shiny)
+
+ui &lt;- fluidPage(
+  titlePanel("What happens as you average more and more iid random variables?"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dist", "Choose an underlying distribution P:",
+                  choices = c("Bernoulli", "Poisson", "Gamma")),
+      
+      # The sliders will appear here:
+      uiOutput("param_ui")
+    ),
+    
+    mainPanel(
+      plotOutput("distPlot")
+    )
+  )
+)
+
+server &lt;- function(input, output, session) {
+  
+  # Dynamically choose which sliders to show
+  output$param_ui &lt;- renderUI({
+    req(input$dist)
+    
+    if (input$dist == "Bernoulli") {
+      tagList(
+        sliderInput("n", "Sample size (n):", min = 1, max = 200, value = 1, step = 1),
+        sliderInput("p", "Probability of success (p):", min = 0, max = 1, value = 0.5, step = 0.01)
+      )
+    } else if (input$dist == "Poisson") {
+      tagList(
+        sliderInput("n", "Sample size (n):", min = 1, max = 200, value = 1, step = 1),
+        sliderInput("rate", "Rate parameter (λ):", min = 0, max = 5, value = 1, step = 0.1)
+      )
+    } else if (input$dist == "Gamma") {
+      tagList(
+        sliderInput("n", "Sample size (n):", min = 1, max = 200, value = 1, step = 1),
+        sliderInput("a", "Shape parameter (α):", min = 0, max = 5, value = 1, step = 0.1),
+        sliderInput("b", "Rate parameter (β):", min = 0, max = 5, value = 1, step = 0.1)
+      )
+    }
+  })
+  
+  # Generate a plot from the chosen distribution
+  output$distPlot &lt;- renderPlot({
+    if (input$dist == "Bernoulli") {
+      n &lt;- input$n
+      p &lt;- input$p
+      #par(mfrow = c(1, 2))
+      #plot(0:n, dbinom(0:n, n, p), type = "h")
+      plot((0:n) / n, dbinom(0:n, n, p), type = "h", xlab = expression(bar(x)),
+           ylab = expression("P(" ~ bar(X)[n] ~ " = " ~ bar(x) ~ ")"),
+           main = expression("Average of iid" ~ X[i] ~ "~ Bernoulli(p)"))
+      mtext("μ", side = 1, at = p, col = "red", line = 2)
+    } else if (input$dist == "Poisson") {
+      n &lt;- input$n
+      rate &lt;- input$rate
+      Kmax &lt;- ceiling(qpois(0.99, 200 * rate))
+      #par(mfrow = c(1, 2))
+      plot(0:Kmax / n, dpois(0:Kmax, n * rate), type = "h", xlab = expression(bar(x)),
+           ylab = expression("P(" ~ bar(X)[n] ~ " = " ~ bar(x) ~ ")"),
+           xlim = c(0, qpois(0.99, rate)),
+           main = expression("Average of iid" ~ X[i] ~ "~ Poisson(λ)"))
+      mtext("μ", side = 1, at = rate, col = "red", line = 2)
+      #plot((0:n) / n, dbinom(0:n, n, p), type = "h")
+      
+    } else if (input$dist == "Gamma") {
+      n &lt;- input$n
+      a &lt;- input$a
+      b &lt;- input$b
+      #par(mfrow = c(1, 2))
+      #curve(dgamma(x, shape = n * a, rate = b), from = 0, to = 10, n = 1000)
+      curve(dgamma(x, shape = n * a, rate = n * b), from = 0, to = qgamma(0.95, shape = a, rate = b), 
+            n = 1000, xlab = expression(bar(x)), ylab = "density",
+            main = expression("Average of iid" ~ X[i] ~ "~ Gamma(α, β)"))
+      mtext("μ", side = 1, at = a / b, col = "red", line = 2)
+    }
+    
+  })
+}
+
+shinyApp(ui, server)
+
+</a></code></pre>
+<p>These three examples are based on very different underlying distributions, and yet the final result would seem to be the same:</p>
+<blockquote class="blockquote">
+<p>as you average more and more iid random variables, the distribution looks more and more like a bell curve.</p>
+</blockquote>
+<p>Is this always true? Can this high-level, qualitative observation be restated as a precise mathematical fact? It turns out that the answer is <strong>yes</strong>, and we call it the <strong>central limit theorem</strong>. In order to state this theorem, we need to rigorously define what we mean by “the distribution looks more and more like a bell curve.” In other words, we need to define a notion of <em>convergence</em> for random variables and their distributions.</p>
+</section><section id="convergence-in-distribution" class="level1"><h1>Convergence in distribution</h1>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Definition: convergence in distribution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Imagine we have a random variable <span class="math inline">\(Y\)</span> as well as an infinite sequence of random variables <span class="math inline">\(Y_1\)</span>, <span class="math inline">\(Y_2\)</span>, <span class="math inline">\(Y_3\)</span>, …, etc. Each of these random variables has a cumulative distribution function (CDF):</p>
+<p><span class="math display">\[
+\begin{aligned}
+F(x)&amp;=P(Y\leq x)\\
+F_1(x)&amp;=P(Y_1\leq x)\\
+F_2(x)&amp;=P(Y_2\leq x)\\
+&amp;\vdots \\
+F_n(x)&amp;=P(Y_n\leq x)\\
+&amp;\vdots
+\end{aligned}
+\]</span></p>
+<p>We say that the sequence of random variables <span class="math inline">\(Y_1\)</span>, <span class="math inline">\(Y_2\)</span>, <span class="math inline">\(Y_3\)</span>, … <strong>converges in distribution</strong> to <span class="math inline">\(Y\)</span> if the sequence of CDFs converges pointwise:</p>
+<p><span class="math display">\[
+\lim_{n\to \infty}F_n(x)=F(x)\quad \text{for all } x\in\mathbb{R}.
+\]</span></p>
+<p>We denote this <span class="math inline">\(Y_n\overset{d}{\to}Y\)</span>. Here’s a cartoon:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><img src="images/conv-in-dist.gif" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In addition to the examples above, you also saw an example of this style of convergence on the last problem set.</p>
+<!--- 
+::: callout-warning
+## Example: Student's $t$ distribution
+
+
+$$
+t_{\nu}\overset{d}{\to}\text{N}(0,\,1)\quad \text{ as }\nu\to\infty.
+$$
+
+```foaucthhlktjq
+#| standalone: true
+#| viewerHeight: 500
+
+
+
+library(shiny)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+  
+  # Application title
+  titlePanel("The Student's t distribution"),
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("df",
+                  "Degrees of freedom:",
+                  min = 0,
+                  max = 25,
+                  value = 1,
+                  step = 0.1)
+    ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      plotOutput("distPlot", height = "400px")
+    )
+  )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+  
+  output$distPlot <- renderPlot({
+    
+    df = input$df
+    
+    par(mfrow = c(2, 1), mar = c(4, 1, 1, 1))
+    
+    curve(pnorm(x), from = -5, to = 5, n = 5000, col = "black", lwd = 3, bty = "n", 
+          yaxt = "n", ylab = "")
+    curve(pt(x, df), from = -5, to = 5, n = 5000, col = "red", add = TRUE, lwd = 2)
+    abline(h = c(0, 1))
+    
+    curve(dnorm(x), from = -5, to = 5, n = 5000, col = "black", lwd = 3, bty = "n",
+          yaxt = "n", ylab = "")
+    curve(dt(x, df), from = -5, to = 5, n = 5000, col = "red", add = TRUE, lwd = 2)
+    
+    legend("topright", c("N(0, 1) density", "Student's t density"), bty = "n",
+           lty = 1, col = c("black", "red"))
+  })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+
+```
+
+::: -->
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Example: position of a particle (PSET 6 #2)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>On <a href="https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-2">Problem Set 6</a>, you studied the position <span class="math inline">\(X_n\)</span> of a one-dimensional subatomic particle in energy state <span class="math inline">\(n\)</span> on the interval <span class="math inline">\([0,\,L]\)</span>. It had cumulative distribution function</p>
+<p><span class="math display">\[
+F_n(x)=P(X_n\leq x)=\frac{x}{L}-\frac{\sin(2n\pi x / L)}{2n\pi},\quad 0\leq x\leq L.
+\]</span></p>
+<p>You observed that</p>
+<p><span class="math display">\[
+X_n\overset{d}{\to}\text{Unif}(0,\,L),\quad n\to\infty.
+\]</span></p>
+<pre class="shinylive-r" data-engine="r"><code><a href="https://shiny.posit.co/">#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 500
+
+
+
+library(shiny)
+
+# Define UI for application that draws a histogram
+ui &lt;- fluidPage(
+  
+  # Application title
+  titlePanel("Distribution of particle's position"),
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("n",
+                  "Energy level (n)",
+                  min = 1,
+                  max = 50,
+                  value = 1,
+                  step = 1),
+      sliderInput("L",
+                  "L",
+                  min = 0,
+                  max = 1.5,
+                  value = 1,
+                  step = 0.1)
+      
+    ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      plotOutput("distPlot", height = "400px")
+    )
+  )
+)
+
+# Define server logic required to draw a histogram
+server &lt;- function(input, output) {
+  
+  output$distPlot &lt;- renderPlot({
+    
+    n &lt;- input$n
+    L &lt;- input$L
+    
+    par(mfrow = c(1, 1), mar = c(4, 1, 1, 1))
+    plot(0, 0, ylim = c(0, 1), xlim = c(-0.25, 1.5), col = "white")
+    segments(0, 0, L, 1, lty = 2, col = "grey")
+    curve(x/L - sin(2*n*pi*x/L) / (2*pi*n), from = 0, to = L, n = 1000, 
+          col = "red", lwd = 2, add = TRUE)
+    segments(-10, 0, 0, 0, col = "red", lwd = 2)
+    segments(L, 1, 10, 1, col = "red", lwd = 2)
+  })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+</a></code></pre>
+</div>
+</div>
+<p>In the definition above, we define convergence in distribution in terms of the CDF, which is the right way to do it since the CDF is a universal object that uniquely characterizes the distribution of a random variable and <em>always exists</em>. However, the following theorem gives us permission to instead work with the MGF when it exists, which is often a convenient alternative:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Continuity theorem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a random variable <span class="math inline">\(Y\)</span> as well as a sequence <span class="math inline">\(Y_1\)</span>, <span class="math inline">\(Y_2\)</span>, <span class="math inline">\(Y_3\)</span>, … each having its own moment-generating function (MGF):</p>
+<p><span class="math display">\[
+\begin{aligned}
+M(t)&amp;=E(e^{tY})\\
+M_1(t)&amp;=E(e^{tY_1})\\
+M_2(t)&amp;=E(e^{tY_2})\\
+&amp;\vdots \\
+M_n(t)&amp;=E(e^{tY_n})\\
+&amp;\vdots
+\end{aligned}
+\]</span></p>
+<p>If the MGFs converge pointwise for all <span class="math inline">\(t\)</span> in a neighborhood of zero</p>
+<p><span class="math display">\[
+\lim_{n\to\infty} M_{n}(t)=M(t)\quad \forall |t|&lt;b,
+\]</span></p>
+<p>then <span class="math inline">\(Y_n\overset{d}{\to}Y\)</span>.</p>
+</div>
+</div>
+<p>In other words, convergence of the MGFs (when they exist!) implies convergence of the CDFs. Proving this is beyond the scope of our course, but it provides the technical tool that we require to prove a special case of the following theorem…</p>
+</section><section id="the-central-limit-theorem" class="level1"><h1>The central limit theorem</h1>
+<p>Our high level observation was that “averages of iid random variables look normally distributed after a while.” We can make this rigorous with the following theorem, which plays a <em>central</em> role in probability and statistics:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Central limit theorem (CLT)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a collection of iid random variables</p>
+<p><span class="math display">\[
+X_1,\,X_2,\,X_3,\,...\overset{\text{iid}}{\sim}P,
+\]</span></p>
+<p>and assume that they have finite mean <span class="math inline">\(\mu=E(X_1)\)</span> and variance <span class="math inline">\(\sigma^2=\text{var}(X_1)\)</span>. If we take the running average of the <span class="math inline">\(X_i\)</span> and then standardize it</p>
+<p><span class="math display">\[
+\begin{aligned}
+\bar{X}_n&amp;=\frac{1}{n}\sum\limits_{i=1}^nX_i\\
+Z_n&amp;=\frac{\bar{X}_n-\mu}{\sqrt{\sigma^2/n}},
+\end{aligned}
+\]</span></p>
+<p>we can show that</p>
+<p><span class="math display">\[
+Z_n\overset{d}{\to}\text{N}(0,\,1)\quad \text{as }n\to\infty.
+\]</span></p>
+<p>This is true <em>regardless what the original distribution <span class="math inline">\(P\)</span> was</em>!</p>
+</div>
+</div>
+<p>Below is partial proof of the central limit theorem. It is only “partial” because we are going to make an <em>extra</em> assumption that the theorem does not require. We will assume that the moment-generating function of the <span class="math inline">\(X_i\)</span> exists. The theorem only requires that the mean and variance be finite. Assuming the MGF exists is much stronger than this. Among other things, existence of the MGF implies <em>all</em> moments are finite, not just the first two. The reason we make this extra assumption is to simplify the math. The full proof of the result requires that we know something about complex numbers (all that <span class="math inline">\(i^2=-1\)</span> stuff), which our course does not assume.</p>
+<section id="partial-proof-of-the-clt" class="level2"><h2 class="anchored" data-anchor-id="partial-proof-of-the-clt">Partial proof of the CLT</h2>
+<p>Assume the <span class="math inline">\(X_i\)</span> all share a common moment-generating function <span class="math inline">\(M(t)=E(e^{tX_1})\)</span>. To show that <span class="math inline">\(Z_n\)</span> converges in distribution to N(0, 1), we can appeal to the <em>continuity theorem</em> above and show that the MGF of <span class="math inline">\(Z_n\)</span> converges:</p>
+<p><span class="math display">\[
+\lim_{n\to\infty}M_{Z_n}(t)=\underbrace{\exp\left(\frac{1}{2}t^2\right)}_{\text{mgf of N(0, 1)}}.
+\]</span></p>
+<p>Since the log and exp functions are continuous, this is equivalent to showing that</p>
+<p><span class="math display">\[
+\lim_{n\to\infty}\ln M_{Z_n}(t)=\frac{1}{2}t^2.
+\]</span></p>
+<p>Without loss of generality, we can clean up the calculations by assuming that <span class="math inline">\(\mu=0\)</span> and <span class="math inline">\(\sigma=1\)</span>. With this, the standardized average becomes</p>
+<p><span class="math display">\[
+Z_n
+=
+\frac{\frac{1}{n}\sum\limits_{i=1}^nX_i}{1/\sqrt{n}}
+=
+\frac{1}{\sqrt{n}}\sum\limits_{i=1}^nX_i
+=
+\sum\limits_{i=1}^n\frac{1}{\sqrt{n}}X_i.
+\]</span> In other words, <span class="math inline">\(Z_n\)</span> is a linear combination of iid random variables, and we can use what we know about iid sums to compute the MGF of <span class="math inline">\(Z_n\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+M_{Z_n}(t)=\prod_{i=1}^nM_{X_i}(t/\sqrt{n})=\prod_{i=1}^nM(t/\sqrt{n}) =
+[M(t/\sqrt{n})]^n.
+\end{aligned}
+\]</span></p>
+<p>Great! Taking the log, we have that</p>
+<p><span class="math display">\[
+\ln M_{Z_n}(t)=n\ln M(t/\sqrt{n}),
+\]</span></p>
+<p>and so the proof is complete if we can show that</p>
+<p><span class="math display">\[
+\lim_{n\to\infty}n\ln M\left(\frac{t}{\sqrt{n}}\right)=\frac{t^2}{2}.
+\]</span></p>
+<p>To do that, we need to haul out L’Hôpital’s rule a few times. But first, a few reminders:</p>
+<p><span class="math display">\[
+\begin{aligned}
+M(0)&amp;=\mathbb E\left[e^{0\cdot X_1}\right]=1 &amp;&amp; \text{always true}\\
+M'(0)&amp;=\mathbb E[X_1]=0 &amp;&amp; \text{assumption from above}\\
+M''(0)&amp;=\mathbb E[X_1^2]=\text{var}(X_1)+\mathbb E[X_1]^2=1+0=1 &amp;&amp; \text{assumption from above}.
+\end{aligned}
+\]</span></p>
+<p>With that, we’re ready to roll. We start by re-writing the limit using a change-of-variables: <span class="math inline">\(y=1/\sqrt{n}\)</span>, or <span class="math inline">\(n=1/y^2\)</span>. If <span class="math inline">\(n\to\infty\)</span>, that’s the same as <span class="math inline">\(y\to 0\)</span>, so we have:</p>
+<p><span class="math display">\[
+\lim_{n\to\infty}\ln M_{Z_n}(t)
+=
+\lim_{n\to\infty}n\ln M\left(\frac{t}{\sqrt{n}}\right)
+=
+\lim_{y\to0}\frac{\ln M\left(ty\right)}{y^2}
+=
+\frac{\ln M(0)}{0}
+=
+\frac{\ln 1}{0}
+=
+\frac{0}{0}.
+\]</span></p>
+<p>Since a naive attempt to simplify the limit by “plugging in” gives an indeterminate form, we apply L’Hôpital’s rule:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\lim_{n\to\infty}\ln M_{Z_n}(t)
+&amp;=
+\lim_{n\to\infty}n\ln M\left(\frac{t}{\sqrt{n}}\right)
+\\
+&amp;=
+\lim_{y\to0}\frac{\ln M\left(ty\right)}{y^2}
+&amp;&amp; y=\frac{1}{\sqrt{n}}
+\\
+&amp;\overset{\text{L'H}}{=}
+\lim_{y\to0}
+\frac{\frac{t}{M(ty)}M'(ty)}{2y}
+\\
+&amp;=
+\frac{t}{2}
+\lim_{y\to0}
+\frac{M'(ty)}{yM(ty)}
+&amp;&amp;\left(\underbrace{=
+\frac{t}{2}
+\frac{M'(0)}{0\cdot M(0)}
+=
+\frac{t}{2}
+\frac{0}{0}}_{\text{darn!}}
+\right)
+\\
+&amp;\overset{\text{L'H}}{=}
+\frac{t}{2}
+\lim_{y\to 0}
+\frac{tM''(ty)}{tyM'(ty)+M(yt)}
+&amp;&amp;\text{need L'Hôpital again}
+\\
+&amp;=
+\frac{t^2}{2}
+\frac{M''(0)}{t\cdot 0\cdot M'(0)+M(0)}
+\\
+&amp;=
+\frac{t^2}{2}
+\frac{1}{0+1}
+\\
+&amp;=
+\frac{t^2}{2}
+.
+\end{aligned}
+\]</span></p>
+<p>Done!</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Problem Set 0 strikes again!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The limit we took to finish the proof is basically the same limit you took on <a href="https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-0.html#problem-6">Problem Set 0 problem 6</a>. Just take <span class="math inline">\(x=n\)</span> and <span class="math inline">\(f=\ln M\)</span>.</p>
+</div>
+</div>
+<!--
+# Berry-Esseen theorem
+
+The practical upshot of the CLT is that it gives us permission to use the normal distribution to approximate stuff that, strictly speaking, is *not* exactly normally distributed, but nevertheless might be close enough if $n$ is sufficiently large. But what does "sufficiently large" mean? $n=40$? $n=10^{80}$? If I have to wait until $n$ is insanely huge before the CLT starts to "kick in," then this result is not actually very useful.
+
+To address this, we seek the *rate of convergence* of the central limit theorem. How quickly does $Z_n$ start looking normal? To answer this, we need a way of measuring how far away two distributions are from one another. There are many ways to measure this, but this is a common choice:
+
+::: callout-note
+## Definition: Kolmogorov-Smirnov (KS) distance
+
+If $F$ and $G$ are cumulative distribution functions, then the **Kolmogorov-Smirnov** (**KS**) **distance** between them is:
+
+$$
+d(F,\,G)
+=
+\sup_{x\in\mathbb{R}}
+|F(x)-G(x)|
+.
+$$
+
+In words, this is the "largest" pointwise distance between the $F$ curve and the $G$ curve, like this:
+
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](sta240-notes-15-clt_files/figure-html/unnamed-chunk-1-1.png){fig-align='center' width=672}
+:::
+:::
+
+
+
+So, you scan from left to right across all real numbers, and you find the point where the vertical gap between the cdfs is biggest. The size of that biggest gap is the KS distance between $F$ and $G$.
+
+The notation "sup" stands for "supremum," which is like the maximum, only fancier. If in your head you just replace "sup" with "max," you'll be fine for now.
+
+:::
+
+The CDFs involved in the central limit theorem are
+
+$$
+\begin{aligned}
+F_n(x)&=P\left(Z_n\leq x\right)
+\\
+\Phi(x)
+&=
+\frac{1}{\sqrt{2\pi}}\int_{-\infty}^xe^{-\frac{1}{2}t^2}\,\text{d}t,
+\end{aligned}
+$$
+
+and the theorem claims that $F_n(x)\to \Phi(x)$ for all $x$. Another way of saying this is that the sequence of KS distances (which is just a sequence of real numbers) goes to 0:
+
+$$
+\sup_{x\in\mathbb{R}}
+|F_n(x)-\Phi(x)|\to 0.
+$$
+
+How quickly does that happen? This theorem gives us the answer:
+
+
+::: callout-tip
+## Berry-Esseen theorem
+
+Assume all of the conditions required for the central limit theorem (iid, finite mean and variance, etc), and furthermore, make the additional assumption that the *third* moment of the underlying distribution is finite. If that is the case, then
+
+$$
+\sup_{x\in\mathbb{R}}
+|F_n(x)-\Phi(x)|
+\leq
+C
+\cdot
+E\left[\left|\frac{X_1-\mu}{\sigma}\right|^3\right]
+\frac{1}{\sqrt{n}}
+.
+$$
+
+$E\left[\left|\frac{X_1-\mu}{\sigma}\right|^3\right]$ is the third, absolute standardized moment, and $C$ is a purely numerical constant that we know is somewhere between 0.4 and 0.4748. If you can characterize its exact value, I'm sure someone will buy you a beer.
+
+:::
+
+Qualitatively, this theorem says that CLT convergence happens on the order of $1/\sqrt{n}$. Quantitatively, the precise rate depends on how skewed the underlying $P$ is, as measured by the third moment. We know the limiting distribution of N(0, 1) is symmetric, so if we start out with a distribution that is already symmetric, the convergence is faster. If we start out with something skewed, the theorem takes longer to get going. If you revisit the app at the very top of the page and play around with parameter values that gives a highly skewed $P$ (Bernoulli with $p$ very close to 0 or 1, for example), you see this.
+-->
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Reality check
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Isn’t the central limit theorem kind of an insane result? Think about it. It says several remarkable things:</p>
+<ul>
+<li>The distribution of <span class="math inline">\(Z_n\)</span> converges to anything at all. Why should it? Why shouldn’t there just be chaos?</li>
+<li>The distribution of <span class="math inline">\(Z_n\)</span> converges to <em>the same thing</em> no matter what the underlying <span class="math inline">\(P\)</span> is. Bonkers;</li>
+<li>That <em>same thing</em> is the standard bell curve. Wut?</li>
+</ul>
+<p>Why should <em>any</em> of those things be true? The correct but vacuous answer is “because the proof says so.” But apart from that, <em>why</em> is the central limit theorem true? The answer that resonates most with me has to do with <strong>entropy</strong>, which is a measure of how random a variable is. As you average more and more random variables, entropy goes up, but it can’t go up forever. It turns out the normal distribution is the <strong>maximum entropy distribution</strong> among all unbounded distributions with finite mean and variance, and so the central limit theorem is essentially a monotone convergence theorem with respect to entropy. The theorem says that the maximum, which is the normal, is eventually obtained<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. This result is due to a <a href="https://doi.org/10.1214/aop/1176992632">paper</a> by Andrew Barron (shout out to a Rice undergrad alum). I doubt you can currently read that paper, but a person’s reach should exceed their grasp. Keep studying math, and one day you will.</p>
+</div>
+</div>
+
+
+</section></section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+<ol>
+<li id="fn1"><p>Why is the normal the maximum entropy distribution? Why is the limit actually obtained instead of stopping short somewhere before? Because the proof says so! It’s just turtles all the way down.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/anyakatsevich\.github\.io\/sta332-f26\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2026 John Zito and Anya Katsevich</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+</body></html>
