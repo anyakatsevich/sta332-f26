@@ -9,11 +9,11 @@ Your final course grade will be calculated as follows:
 ::: {.center-table}
 | Category       | Percentage |
 |----------------|------------|
-| Labs           | 10%        |
-| Problem Sets   | 21%        |
-| Midterm Exam 1 | 23%        |
-| Midterm Exam 2 | 23%        |
-| Final exam     | 23%        |
+| Quizzes        | 15%        |
+| Problem Sets   | 10%        |
+| Midterm Exam 1 | 25%        |
+| Midterm Exam 2 | 25%        |
+| Final exam     | 25%        |
 :::
 
 Your final letter grade will be determined based on the usual thresholds:
@@ -40,25 +40,19 @@ Your final letter grade will be determined based on the usual thresholds:
 These thresholds will not change, and they will be applied exactly. This means that the final grades will not be curved, and a 92.99, for example, will not be rounded up to an A.
 :::
 
-## Labs (10%)
+## Quizzes (15%)
 
-In lab every Thursday, you will complete a guided activity that introduces you to special topics, extensions, or applications of the latest course material. Along the way, we will teach you how to implement some of the ideas from the course in the `R` programming language. Ideally you should be able to finish the activity by the end of your lab period, but in any case, you must submit your lab work by 11:59 ET PM that same day.
-
-Each lab assignment will be graded on the following scale:
-
--   1.0: a complete, good faith attempt at every part of every problem;
--   0.5: partially complete;
--   0.0: no submission, or mostly incomplete.
+We will have six ten-minute in-class quizzes, which will be announced ahead of time. Grading scheme to be determined.
 
 ::: callout-note
 ## Grace
 
-Your two lowest lab scores will be dropped at the end of the semester.
+Lowest scores.... will be dropped (to be determined)
 :::
 
-## Problem Sets (21%)
+## Problem Sets (10%)
 
-Mathematics is like everything else in life; if you practice, you improve. As such, the problem sets are really the heart of the course. They will mostly consist of pencil-and-paper math problems, but sometimes you will be asked to do some coding. You may compose you solutions however you like (scan or photograph written work, LaTeX, Quarto, handwriting capture on a tablet, whatever) so long as you ultimately upload a single `.pdf` file to Gradescope.
+Mathematics is like everything else in life; if you practice, you improve. As such, the problem sets are really the heart of the course. They must be handwritten either on paper or on a tablet and uploaded to Gradescope as a single `.pdf` file. Grading scheme to be determined.
 
 ::: callout-note
 ## Grace
@@ -66,17 +60,15 @@ Mathematics is like everything else in life; if you practice, you improve. As su
 Your lowest problem set score will be dropped at the end of the semester.
 :::
 
-## Exams (23% each)
+## Exams (25% each)
 
 There will be three exams. The dates, times, and locations are firm, so mark your calendar now:
 
--   **Midterm 1**: Wednesday February 18 during lecture;
--   **Midterm 2**: Wednesday April 1 during lecture;
--   **Final**: Monday April 27 from 9 AM - 12 PM in Old Chem 116.
+-   **Midterm 1**: Tuesday October 6 during lecture;
+-   **Midterm 2**: Thursday November 19 during lecture;
+-   **Final**: Thursday December 10 from 2 PM - 5 PM in Gross Hall 103.
 
-These will be old school, pencil-and-paper, in-class exams. You are allowed only one resource:
-
-- both sides of one 8.5" x 11" sheet of notes, prepared by you and you alone. It must be handwritten directly onto the piece of paper (not handwritten on a tablet).
+These will be old school, pencil-and-paper, in-class exams. Exams are closed-book and closed-notes. No online or electronic resources are permitted. 
 
 If you seek testing accommodations, make sure the Student Disability Access Office sends me a letter, and then please make your appointments in the [Testing Center](https://testingcenter.duke.edu) as soon as possible.
 
