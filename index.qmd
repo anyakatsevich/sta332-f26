@@ -31,8 +31,8 @@ d |>
     (!is.na(session) | !is.na(due)),
     coalesce(session, "") != "Lab"
   ) |>
-  select(-dow, -admin_notes, -number, -session) |>
   mutate(
+    is_topic_divider = coalesce(session == "Section", FALSE),
     date = as.Date(date),
     prepare = as.character(prepare),
     materials = as.character(materials),
@@ -43,11 +43,12 @@ d |>
       prepare
     )
     ) |>
+  select(-dow, -admin_notes, -number, -session) |>
   relocate(due, .after = materials) |>
   gt() |>
   fmt_date(date, date_style = 31) |>
   sub_missing(
-    columns = c(week, prepare, topic, materials, due), 
+    columns = c(week, date, prepare, topic, materials, due), 
     missing_text = ""
   ) |>
   cols_align(
@@ -121,7 +122,35 @@ d |>
         toupper() |>
         stringr::str_replace_all("^|$", "**") |>
         md()
-    }) |>
+  }) |>
   tab_options(table.font.size = 13) |>
-  opt_row_striping()
+  opt_row_striping() |>
+  tab_style(
+    style = list(
+      cell_fill(color = "#E9DDF0"),
+      cell_borders(
+        sides = c("top", "bottom"),
+        color = "#5E157D",
+        weight = px(2),
+        style = "solid"
+      )
+    ),
+    locations = cells_body(
+      columns = everything(),
+      rows = is_topic_divider
+    )
+  ) |>
+  tab_style(
+    style = cell_text(
+      color = "#4A0F63",
+      weight = "bold",
+      size = px(15),
+      align = "left"
+    ),
+    locations = cells_body(
+      columns = topic,
+      rows = is_topic_divider
+    )
+  ) |>
+  cols_hide(columns = is_topic_divider)
 ```
