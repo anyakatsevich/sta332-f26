@@ -1,6 +1,6 @@
 ---
-title: "STA 240 Probability for Statistical Inference"
-subtitle: "Duke University Spring 2026"
+title: "STA 332 Statistical Inference"
+subtitle: "Duke University Fall 2026"
 execute: 
   freeze: false
 editor_options: 
@@ -19,7 +19,7 @@ library(googlesheets4)
 library(gt)
 library(tidyverse)
 gs4_deauth()
-d <- read_sheet("https://docs.google.com/spreadsheets/d/17Y62ApGA6bcazxFS-9KsARs77A2v9m_rQ8tSHPXa4bk/edit?usp=sharing")
+d <- read_sheet("https://docs.google.com/spreadsheets/d/1Zp3NdSqwdS6rTftKkCuG_a7_XPMYDaaIz41QerwnIJ8/edit?usp=sharing")
 prepare_cutoff_date <- as.Date("2026-05-01")
 ```
 
@@ -116,10 +116,3 @@ d |>
   opt_row_striping()
 ```
 
-<!--**Extra notes**
-
-You're not responsible for any of this, but it's extra stuff I had lying around that you might find interesting:
-
-- Alternative notes on MLE, with more discussion of confidence intervals: [set 1](https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-ex-mle-1.pdf), [set 2](https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-ex-mle-2.pdf);
-- "[AP Statistics in 75 minutes](https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-ex-ap-stats.pdf)." After this class, we have all of the tools to derive the itchy formulas that we take for granted in AP Stats or STA 101.
--->
