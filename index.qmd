@@ -9,7 +9,7 @@ editor:
   mode: source
 ---
 
-Below is a prospective outline for the course. Due dates are firm, but topics may change with advanced notice.
+Below is a prospective outline for the course. Exam dates are firm, quiz dates will be announced later, and topics may change with advance notice.
 
 ```{r}
 #| echo: false
@@ -20,18 +20,28 @@ library(gt)
 library(tidyverse)
 gs4_deauth()
 d <- read_sheet("https://docs.google.com/spreadsheets/d/1Zp3NdSqwdS6rTftKkCuG_a7_XPMYDaaIz41QerwnIJ8/edit?usp=sharing")
-prepare_cutoff_date <- as.Date("2026-05-01")
+prepare_cutoff_date <- as.Date("2026-08-24")
 ```
 
 ```{r}
 #| echo: false
 #| column: screen-inset-right
 d |>
-  filter(!is.na(session)| !is.na(due)) |>
+  filter(
+    (!is.na(session) | !is.na(due)),
+    coalesce(session, "") != "Lab"
+  ) |>
   select(-dow, -admin_notes, -number, -session) |>
   mutate(
     date = as.Date(date),
-    prepare = if_else(date > prepare_cutoff_date, "*To be posted*", prepare)
+    prepare = as.character(prepare),
+    materials = as.character(materials),
+    due = as.character(due),
+    prepare = if_else(
+      !is.na(date) & date > prepare_cutoff_date,
+      "*To be posted*",
+      prepare
+    )
     ) |>
   relocate(due, .after = materials) |>
   gt() |>
@@ -115,4 +125,3 @@ d |>
   tab_options(table.font.size = 13) |>
   opt_row_striping()
 ```
-

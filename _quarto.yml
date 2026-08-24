@@ -5,18 +5,9 @@ project:
   - syllabus/**.qmd
   - problems/pset-0.qmd
   - distributions/**.qmd
-  - explainers/**.qmd
   - math/**.qmd
 
   resources:
-    - lab-notes/STA240_Lab0_Notes.pdf
-    - readings/dawid-clark-statement.pdf
-    - readings/westreich-iliinsky-2014-aje.pdf
-    - readings/diaconis-holmes-montgomery-2007-siamreview.pdf
-    - readings/matthews-2025-significance.pdf
-    - readings/meng-2023-nejsds.pdf
-    - readings/detsky-gutekunst-kopac-2025-significance.pdf
-    - explainers/Pset2-Problem2-solutions.pdf
     - lecture-notes/lecture3.pdf
     - lecture-notes/lecture6.pdf
     - lecture-notes/lecture7.pdf
