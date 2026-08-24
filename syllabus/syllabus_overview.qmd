@@ -19,8 +19,6 @@ Aside from the concrete topics, the course emphasizes four generic intellectual 
 
 ## Meetings
 
-| Meeting  | Location                       | Time                   | Staff  |
-|----------|--------------------------------|------------------------|--------|
-| Lectures | Old Chem 116                   | MoWe 10:05 AM - 11:20 AM | Anya   |
-| Lab 01   | Old Chem 201                   | Th 1:25 PM - 2:40 PM   | Gwen |
-| Lab 02   | Social Sciences 105            | Th 3:05 PM - 4:20 PM   | Federico |
+| Meeting  | Location                       | Time                   | 
+|----------|--------------------------------|------------------------|
+| Lecture | Gross Hall 103                   | TueThu 3:05 PM - 4:20 PM |
