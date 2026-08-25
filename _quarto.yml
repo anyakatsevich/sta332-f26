@@ -3,7 +3,6 @@ project:
   render:
   - index.qmd
   - syllabus/**.qmd
-  - problems/pset-0.qmd
   - distributions/**.qmd
   - math/**.qmd
 
@@ -68,10 +67,10 @@ website:
         href: https://go.canvas.duke.edu/
         text: "Canvas"
       - icon: people
-        href: https://edstem.org/us/courses/89558/discussion
+        href: https://edstem.org/us/courses/103644/discussion
         text: "Ed Discussion"
       - icon: file-arrow-up
-        href: https://www.gradescope.com/courses/1195780
+        href: https://www.gradescope.com/courses/82894
         text: "Gradescope"
 
     style: docked
@@ -110,8 +109,8 @@ website:
             text: Infinite series
           - href: math/gamma-function.qmd
             text: Gamma function
-          - href: math/massage-and-squint.qmd
-            text: Massage and squint
+#          - href: math/massage-and-squint.qmd
+#            text: Massage and squint
       - section: "Distribution Families"
         contents:
           - href: distributions/discrete-binomial.qmd
@@ -132,25 +131,25 @@ website:
             text: Inverse gamma
           - href: distributions/continuous-beta.qmd
             text: Beta
-      - section: "Problem Sets"
-        contents:
-          - href: problems/pset-0.qmd
-            text: Problem Set 0
-          - href: problems/pset-1.qmd
-            text: Problem Set 1
-          - href: problems/pset-2.qmd
-            text: Problem Set 2
-          - href: problems/pset-3.qmd
-            text: Problem Set 3
-          - href: problems/pset-4.qmd
-            text: Problem Set 4
-          - href: problems/pset-5.qmd
-            text: Problem Set 5
-          - href: problems/pset-6.qmd
-            text: Problem Set 6
-          - href: problems/pset-7.qmd
-            text: Problem Set 7
-            
+      # - section: "Problem Sets"
+      #   contents:
+      #     - href: problems/pset-0.qmd
+      #       text: Problem Set 0
+      #     - href: problems/pset-1.qmd
+      #       text: Problem Set 1
+      #     - href: problems/pset-2.qmd
+      #       text: Problem Set 2
+      #     - href: problems/pset-3.qmd
+      #       text: Problem Set 3
+      #     - href: problems/pset-4.qmd
+      #       text: Problem Set 4
+      #     - href: problems/pset-5.qmd
+      #       text: Problem Set 5
+      #     - href: problems/pset-6.qmd
+      #       text: Problem Set 6
+      #     - href: problems/pset-7.qmd
+      #       text: Problem Set 7
+           
   page-footer:
     right: 'This page is built with [Quarto](https://quarto.org/).'
     left: "&copy; Copyright 2026 John Zito and Anya Katsevich"

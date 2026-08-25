@@ -9,8 +9,8 @@ Your final course grade will be calculated as follows:
 ::: {.center-table}
 | Category       | Percentage |
 |----------------|------------|
-| Quizzes        | 15%        |
 | Problem Sets   | 10%        |
+| Quizzes        | 15%        |
 | Midterm Exam 1 | 25%        |
 | Midterm Exam 2 | 25%        |
 | Final exam     | 25%        |
@@ -40,24 +40,39 @@ Your final letter grade will be determined based on the usual thresholds:
 These thresholds will not change, and they will be applied exactly. This means that the final grades will not be curved, and a 92.99, for example, will not be rounded up to an A.
 :::
 
-## Quizzes (15%)
-
-We will have six ten-minute in-class quizzes, which will be announced ahead of time. Grading scheme to be determined.
-
-::: callout-note
-## Grace
-
-Lowest scores.... will be dropped (to be determined)
-:::
-
 ## Problem Sets (10%)
 
-Mathematics is like everything else in life; if you practice, you improve. As such, the problem sets are really the heart of the course. They must be handwritten either on paper or on a tablet and uploaded to Gradescope as a single `.pdf` file. Grading scheme to be determined.
+Mathematics is like everything else in life; if you practice, you improve. As such, I encourage you to take the problem sets seriously. Truly understanding how to solve the problems on each problem set is great preparation for the exams. Copying AI-generated solutions without understanding them will not help you learn! You must hand-write your solutions, either on paper or on a tablet, and upload them to [Gradescope](https://www.gradescope.com/courses/82894) by the due date as a single `.pdf` file. 
+
+**Grading scheme**: we will grade each problem set out of 10 points. 2 out of 10 points are awarded for completing every problem. The other 8 points are awarded for correctly solving one problem chosen by the teaching team. We will not disclose ahead of time which problem is graded, so you should solve them all.
+
+::: {.center-table}
+| Component                                                                     | Points             |
+|-------------------------------------------------------------------------------|--------------------|
+| Coherent attempt on every required problem                                    | 2                  |            
+| Sampled problem: correct, justified, clearly written                          | 8                  |
+:::
+
 
 ::: callout-note
 ## Grace
 
 Your lowest problem set score will be dropped at the end of the semester.
+:::
+
+## Quizzes (15%)
+
+We will have six ten-minute in-class quizzes, which will be announced ahead of time. The quizzes are there to encourage you to engage with the material and study continually, rather than only right before the exams. I know quizzes can be stressful, so the grading policy will be generous.
+
+Your final quiz grade is computed from your raw quiz average as follows: 
+$$\text{Final quiz grade} = \max\left(100, \;\frac32\,\times\,\text{Raw quiz average}\right)$$  
+
+::: callout-note
+## Missed quizzes 
+
+No make-up quizzes will be given. If you miss a quiz, you get a zero for it by default, unless your absence is recognized by a Dean’s Excuse, Notification of Varsity Athletic Participation, or Religious Observance Form; see the forms [here](https://trinity.duke.edu/undergraduate/academic-policies/class-attendance-and-missed-work#collapse-accordion-1072-2). 
+
+After the appropriate scores have been included, your raw quiz average will be converted to your final quiz grade using the above formula.
 :::
 
 ## Exams (25% each)
