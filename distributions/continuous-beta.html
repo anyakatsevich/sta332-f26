@@ -366,7 +366,7 @@ window.Quarto = {
   
 
 
-</header><p>You first saw the beta distribution in <a href="https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-9">Problem Set 6 #9</a>. The beta distribution plays many roles in probability and statistics. One of them is as the <em>conjugate prior</em> for the Bernoulli and geometric distributions. These distributions have one parameter <span class="math inline">\(p\)</span>, the probability of success for some binary trial. You can pick a particular beta distribution to represent your beliefs about where the unknown <span class="math inline">\(p\)</span> is likely to lie.</p>
+</header><p>The beta distribution plays many roles in probability and statistics. One of them is as the <em>conjugate prior</em> for the Bernoulli and geometric distributions. These distributions have one parameter <span class="math inline">\(p\)</span>, the probability of success for some binary trial. You can pick a particular beta distribution to represent your beliefs about where the unknown <span class="math inline">\(p\)</span> is likely to lie.</p>
 <section id="basic-properties" class="level2"><h2 class="anchored" data-anchor-id="basic-properties">Basic properties</h2>
 <p>The beta has bounded range, so all moments are finite. Sadly, we do not have closed-form expressions for the cdf or the mgf.</p>
 <table class="caption-top table">
@@ -401,7 +401,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Every probability density is an <a href="https://anyakatsevich.github.io/sta240-s26.github.io/math/massage-and-squint.html#kernel-tricks">integral identity in disguise</a>, so we have that:</p>
+<p>Every probability density is an <a href="../math/massage-and-squint.html#kernel-tricks">integral identity in disguise</a>, so we have that:</p>
 <p><span class="math display">\[
 \int_0^1
 x^{\alpha-1}(1-x)^{\beta-1}
@@ -512,7 +512,7 @@ x
 .
 \end{aligned}
 \]</span></p>
-<p>This is classic “massage and squint.” We do a kernel-trick with the beta density, and we recall the properties of the gamma function from <a href="https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-0.html#problem-5">Problem Set 0</a>.</p>
+<p>This is classic “massage and squint.” We do a kernel-trick with the beta density, and we recall the properties of the gamma function from the <a href="../math/gamma-function.html#properties">gamma function explainer</a>.</p>
 </div>
 </div>
 </div>

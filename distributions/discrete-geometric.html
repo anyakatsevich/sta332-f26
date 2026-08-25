@@ -368,11 +368,11 @@ window.Quarto = {
 
 </header><p>The geometric distribution is based on a (possibly infinite) sequence of independent and identically distributed binary trials, each with probability of success <span class="math inline">\(p\)</span>. There are two versions:</p>
 <ul>
-<li>sometimes, the geometric distribution is used to count the number of trials you must wait through until the first success. The range is <span class="math inline">\(\{1,\,2,\,3,\,4,\,...\}\)</span> and the PMF is <span class="math inline">\(P(X=k)=(1-p)^{k-1}p\)</span>. This is what we saw in <a href="https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-06-discrete-families.pdf">lecture</a>;</li>
+<li>sometimes, the geometric distribution is used to count the number of trials you must wait through until the first success. The range is <span class="math inline">\(\{1,\,2,\,3,\,4,\,...\}\)</span> and the PMF is <span class="math inline">\(P(X=k)=(1-p)^{k-1}p\)</span>;</li>
 <li>other times, the geometric distribution is used to count the number of failures that occur <em>before</em> the first success. So the range is <span class="math inline">\(\mathbb{N}=\{0,\,1,\,2,\,3,\,4,\,...\}\)</span> and the PMF is <span class="math inline">\(P(X=k)=(1-p)^kp\)</span>. This is the version that <code>R</code> <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Geometric.html">implements</a>.</li>
 </ul>
 <section id="basic-properties" class="level2"><h2 class="anchored" data-anchor-id="basic-properties">Basic properties</h2>
-<p>For the first version of the distribution that we saw in lecture, the properties are:</p>
+<p>For the first version of the distribution described above, the properties are:</p>
 <table class="caption-top table"><tbody>
 <tr class="odd">
 <td><strong>Notation</strong></td>
