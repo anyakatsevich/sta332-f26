@@ -16,7 +16,7 @@ $$
 \int_a^b f(x)\,\text{d}x=\lim_{\Delta x\to 0}\sum\limits_{i=1}^n f(x_i^*)\Delta x.
 $$
 
-Just as the [derivative](https://anyakatsevich.github.io/sta240-s26.github.io/math/differentiation.html) is the continuous analog to a discrete difference, the integral is the continuous analog to a discrete sum. 
+Just as the [derivative](differentiation.qmd) is the continuous analog to a discrete difference, the integral is the continuous analog to a discrete sum.
 
 ![](images/riemann.gif){fig-align="center"}
 
@@ -48,7 +48,7 @@ Consider
 $$
 \int_1^2\frac{1}{x^2}\,\text{d}x.
 $$
-What function, when you take its derivative, gives you $1/x^2=x^{-2}$? To answer that, you're essentially *undoing* the [power rule](https://anyakatsevich.github.io/sta240-s26.github.io/math/differentiation.html#derivative-rules). After a while, you realize
+What function, when you take its derivative, gives you $1/x^2=x^{-2}$? To answer that, you're essentially *undoing* the [power rule](differentiation.qmd#derivative-rules). After a while, you realize
 $$
 \frac{\text{d}}{\text{d}x}\left(-\frac{1}{x}\right)=\frac{1}{x^2},
 $$
@@ -255,4 +255,3 @@ $$
 $2x^{1/2}$ is continuous at 0, so to evaluate the limit you can just plug-in.
 
 :::
-

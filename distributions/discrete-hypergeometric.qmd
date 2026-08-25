@@ -7,8 +7,6 @@ filters:
 
 Imagine we have a finite population containing $m$ "success" cases and $n$ "failure" cases, for a total population size of $m+n$. If we sample $k$ cases from the population *without replacement*, then a hypergeometric random variable counts the number of sampled cases that are a success. 
 
-You first met this distribution on Problem Set 4 when studying [contested elections](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-4.html#problem-6).
-
 ## Basic properties
 
 |  |        |

@@ -15,7 +15,7 @@ $$
 \Gamma(\alpha) = \int_0^\infty x^{\alpha-1}e^{-x}\,\text{d}x.
 $$
 
-We have a lil' [math explainer](https://anyakatsevich.github.io/sta240-s26.github.io/math/gamma-function.html) where you can read more about it.
+We have a lil' [math explainer](../math/gamma-function.qmd) where you can read more about it.
 
 
 |  |        |
@@ -212,4 +212,3 @@ $$
 
 In order to invoke the gamma density kernel, we require that $t<\beta$ so that the rate parameter of the implied gamma is positive.
 :::-->
-

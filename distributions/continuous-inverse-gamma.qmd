@@ -3,7 +3,7 @@ title: "Inverse gamma distribution"
 format: html
 ---
 
-If $X\sim\text{Gamma}(\alpha,\,\beta)$, then the new random variable $Y=1/X$ has the *inverse gamma* distribution. We denote this $Y\sim\text{IG}(\alpha,\,\beta)$. You derived this on [Problem Set 6 #6d](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-6).
+If $X\sim\text{Gamma}(\alpha,\,\beta)$, then the new random variable $Y=1/X$ has the *inverse gamma* distribution. We denote this $Y\sim\text{IG}(\alpha,\,\beta)$.
 
 ## Basic properties
 

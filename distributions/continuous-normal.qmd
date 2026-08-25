@@ -47,7 +47,7 @@ You will get burned by this at least once. I guarantee it. But please take note.
 
 ## Play around!
 
-As we have seen, the parameters $\mu$ and $\sigma$ have multiple interpretations. From a probabilistic point-of-view, they are the mean $\mu=E(X)$ and the standard deviation $\sigma=\sqrt{\text{var}(X)}$. From a purely geometric point-of-view, they control the shape of the density curve. $\mu$ is the location of the peak, and $\sigma$ controls how far the inflection points are from $\mu$. You worked that out on [Problem Set 0](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-0.html#problem-4).
+As we have seen, the parameters $\mu$ and $\sigma$ have multiple interpretations. From a probabilistic point-of-view, they are the mean $\mu=E(X)$ and the standard deviation $\sigma=\sqrt{\text{var}(X)}$. From a purely geometric point-of-view, they control the shape of the density curve. $\mu$ is the location of the peak, and $\sigma$ controls how far the inflection points are from $\mu$.
 
 
 ```{shinylive-r}

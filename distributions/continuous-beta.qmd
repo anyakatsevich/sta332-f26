@@ -5,7 +5,6 @@ filters:
   - shinylive
 ---
 
-You first saw the beta distribution in [Problem Set 6 #9](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-9).
 The beta distribution plays many roles in probability and statistics. One of them is as the *conjugate prior* for the Bernoulli and geometric distributions. These distributions have one parameter $p$, the probability of success for some binary trial. You can pick a particular beta distribution to represent your beliefs about where the unknown $p$ is likely to lie.
 
 ## Basic properties
@@ -21,7 +20,7 @@ The beta has bounded range, so all moments are finite. Sadly, we do not have clo
 | **Expectation** | $\frac{\alpha}{\alpha+\beta}$ |
 | **Variance** | $\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$ |
 
-Every probability density is an [integral identity in disguise](https://anyakatsevich.github.io/sta240-s26.github.io/math/massage-and-squint.html#kernel-tricks), so we have that:
+Every probability density is an [integral identity in disguise](../math/massage-and-squint.qmd#kernel-tricks), so we have that:
 
 $$
 \int_0^1
@@ -131,6 +130,6 @@ x
 \end{aligned}
 $$
 
-This is classic "massage and squint." We do a kernel-trick with the beta density, and we recall the properties of the gamma function from [Problem Set 0](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-0.html#problem-5).
+This is classic "massage and squint." We do a kernel-trick with the beta density, and we recall the properties of the gamma function from the [gamma function explainer](../math/gamma-function.qmd#properties).
 
 :::

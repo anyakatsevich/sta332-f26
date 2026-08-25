@@ -108,16 +108,7 @@ Use this fact to make your life easier!
 
 # Examples
 
-"Massage and squint" is just a grand exercise in pattern recognition, so here is a running list of examples from the course. Study these carefully:
+"Massage and squint" is just a grand exercise in pattern recognition. Here are a couple of examples on this site to study carefully:
 
-- [Poisson mean](https://anyakatsevich.github.io/sta240-s26.github.io/distributions/discrete-poisson.html#derivations) from PSET 0 #3;
-- [Poisson MGF](https://anyakatsevich.github.io/sta240-s26.github.io/distributions/discrete-poisson.html#derivations) from lecture;
-- [Standard normal MGF](https://anyakatsevich.github.io/sta240-s26.github.io/distributions/continuous-normal.html#derivations) from lecture;
-- [Gamma MGF](https://anyakatsevich.github.io/sta240-s26.github.io/distributions/continuous-gamma.html#derivations) from lecture;
-- [PSET 5 #4](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-5.html#problem-4): $\Gamma(1/2)=\sqrt{\pi}$;
-- [PSET 5 #6c](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-5.html#problem-6);
-- [PSET 6 #7](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-7);
-- Poisson-binomial hierarchy from [lecture](https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-12-joint-discrete.pdf);
-- Gamma-normal hierarchy from [lecture](https://anyakatsevich.github.io/sta240-s26.github.io/lecture-notes/sta240-notes-13-joint-continuous.pdf);
-- [PSET 6 #9](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-9): the beta-gamma hierarchy;
-- [PSET 6 #10](https://anyakatsevich.github.io/sta240-s26.github.io/problems/pset-6.html#problem-10): gamma-gamma hierarchy.
+- [Poisson mean and MGF](../distributions/discrete-poisson.qmd#derivations);
+- [Beta mean](../distributions/continuous-beta.qmd#derivations).
