@@ -41,7 +41,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-d640c705e8c17715bca3574aa719063f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d0086a85466981861881e17a07507999.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-b356fa167be99f6ab4a696039820d19f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -70,6 +70,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <meta property="og:title" content="Assignments and grading – STA 332 Fall 2026">
 <meta property="og:description" content="Homepage for STA 332: Statistical Inference">
@@ -106,8 +135,8 @@ ul.task-list li input[type="checkbox"] {
       <div class="sidebar-tools-main tools-wide">
     <a href="https://cmgr.oit.duke.edu/containers" title="RStudio Containers" class="quarto-navigation-tool px-1" aria-label="RStudio Containers"><i class="bi bi-code-square"></i></a>
     <a href="https://go.canvas.duke.edu/" title="Canvas" class="quarto-navigation-tool px-1" aria-label="Canvas"><i class="bi bi-megaphone"></i></a>
-    <a href="https://edstem.org/us/courses/89558/discussion" title="Ed Discussion" class="quarto-navigation-tool px-1" aria-label="Ed Discussion"><i class="bi bi-people"></i></a>
-    <a href="https://www.gradescope.com/courses/1195780" title="Gradescope" class="quarto-navigation-tool px-1" aria-label="Gradescope"><i class="bi bi-file-arrow-up"></i></a>
+    <a href="https://edstem.org/us/courses/103644/discussion" title="Ed Discussion" class="quarto-navigation-tool px-1" aria-label="Ed Discussion"><i class="bi bi-people"></i></a>
+    <a href="https://www.gradescope.com/courses/82894" title="Gradescope" class="quarto-navigation-tool px-1" aria-label="Gradescope"><i class="bi bi-file-arrow-up"></i></a>
 </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -221,12 +250,6 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Gamma function</span></a>
   </div>
 </li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../math/massage-and-squint.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Massage and squint</span></a>
-  </div>
-</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -294,65 +317,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
       </ul>
   </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
- <span class="menu-text">Problem Sets</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-0.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 0</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-1.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 1</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-2.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 2</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-3.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 3</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-4.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 4</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-5.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 5</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-6.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 6</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../problems/pset-7.qmd" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Problem Set 7</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
     </ul>
     </div>
 </nav>
@@ -363,8 +327,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#quizzes-15" id="toc-quizzes-15" class="nav-link active" data-scroll-target="#quizzes-15">Quizzes (15%)</a></li>
-  <li><a href="#problem-sets-10" id="toc-problem-sets-10" class="nav-link" data-scroll-target="#problem-sets-10">Problem Sets (10%)</a></li>
+  <li><a href="#problem-sets-10" id="toc-problem-sets-10" class="nav-link active" data-scroll-target="#problem-sets-10">Problem Sets (10%)</a></li>
+  <li><a href="#quizzes-15" id="toc-quizzes-15" class="nav-link" data-scroll-target="#quizzes-15">Quizzes (15%)</a></li>
   <li><a href="#exams-25-each" id="toc-exams-25-each" class="nav-link" data-scroll-target="#exams-25-each">Exams (25% each)</a></li>
   </ul>
 </nav>
@@ -402,12 +366,12 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
-<td>Quizzes</td>
-<td>15%</td>
-</tr>
-<tr class="even">
 <td>Problem Sets</td>
 <td>10%</td>
+</tr>
+<tr class="even">
+<td>Quizzes</td>
+<td>15%</td>
 </tr>
 <tr class="odd">
 <td>Midterm Exam 1</td>
@@ -502,26 +466,34 @@ Warning
 <p>These thresholds will not change, and they will be applied exactly. This means that the final grades will not be curved, and a 92.99, for example, will not be rounded up to an A.</p>
 </div>
 </div>
-<section id="quizzes-15" class="level2">
-<h2 class="anchored" data-anchor-id="quizzes-15">Quizzes (15%)</h2>
-<p>We will have six ten-minute in-class quizzes, which will be announced ahead of time. Grading scheme to be determined.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Grace
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Lowest scores…. will be dropped (to be determined)</p>
-</div>
-</div>
-</section>
 <section id="problem-sets-10" class="level2">
 <h2 class="anchored" data-anchor-id="problem-sets-10">Problem Sets (10%)</h2>
-<p>Mathematics is like everything else in life; if you practice, you improve. As such, the problem sets are really the heart of the course. They must be handwritten either on paper or on a tablet and uploaded to Gradescope as a single <code>.pdf</code> file. Grading scheme to be determined.</p>
+<p>Mathematics is like everything else in life; if you practice, you improve. As such, I encourage you to take the problem sets seriously. Truly understanding how to solve the problems on each problem set is great preparation for the exams. Copying AI-generated solutions without understanding them will not help you learn! You must hand-write your solutions, either on paper or on a tablet, and upload them to <a href="https://www.gradescope.com/courses/82894">Gradescope</a> by the due date as a single <code>.pdf</code> file.</p>
+<p><strong>Grading scheme</strong>: we will grade each problem set out of 10 points. 2 out of 10 points are awarded for completing every problem. The other 8 points are awarded for correctly solving one problem chosen by the teaching team. We will not disclose ahead of time which problem is graded, so you should solve them all.</p>
+<div class="center-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 79%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coherent attempt on every required problem</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>Sampled problem: correct, justified, clearly written</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -533,6 +505,25 @@ Warning
 </div>
 <div class="callout-body-container callout-body">
 <p>Your lowest problem set score will be dropped at the end of the semester.</p>
+</div>
+</div>
+</section>
+<section id="quizzes-15" class="level2">
+<h2 class="anchored" data-anchor-id="quizzes-15">Quizzes (15%)</h2>
+<p>We will have six ten-minute in-class quizzes, which will be announced ahead of time. The quizzes are there to encourage you to engage with the material and study continually, rather than only right before the exams. I know quizzes can be stressful, so the grading policy will be generous.</p>
+<p>Your final quiz grade is computed from your raw quiz average as follows: <span class="math display">\[\text{Final quiz grade} = \max\left(100, \;\frac32\,\times\,\text{Raw quiz average}\right)\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Missed quizzes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No make-up quizzes will be given. If you miss a quiz, you get a zero for it by default, unless your absence is recognized by a Dean’s Excuse, Notification of Varsity Athletic Participation, or Religious Observance Form; see the forms <a href="https://trinity.duke.edu/undergraduate/academic-policies/class-attendance-and-missed-work#collapse-accordion-1072-2">here</a>.</p>
+<p>After the appropriate scores have been included, your raw quiz average will be converted to your final quiz grade using the above formula.</p>
 </div>
 </div>
 </section>

@@ -370,124 +370,234 @@
     "text": "\\[\n    \\begin{aligned}\n        f_{XY}(x, y)\n        =\n        &\\frac{1}{2\\pi\\sigma_x\\sigma_y\\sqrt{1-\\rho^2}}\n        \\\\\n        &\n        \\times\n        \\exp\\left(-\\frac{1}{2(1-\\rho^2)}\\left[\n        \\left(\\frac{x-\\mu_x}{\\sigma_x}\\right)^2\n        -\n        2\\rho\n        \\left(\\frac{x-\\mu_x}{\\sigma_x}\\right)\n        \\left(\\frac{y-\\mu_y}{\\sigma_y}\\right)\n        +\n        \\left(\\frac{y-\\mu_y}{\\sigma_y}\\right)^2\n        \\right]\\right),\n        \\\\\n        &\n        \\\\\n        &\n        (x, y)\\in\\mathbb{R}^2,\n    \\end{aligned}\n\\]\n#| '!! shinylive warning !!': |\n#|   shinylive does not work in self-contained HTML documents.\n#|   Please set `embed-resources: false` in your metadata.\n#| standalone: true\n#| viewerHeight: 700\n\nfxy = function(x, y, mu, Sig, sd1, sd2, rho) {\n  \n  if(missing(mu)) mu=c(0,0)\n  \n  if(!missing(Sig)) {\n    sd1 = sqrt(Sig[1,1])\n    sd2 = sqrt(Sig[2,2])\n    if(Sig[1,2] != Sig[2,1]) {\n      print(\"Covariance matrix is not symmetric... Returning .\")\n      return(NULL)\n    }\n    rho = Sig[1,2]/(sd1*sd2)\n  }\n  else if(missing(rho) || missing(sd1) || missing(sd2)) {\n    sd1 = sd2 = 1\n    rho = 0\n  }\n  \n  Q = (x-mu[1])^2/sd1^2 + (y-mu[2])^2/sd2^2 -\n    2*rho*(x-mu[1])*(y-mu[2])/(sd1*sd2)\n  \n  1/(2*pi*sd1*sd2*sqrt(1-rho^2))*exp(-Q/(2*(1-rho^2)))\n}\n\n\n## Calls persp() with preferred arguments\npersp.plot = function(x, y, z, main=\"Bivariate Normal Density\",\n                      theta=30, phi=25, r=50, d=.1, expand=0.5, ltheta=90, lphi=180,\n                      shade=0.5, ticktype=\"simple\", nticks=5, col=\"lightgreen\", zlab=\"\", ...) {\n  \n  persp(x, y, z, main=main,\n        theta=theta, phi=phi, r=r, d=d, expand=expand, ltheta=ltheta,\n        lphi=lphi, shade=shade, ticktype=ticktype, nticks=nticks,\n        col=col, zlab=zlab, ...)\n}\n\n\n## Creates covariance matrix from sd.x, sd.y, and rho\ncalc.Sig = function(sd.x, sd.y, rho) {\n  \n  sig.xy = rho*sd.x*sd.y\n  matrix(c(sd.x^2, sig.xy, sig.xy, sd.y^2), nrow=2)\n}\n\n\n## Returns bivariate normal density for specified x-y grid\ndmvnorm = function(x, y, mu, Sig) {\n  \n  if(missing(mu)) mu = c(0,0)\n  if(missing(Sig)) Sig = diag(2)\n  \n  outer(x, y, fxy, mu, Sig)\n}\n\n\n## This is only the kernel of the bivariate Normal density\n## x is a 2x1 vector\nf = function(x, y, mu=c(0,0), sd.x=1, sd.y=1, rho=0) {\n  \n  #t(X-mu)%*%solve(Sig)%*%(X-mu)\n  mu.x = mu[1]\n  mu.y = mu[2]\n  A = (x-mu.x)^2/sd.x^2 + (y-mu.y)^2/sd.y^2\n  B = 2*rho/(sd.x*sd.y)*(x-mu.x)*(y-mu.y)\n  return((A-B)/(1-rho^2))\n}\n\n\n### End: Function definitions ###\n\n\n\n\nlibrary(shiny)\n\n# Define UI for application that draws a histogram\nui &lt;- fluidPage(\n  \n  # Application title\n  titlePanel(\"The bivariate normal density\"),\n  \n  # Sidebar with a slider input for number of bins \n  sidebarLayout(\n    sidebarPanel(\n      sliderInput(\"sd.x\",\n                  \"X standard deviation:\",\n                  min = 0,\n                  max = 1,\n                  value = 0.5,\n                  step = 0.01),\n      sliderInput(\"sd.y\",\n                  \"Y standard deviation:\",\n                  min = 0,\n                  max = 1,\n                  value = 0.5,\n                  step = 0.01),\n      sliderInput(\"rho\",\n                  \"Correlation:\",\n                  min = -1,\n                  max = 1,\n                  value = 0,\n                  step = 0.01)\n    ),\n    \n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"distPlot\")\n    )\n  )\n)\n\n# Define server logic required to draw a histogram\nserver &lt;- function(input, output) {\n  \n  output$distPlot &lt;- renderPlot({\n    \n    ## Define sequence of parameter\n    \n    p.seq = c(.8, .9, .95, .99)\n    cont.lev = qchisq(p.seq, 2)\n    cont.lab = c(\"80%\", \"90%\", \"95%\", \"99%\")\n    \n    \n    ## Plotting starts here\n    \n    par(cex.lab=2)\n    par(cex.axis=1.75)\n    par(las=1)\n    par(mfrow=c(1,2))  # 1.5:1 aspect ratio\n    \n    sd.x = input$sd.x\n    sd.y = input$sd.y\n    rho = input$rho\n    N = 100\n    x = y = seq(-3.2,3.2,le=N)  # create x-y grid of size NxN\n    mu = c(0,0)\n    \n    \n    z = dmvnorm(x, y, mu, calc.Sig(sd.x, sd.y, rho))\n    persp.plot(x, y, z, main=\"\", col=\"lightblue\", border=NA, cex.lab=1.5,\n               axes=F)\n    \n    ## Contour Plot\n    z = outer(x, y, f, mu, sd.x, sd.y, rho)\n    contour(x, y, z, levels=cont.lev, cex.axis=1.4, labels=cont.lab,\n            xlab=\"x\", ylab=\"y\", cex.lab=1.5)\n    abline(v=0, h=0, lty=3, col=\"darkgrey\")\n    \n  })\n}\n\n# Run the application \nshinyApp(ui = ui, server = server)"
   },
   {
-    "objectID": "problems/pset-0.html",
-    "href": "problems/pset-0.html",
-    "title": "Problem Set 0",
+    "objectID": "syllabus/syllabus_team.html",
+    "href": "syllabus/syllabus_team.html",
+    "title": "Teaching team",
     "section": "",
-    "text": "Nature laughs at the difficulties of integration.\nThis is ostensibly calculus review, but each problem is a piece of probability in disguise. We will illuminate these connections throughout the semester, and I will refer to Problem Set 0 often. Stay tuned!",
+    "text": "Mug\nName\nRole\nOffice Hours\n\n\n\n\n\nGwen Jacobson\nHead TA\nTime TBD \nOld Chem 203B\n\n\n\nJun Chen\nTA\nTime TBD \nOld Chem 203B\n\n\n\nVarun Mittal\nTA\nTime TBD \nOld Chem 203B\n\n\n\nBethany Akinola\nTA\nTime TBD \nOld Chem 203B\n\n\n\nJanet Meng\nTA\nTime TBD \nOld Chem 203B\n\n\n\nAnya Katsevich\nInstructor\nTue, Thu 4:30 PM - 5:30 PM \nOld Chem 216",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Teaching team"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-0",
-    "href": "problems/pset-0.html#problem-0",
-    "title": "Problem Set 0",
-    "section": "Problem 0",
-    "text": "Problem 0\nRecommend some music for us to listen to while we grade this.",
+    "objectID": "syllabus/syllabus_policies.html",
+    "href": "syllabus/syllabus_policies.html",
+    "title": "Policies",
+    "section": "",
+    "text": "You are enthusiastically encouraged to work together and help one another on problem sets. However, copying someone else’s solutions word-for-word is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-1",
-    "href": "problems/pset-0.html#problem-1",
-    "title": "Problem Set 0",
-    "section": "Problem 1",
-    "text": "Problem 1\nExplain why this is horrific notation:\n\\[\n    \\int_0^x f(x)\\,\\textrm{d} x.\n\\]\nHow should it be fixed?",
+    "objectID": "syllabus/syllabus_policies.html#collaboration",
+    "href": "syllabus/syllabus_policies.html#collaboration",
+    "title": "Policies",
+    "section": "",
+    "text": "You are enthusiastically encouraged to work together and help one another on problem sets. However, copying someone else’s solutions word-for-word is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-2",
-    "href": "problems/pset-0.html#problem-2",
-    "title": "Problem Set 0",
-    "section": "Problem 2",
-    "text": "Problem 2\nSimplify this:\n\\[\n\\ln\\left(e^{a_1}e^{a_2}e^{a_3}\\cdots e^{a_n}\\right).\n\\]",
+    "objectID": "syllabus/syllabus_policies.html#use-of-outside-resources-including-ai",
+    "href": "syllabus/syllabus_policies.html#use-of-outside-resources-including-ai",
+    "title": "Policies",
+    "section": "Use of outside resources, including AI",
+    "text": "Use of outside resources, including AI\nThere are at least two reasons you might seek outside resources:\n\n✅ Extra practice or alternative instruction: Go crazy. Knock yourself out. Have a ball. The internet is saturated with good (and horrible) resources for learning this material, so if you find something that really resonates with you, have at it;\n❌ Doing the problems for you: If you find a solution online, or ask a language model to generate one, and you copy it down and submit it as your own work, that is plagiarism. If we detect it, you will earn a zero for that part of your write-up.\n\n“Using ChatGPT to complete assignments is like bringing a forklift into the weight room; you will never improve your cognitive fitness that way.” Furthermore, 90% of your final course grade is determined by your performance on old school, no-tech exams. As such, outsourcing all of your thinking to an AI will probably end in humiliating disaster. To avoid this, I suggest you abstain from using language models to do the problems for you.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-3",
-    "href": "problems/pset-0.html#problem-3",
-    "title": "Problem Set 0",
-    "section": "Problem 3",
-    "text": "Problem 3\nAssume \\(\\lambda&gt;0\\) is a constant and compute\n\\[\n    \\sum\\limits_{n=0}^\\infty n \\frac{\\lambda^n}{n!}e^{-\\lambda}\n    .\n\\]",
+    "objectID": "syllabus/syllabus_policies.html#communication",
+    "href": "syllabus/syllabus_policies.html#communication",
+    "title": "Policies",
+    "section": "Communication",
+    "text": "Communication\nIf you wish to ask content-related questions in writing, please do not do so via e-mail. Instead, please use the course discussion forum Ed Discussion. That way all members of the teaching team can see your question, and all students can benefit from the ensuing discussion. You are also encouraged to answer one another’s questions.\nIf you have questions about personal matters that may not be appropriate for the public course forum (e.g. illness, accommodations, etc), then please e-mail the instructor directly (anya.katsevich@duke.edu).\n\n\n\n\n\n\nNote\n\n\n\nYou can ask questions anonymously on Ed. The teaching team will still know your identity, but your peers will not.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-4",
-    "href": "problems/pset-0.html#problem-4",
-    "title": "Problem Set 0",
-    "section": "Problem 4",
-    "text": "Problem 4\nHere is a very silly function:\n\\[\nh(x)\n=\n\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\n,\\quad\n-\\infty&lt;x&lt;\\infty\n.\n\\]\nTreat \\(-\\infty&lt;\\mu&lt;\\infty\\) and \\(\\sigma&gt;0\\) as constants and compute the value(s) of \\(x\\) at which \\(h\\) has inflection points.\n\n\n\n\n\n\nTipHint\n\n\n\n\n\nHere is an example of what \\(h\\) might look like in the special case where \\(\\mu = 1\\) and \\(\\sigma=2\\):\n\nCodem = 1\ns = 2\npar(mar = c(4, 4, 0.1, 4))\ncurve(exp(-0.5 * ((x - m) / s)^2), \n      from = -6, to = 8, n = 500,\n      xlab = \"x\", ylab = \"h(x)\",\n      xaxt = \"n\")\naxis(1, at = -6:8)\n\n\n\n\n\n\n\nBefore you start doing any math, can you use the picture to guess what the answer will be?",
+    "objectID": "syllabus/syllabus_policies.html#late-work-and-extensions",
+    "href": "syllabus/syllabus_policies.html#late-work-and-extensions",
+    "title": "Policies",
+    "section": "Late work and extensions",
+    "text": "Late work and extensions\nNo late work will be accepted unless you request an extension in advance by e-mailing the instructor directly (anya.katsevich@duke.edu). All reasonable requests will be entertained, but extensions will not be long.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-5",
-    "href": "problems/pset-0.html#problem-5",
-    "title": "Problem Set 0",
-    "section": "Problem 5",
-    "text": "Problem 5\nHere is another inordinately silly function:\n\\[\n\\Gamma(x)=\\int_0^\\infty y^{x-1}e^{-y}\\,\\textrm{d} y,\\quad x&gt;0.\n\\]\nProve that \\(\\Gamma(x+1)=x\\Gamma(x)\\).\n\n\n\n\n\n\nTipHint\n\n\n\n\n\nStart on the left-hand side by writing out \\(\\Gamma(x+1)\\) and evaluating the integral by parts.",
+    "objectID": "syllabus/syllabus_policies.html#regrade-requests",
+    "href": "syllabus/syllabus_policies.html#regrade-requests",
+    "title": "Policies",
+    "section": "Regrade requests",
+    "text": "Regrade requests\nIf you receive a graded assignment back, and you believe that some part of it was graded incorrectly, you may dispute the grade by submitting a regrade request in Gradescope. Note the following:\n\nYou have one week after you receive a grade to submit a regrade request;\nYou should submit separate regrade requests for each question you wish to dispute, not a single catch-all request;\nRequests will be considered if there was an error in the grade calculation or if a correct answer was mistakenly marked as incorrect;\nRequests to dispute the number of points deducted for an incorrect response will not be considered;\nNo grades will be changed after the final exam has been administered.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-6",
-    "href": "problems/pset-0.html#problem-6",
-    "title": "Problem Set 0",
-    "section": "Problem 6",
-    "text": "Problem 6\nLet \\(f\\) be any function with the following properties:\n\n\n\\(f\\) is twice continuously differentiable in a neighborhood of zero1;\n\n\\(f(0) = 0\\);\n\n\\(f'(0) = 0\\);\n\n\\(f''(0) = 1\\).\n\nAssume \\(t\\) is a constant and compute\n\\[\n    \\lim_{x\\to\\infty} xf\\left(\\frac{t}{\\sqrt{x}}\\right)\n    .\n\\]\n\n\n\n\n\n\nWarningContinuity?\n\n\n\nA full credit solution must clearly explain how and why continuity is being used along the way.",
+    "objectID": "syllabus/syllabus_policies.html#attendance",
+    "href": "syllabus/syllabus_policies.html#attendance",
+    "title": "Policies",
+    "section": "Attendance",
+    "text": "Attendance\nLive your life. Attendance is not strictly required for any of the class meetings, and the responsibility lies with us to make class meetings sufficiently engaging and informative that you choose to attend. Having said that, success in this class and regular attendance are probably highly positively correlated.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#problem-7",
-    "href": "problems/pset-0.html#problem-7",
-    "title": "Problem Set 0",
-    "section": "Problem 7",
-    "text": "Problem 7\nConsider this integral:\n\\[\n    \\int_2^\\infty\n    \\frac{1}{x(\\ln x)^p}\\textrm{d} x\n    .\n\\]\n\n\nUse R to create a single plot with many lines, each graphing the integrand for a different value of \\(p\\). Consider \\(p\\) equal to -2, -1.5, -1, 0, 1, and 5, and make the \\(x\\)-axis of your plot run from 2 to 15.\nShow that \\(\\lim_{x\\to\\infty}\\frac{1}{x(\\ln x)^p}=0\\) for all values of \\(-\\infty&lt;p&lt;\\infty\\).\nFor what values of \\(p\\) does the integral converge? When it does converge, what is its value?\nConsult the picture you created in part (a), and write a few sentences explaining conceptually why the integral converges for some values of \\(p\\) but not others.\n\n\n\n\n\n\n\nTipHint\n\n\n\n\n\nWhen taking the limit or evaluating the integral, can you use the same technique for all values of \\(p\\), or do you need a different technique depending on what \\(p\\) is?",
+    "objectID": "syllabus/syllabus_policies.html#accommodations",
+    "href": "syllabus/syllabus_policies.html#accommodations",
+    "title": "Policies",
+    "section": "Accommodations",
+    "text": "Accommodations\nIf you need accommodations for this class, you will need to register with the Student Disability Access Office (SDAO) and provide them with documentation related to your needs. SDAO will work with you to determine what accommodations are appropriate for your situation. Please note that accommodations are not retroactive and disability accommodations cannot be provided until a Faculty Accommodation Letter has been given to me. Please contact SDAO for more information: sdao@duke.edu or access.duke.edu.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#submission",
-    "href": "problems/pset-0.html#submission",
-    "title": "Problem Set 0",
-    "section": "Submission",
-    "text": "Submission\nYou are free to compose your solutions for this problem set however you wish (scan or photograph written work, handwriting capture on a tablet device, LaTeX, Quarto, whatever) as long as the final product is a single PDF file. You must upload this to Gradescope and mark the pages associated with each problem.\nDo not forget to include the following:\n\nFor each problem, please acknowledge your collaborators;\nIf a problem required you to code something, please include both the code and the output. “Including the code” can be as crude as a screenshot, but you might also use Quarto to get a pdf that you can merge with the rest of your submission.",
+    "objectID": "syllabus/syllabus_policies.html#duke-community-standard",
+    "href": "syllabus/syllabus_policies.html#duke-community-standard",
+    "title": "Policies",
+    "section": "Duke Community Standard",
+    "text": "Duke Community Standard\nDuke University is a community dedicated to scholarship, leadership, and service and to the principles of honesty, fairness, respect, and accountability. Members of this community commit to reflect upon and uphold these principles in all academic and non-academic endeavors, and to protect and promote a culture of integrity.\nDuke University has high expectations for students’ scholarship and conduct. In accepting admission, students indicate their willingness to subscribe to and be governed by the rules and regulations of the university, which flow from the Duke Community Standard (DCS).\nRegardless of course delivery format, it is the responsibility of all students to understand and follow all Duke policies, including but not limited to the academic integrity policy (e.g., completing one’s own work, following proper citation of sources, adhering to guidance around group work projects, and more). Ignoring these requirements is a violation of the DCS.\nStudents can direct any questions or concerns regarding academic integrity to the Office of Student Conduct and Community Standards at conduct@duke.edu and can access the DCS guide at https://dukecommunitystandard.students.duke.edu/.\nIn STA 332 specifically…\n\nIf a conduct violation results in a zero on a problem set, that zero will not be dropped;\nIf a conduct violation results in a zero on a midterm, that zero will not be replaced with your final exam score;\nIf we discover that students are sharing and copying assignment solutions, all students involved will be penalized equally, the sharers the same as the recipients.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Policies"
     ]
   },
   {
-    "objectID": "problems/pset-0.html#footnotes",
-    "href": "problems/pset-0.html#footnotes",
-    "title": "Problem Set 0",
-    "section": "Footnotes",
-    "text": "Footnotes\n\nThis means that \\(f\\) and its first two derivatives are all continuous functions at and around zero.↩︎",
+    "objectID": "syllabus/syllabus_materials.html",
+    "href": "syllabus/syllabus_materials.html",
+    "title": "Course materials",
+    "section": "",
+    "text": "You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are good options: - [DS] Probability and Statistics by Morris DeGroot and Mark Schervish; - [Wass] All of Statistics by Larry Wasserman.\nIn the PREPARE column of the course schedule, I will indicate which parts of [DS] correspond to the lectures.",
     "crumbs": [
-      "Problem Sets",
-      "Problem Set 0"
+      "Syllabus",
+      "Materials"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_materials.html#textbooks",
+    "href": "syllabus/syllabus_materials.html#textbooks",
+    "title": "Course materials",
+    "section": "",
+    "text": "You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are good options: - [DS] Probability and Statistics by Morris DeGroot and Mark Schervish; - [Wass] All of Statistics by Larry Wasserman.\nIn the PREPARE column of the course schedule, I will indicate which parts of [DS] correspond to the lectures.",
+    "crumbs": [
+      "Syllabus",
+      "Materials"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_materials.html#technology",
+    "href": "syllabus/syllabus_materials.html#technology",
+    "title": "Course materials",
+    "section": "Technology",
+    "text": "Technology\nLecture will largely be a low tech affair: pencil and paper will suffice. In general, you will need access to a device with internet so that you can use the following:\n\nThis course page that you are on right now;\nCanvas, through which you can access…\n\nGradescope;\nEd Discussion;\n\nZoom (e.g. for remote office hours).\n\nIf access to technology becomes a concern for you during the semester, contact the instructor immediately to discuss options.",
+    "crumbs": [
+      "Syllabus",
+      "Materials"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "STA 332 Statistical Inference",
+    "section": "",
+    "text": "Below is a prospective outline for the course. Exam dates are firm, quiz dates will be announced later, and topics may change with advance notice.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWEEK\nDATE\nPREPARE\nTOPIC\nMATERIALS\nDUE\n\n\n\n1\nTue, Aug 25\nTo be posted\nLec 1: Intro to statistical inference\n\n\n\n\n\nThu, Aug 27\nTo be posted\nLec 2: Probability review\n\n\n\n\n\n\n\nSufficiency and Data Reduction\n\n\n\n\n2\nTue, Sep 1\nTo be posted\nLec 3: Sufficiency\n\n\n\n\n\nThu, Sep 3\nTo be posted\nLec 4: Minimal sufficiency\n\n\n\n\n3\nTue, Sep 8\nTo be posted\nLec 5: Exponential families\n\n\n\n\n\n\n\nPoint estimation\n\n\n\n\n\nThu, Sep 10\nTo be posted\nLec 6: Constructing estimators: method of moments, MLE\n\n\n\n\n4\nTue, Sep 15\nTo be posted\nLec 7: Estimator properties and risk\n\n\n\n\n\nThu, Sep 17\nTo be posted\nLec 8: Unbiased estimation and the UMVUE problem\n\n\n\n\n5\nTue, Sep 22\nTo be posted\nLec 9: Rao–Blackwellization\n\n\n\n\n\nThu, Sep 24\nTo be posted\nLec 10: Completeness\n\n\n\n\n6\nTue, Sep 29\nTo be posted\nLec 11: Lehmann–Scheffe and UMVUE construction\n\n\n\n\n\nThu, Oct 1\nTo be posted\nLec 12: Lehmann–Scheffe proof and applications\n\n\n\n\n7\nTue, Oct 6\nTo be posted\nMidterm 1\n\n\n\n\n\nThu, Oct 8\nTo be posted\nLec 13: Fisher information and Cramer–Rao\n\n\n\n\n8\nTue, Oct 13\nTo be posted\nNo class (Fall Break)\n\n\n\n\n\n\n\nHypothesis Testing\n\n\n\n\n\nThu, Oct 15\nTo be posted\nLec 14: Testing principles\n\n\n\n\n9\nTue, Oct 20\nTo be posted\nLec 15: Optimal tests: most-powerful tests, Neyman–Pearson\n\n\n\n\n\nThu, Oct 22\nTo be posted\nLec 16: Neyman–Pearson in practice\n\n\n\n\n10\nTue, Oct 27\nTo be posted\nLec 17: UMP tests and monotone likelihood ratios\n\n\n\n\n\nThu, Oct 29\nTo be posted\nLec 18: Likelihood-ratio tests (LRTs)\n\n\n\n\n\n\n\nLarge Sample Theory\n\n\n\n\n11\nTue, Nov 3\nTo be posted\nLec 19: Large sample theory I: modes of convergence\n\n\n\n\n\nThu, Nov 5\nTo be posted\nLec 20: LLN, CLT, and Slutsky\n\n\n\n\n12\nTue, Nov 10\nTo be posted\nLec 21: Delta method and estimator asymptotics\n\n\n\n\n\nThu, Nov 12\nTo be posted\nLec 22: MLE asymptotics\n\n\n\n\n13\nTue, Nov 17\nTo be posted\nLec 23: Wilks’ theorem and large-sample LRTs\n\n\n\n\n\nThu, Nov 19\nTo be posted\nMidterm 2\n\n\n\n\n\n\n\nConfidence intervals\n\n\n\n\n14\nTue, Nov 24\nTo be posted\nLec 24: Foundations\n\n\n\n\n\nThu, Nov 26\nTo be posted\nNo class (Thanksgiving recess)\n\n\n\n\n15\nTue, Dec 1\nTo be posted\nLec 25: Exact construction\n\n\n\n\n\nThu, Dec 3\nTo be posted\nLec 26: Asymptotic methods\n\n\n\n\n16\nThu, Dec 10\nTo be posted\nFinal exam",
+    "crumbs": [
+      "Syllabus",
+      "Schedule"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html",
+    "href": "syllabus/syllabus_assignments.html",
+    "title": "Assignments and grading",
+    "section": "",
+    "text": "Your final course grade will be calculated as follows:\nYour final letter grade will be determined based on the usual thresholds:",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html#problem-sets-10",
+    "href": "syllabus/syllabus_assignments.html#problem-sets-10",
+    "title": "Assignments and grading",
+    "section": "Problem Sets (10%)",
+    "text": "Problem Sets (10%)\nMathematics is like everything else in life; if you practice, you improve. As such, I encourage you to take the problem sets seriously. Truly understanding how to solve the problems on each problem set is great preparation for the exams. Copying AI-generated solutions without understanding them will not help you learn! You must hand-write your solutions, either on paper or on a tablet, and upload them to Gradescope by the due date as a single .pdf file.\nGrading scheme: we will grade each problem set out of 10 points. 2 out of 10 points are awarded for completing every problem. The other 8 points are awarded for correctly solving one problem chosen by the teaching team. We will not disclose ahead of time which problem is graded, so you should solve them all.\n\n\n\n\n\n\n\n\nComponent\nPoints\n\n\n\n\nCoherent attempt on every required problem\n2\n\n\nSampled problem: correct, justified, clearly written\n8\n\n\n\n\n\n\n\n\n\n\nNoteGrace\n\n\n\nYour lowest problem set score will be dropped at the end of the semester.",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html#quizzes-15",
+    "href": "syllabus/syllabus_assignments.html#quizzes-15",
+    "title": "Assignments and grading",
+    "section": "Quizzes (15%)",
+    "text": "Quizzes (15%)\nWe will have six ten-minute in-class quizzes, which will be announced ahead of time. The quizzes are there to encourage you to engage with the material and study continually, rather than only right before the exams. I know quizzes can be stressful, so the grading policy will be generous.\nYour final quiz grade is computed from your raw quiz average as follows: \\[\\text{Final quiz grade} = \\max\\left(100, \\;\\frac32\\,\\times\\,\\text{Raw quiz average}\\right)\\]\n\n\n\n\n\n\nNoteMissed quizzes\n\n\n\nNo make-up quizzes will be given. If you miss a quiz, you get a zero for it by default, unless your absence is recognized by a Dean’s Excuse, Notification of Varsity Athletic Participation, or Religious Observance Form; see the forms here.\nAfter the appropriate scores have been included, your raw quiz average will be converted to your final quiz grade using the above formula.",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_assignments.html#exams-25-each",
+    "href": "syllabus/syllabus_assignments.html#exams-25-each",
+    "title": "Assignments and grading",
+    "section": "Exams (25% each)",
+    "text": "Exams (25% each)\nThere will be three exams. The dates, times, and locations are firm, so mark your calendar now:\n\nMidterm 1: Tuesday October 6 during lecture;\nMidterm 2: Thursday November 19 during lecture;\nFinal: Thursday December 10 from 2 PM - 5 PM in Gross Hall 103.\n\nThese will be old school, pencil-and-paper, in-class exams. Exams are closed-book and closed-notes. No online or electronic resources are permitted.\nIf you seek testing accommodations, make sure the Student Disability Access Office sends me a letter, and then please make your appointments in the Testing Center as soon as possible.\n\n\n\n\n\n\nNoteGrace\n\n\n\nIf you do better on the final exam than you did on one of the midterms, we will replace your lowest midterm exam score with your final exam score.\n\n\n\n\n\n\n\n\nWarningNo make-up exams\n\n\n\nIf you are absent from one of the midterms for whatever reason, there will not be a make-up. Pursuant to the above policy, we will simply replace the missed midterm score with the final exam score. If you miss the final exam, you get a zero unless you have a Dean’s Excuse.",
+    "crumbs": [
+      "Syllabus",
+      "Assignments and grading"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_overview.html",
+    "href": "syllabus/syllabus_overview.html",
+    "title": "Course overview",
+    "section": "",
+    "text": "This course provides an introduction to the mathematical foundation underlying statistical learning and inference. It introduces concepts and methods from the classical theory of statistics, with a focus on point estimation, interval estimation, and hypothesis testing, along with their adjacent topics and their application.\nBrief overview of topics Introduction to the problems of Statistical Inference. Definition of random sample, statistical model and likelihood. Definition and properties of estimators and sufficient and complete statistics. Point estimation: comparing estimators in decision theoretic framework (loss functions, risk, mean squared error) and optimality results (Uniform Minimum Variance Estimators, Fisher’s information, Cramer’s Rao Lower bound). Hypothesis testing: comparing testing procedures and constructing optimal tests within the Neyman-Pearson framework. Tests based on the likelihood ratio. Confidence intervals: construction based on inverting tests. Asymptotic considerations: consistent and asymptotically efficient estimators. Likelihood-based asymptotic tests and confidence intervals.\nPrerequisites: (Statistical Science 240L, 230, or 231) and (Mathematics 202, 212, 219, or 222). Recommended prerequisite: Statistical Science 210, 360, and (Mathematics 221, 218, or 216). Specifically, students should be fluent in calculus (differentiation, integration, etc.), and probability (discrete and continuous random variables, joint, marginal and conditional distributions, etc). Familiarity with basic estimation concepts such as the maximum likelihood principle and Bayes rule is helpful.",
+    "crumbs": [
+      "Syllabus",
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_overview.html#description",
+    "href": "syllabus/syllabus_overview.html#description",
+    "title": "Course overview",
+    "section": "",
+    "text": "This course provides an introduction to the mathematical foundation underlying statistical learning and inference. It introduces concepts and methods from the classical theory of statistics, with a focus on point estimation, interval estimation, and hypothesis testing, along with their adjacent topics and their application.\nBrief overview of topics Introduction to the problems of Statistical Inference. Definition of random sample, statistical model and likelihood. Definition and properties of estimators and sufficient and complete statistics. Point estimation: comparing estimators in decision theoretic framework (loss functions, risk, mean squared error) and optimality results (Uniform Minimum Variance Estimators, Fisher’s information, Cramer’s Rao Lower bound). Hypothesis testing: comparing testing procedures and constructing optimal tests within the Neyman-Pearson framework. Tests based on the likelihood ratio. Confidence intervals: construction based on inverting tests. Asymptotic considerations: consistent and asymptotically efficient estimators. Likelihood-based asymptotic tests and confidence intervals.\nPrerequisites: (Statistical Science 240L, 230, or 231) and (Mathematics 202, 212, 219, or 222). Recommended prerequisite: Statistical Science 210, 360, and (Mathematics 221, 218, or 216). Specifically, students should be fluent in calculus (differentiation, integration, etc.), and probability (discrete and continuous random variables, joint, marginal and conditional distributions, etc). Familiarity with basic estimation concepts such as the maximum likelihood principle and Bayes rule is helpful.",
+    "crumbs": [
+      "Syllabus",
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "syllabus/syllabus_overview.html#meetings",
+    "href": "syllabus/syllabus_overview.html#meetings",
+    "title": "Course overview",
+    "section": "Meetings",
+    "text": "Meetings\n\n\n\n\n\n\n\n\nMeeting\nLocation\nTime\n\n\n\n\nLecture\nGross Hall 103\nTueThu 3:05 PM - 4:20 PM",
+    "crumbs": [
+      "Syllabus",
+      "Overview"
     ]
   },
   {
@@ -554,237 +664,6 @@
     "crumbs": [
       "Syllabus",
       "University resources"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_overview.html",
-    "href": "syllabus/syllabus_overview.html",
-    "title": "Course overview",
-    "section": "",
-    "text": "This course provides an introduction to the mathematical foundation underlying statistical learning and inference. It introduces concepts and methods from the classical theory of statistics, with a focus on point estimation, interval estimation, and hypothesis testing, along with their adjacent topics and their application.\nBrief overview of topics Introduction to the problems of Statistical Inference. Definition of random sample, statistical model and likelihood. Definition and properties of estimators and sufficient and complete statistics. Point estimation: comparing estimators in decision theoretic framework (loss functions, risk, mean squared error) and optimality results (Uniform Minimum Variance Estimators, Fisher’s information, Cramer’s Rao Lower bound). Hypothesis testing: comparing testing procedures and constructing optimal tests within the Neyman-Pearson framework. Tests based on the likelihood ratio. Confidence intervals: construction based on inverting tests. Asymptotic considerations: consistent and asymptotically efficient estimators. Likelihood-based asymptotic tests and confidence intervals.\nPrerequisites: (Statistical Science 240L, 230, or 231) and (Mathematics 202, 212, 219, or 222). Recommended prerequisite: Statistical Science 210, 360, and (Mathematics 221, 218, or 216). Specifically, students should be fluent in calculus (differentiation, integration, etc.), and probability (discrete and continuous random variables, joint, marginal and conditional distributions, etc). Familiarity with basic estimation concepts such as the maximum likelihood principle and Bayes rule is helpful.",
-    "crumbs": [
-      "Syllabus",
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_overview.html#description",
-    "href": "syllabus/syllabus_overview.html#description",
-    "title": "Course overview",
-    "section": "",
-    "text": "This course provides an introduction to the mathematical foundation underlying statistical learning and inference. It introduces concepts and methods from the classical theory of statistics, with a focus on point estimation, interval estimation, and hypothesis testing, along with their adjacent topics and their application.\nBrief overview of topics Introduction to the problems of Statistical Inference. Definition of random sample, statistical model and likelihood. Definition and properties of estimators and sufficient and complete statistics. Point estimation: comparing estimators in decision theoretic framework (loss functions, risk, mean squared error) and optimality results (Uniform Minimum Variance Estimators, Fisher’s information, Cramer’s Rao Lower bound). Hypothesis testing: comparing testing procedures and constructing optimal tests within the Neyman-Pearson framework. Tests based on the likelihood ratio. Confidence intervals: construction based on inverting tests. Asymptotic considerations: consistent and asymptotically efficient estimators. Likelihood-based asymptotic tests and confidence intervals.\nPrerequisites: (Statistical Science 240L, 230, or 231) and (Mathematics 202, 212, 219, or 222). Recommended prerequisite: Statistical Science 210, 360, and (Mathematics 221, 218, or 216). Specifically, students should be fluent in calculus (differentiation, integration, etc.), and probability (discrete and continuous random variables, joint, marginal and conditional distributions, etc). Familiarity with basic estimation concepts such as the maximum likelihood principle and Bayes rule is helpful.",
-    "crumbs": [
-      "Syllabus",
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_overview.html#meetings",
-    "href": "syllabus/syllabus_overview.html#meetings",
-    "title": "Course overview",
-    "section": "Meetings",
-    "text": "Meetings\n\n\n\n\n\n\n\n\nMeeting\nLocation\nTime\n\n\n\n\nLecture\nGross Hall 103\nTueThu 3:05 PM - 4:20 PM",
-    "crumbs": [
-      "Syllabus",
-      "Overview"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_assignments.html",
-    "href": "syllabus/syllabus_assignments.html",
-    "title": "Assignments and grading",
-    "section": "",
-    "text": "Your final course grade will be calculated as follows:\nYour final letter grade will be determined based on the usual thresholds:",
-    "crumbs": [
-      "Syllabus",
-      "Assignments and grading"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_assignments.html#quizzes-15",
-    "href": "syllabus/syllabus_assignments.html#quizzes-15",
-    "title": "Assignments and grading",
-    "section": "Quizzes (15%)",
-    "text": "Quizzes (15%)\nWe will have six ten-minute in-class quizzes, which will be announced ahead of time. Grading scheme to be determined.\n\n\n\n\n\n\nNoteGrace\n\n\n\nLowest scores…. will be dropped (to be determined)",
-    "crumbs": [
-      "Syllabus",
-      "Assignments and grading"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_assignments.html#problem-sets-10",
-    "href": "syllabus/syllabus_assignments.html#problem-sets-10",
-    "title": "Assignments and grading",
-    "section": "Problem Sets (10%)",
-    "text": "Problem Sets (10%)\nMathematics is like everything else in life; if you practice, you improve. As such, the problem sets are really the heart of the course. They must be handwritten either on paper or on a tablet and uploaded to Gradescope as a single .pdf file. Grading scheme to be determined.\n\n\n\n\n\n\nNoteGrace\n\n\n\nYour lowest problem set score will be dropped at the end of the semester.",
-    "crumbs": [
-      "Syllabus",
-      "Assignments and grading"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_assignments.html#exams-25-each",
-    "href": "syllabus/syllabus_assignments.html#exams-25-each",
-    "title": "Assignments and grading",
-    "section": "Exams (25% each)",
-    "text": "Exams (25% each)\nThere will be three exams. The dates, times, and locations are firm, so mark your calendar now:\n\nMidterm 1: Tuesday October 6 during lecture;\nMidterm 2: Thursday November 19 during lecture;\nFinal: Thursday December 10 from 2 PM - 5 PM in Gross Hall 103.\n\nThese will be old school, pencil-and-paper, in-class exams. Exams are closed-book and closed-notes. No online or electronic resources are permitted.\nIf you seek testing accommodations, make sure the Student Disability Access Office sends me a letter, and then please make your appointments in the Testing Center as soon as possible.\n\n\n\n\n\n\nNoteGrace\n\n\n\nIf you do better on the final exam than you did on one of the midterms, we will replace your lowest midterm exam score with your final exam score.\n\n\n\n\n\n\n\n\nWarningNo make-up exams\n\n\n\nIf you are absent from one of the midterms for whatever reason, there will not be a make-up. Pursuant to the above policy, we will simply replace the missed midterm score with the final exam score. If you miss the final exam, you get a zero unless you have a Dean’s Excuse.",
-    "crumbs": [
-      "Syllabus",
-      "Assignments and grading"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "STA 332 Statistical Inference",
-    "section": "",
-    "text": "Below is a prospective outline for the course. Exam dates are firm, quiz dates will be announced later, and topics may change with advance notice.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWEEK\nDATE\nPREPARE\nTOPIC\nMATERIALS\nDUE\n\n\n\n1\nTue, Aug 25\nTo be posted\nLec 1: Intro to statistical inference\n\n\n\n\n\nThu, Aug 27\nTo be posted\nLec 2: Probability review\n\n\n\n\n\n\n\nSufficiency and Data Reduction\n\n\n\n\n2\nTue, Sep 1\nTo be posted\nLec 3: Sufficiency\n\n\n\n\n\nThu, Sep 3\nTo be posted\nLec 4: Minimal sufficiency\n\n\n\n\n3\nTue, Sep 8\nTo be posted\nLec 5: Exponential families\n\n\n\n\n\n\n\nPoint estimation\n\n\n\n\n\nThu, Sep 10\nTo be posted\nLec 6: Constructing estimators: method of moments, MLE\n\n\n\n\n4\nTue, Sep 15\nTo be posted\nLec 7: Estimator properties and risk\n\n\n\n\n\nThu, Sep 17\nTo be posted\nLec 8: Unbiased estimation and the UMVUE problem\n\n\n\n\n5\nTue, Sep 22\nTo be posted\nLec 9: Rao–Blackwellization\n\n\n\n\n\nThu, Sep 24\nTo be posted\nLec 10: Completeness\n\n\n\n\n6\nTue, Sep 29\nTo be posted\nLec 11: Lehmann–Scheffe and UMVUE construction\n\n\n\n\n\nThu, Oct 1\nTo be posted\nLec 12: Lehmann–Scheffe proof and applications\n\n\n\n\n7\nTue, Oct 6\nTo be posted\nMidterm 1\n\nMidterm 1\n\n\n\nThu, Oct 8\nTo be posted\nLec 13: Fisher information and Cramer–Rao\n\n\n\n\n8\nTue, Oct 13\nTo be posted\nNo class (Fall Break)\n\n\n\n\n\n\n\nHypothesis Testing\n\n\n\n\n\nThu, Oct 15\nTo be posted\nLec 14: Testing principles\n\n\n\n\n9\nTue, Oct 20\nTo be posted\nLec 15: Optimal tests: most-powerful tests, Neyman–Pearson\n\n\n\n\n\nThu, Oct 22\nTo be posted\nLec 16: Neyman–Pearson in practice\n\n\n\n\n10\nTue, Oct 27\nTo be posted\nLec 17: UMP tests and monotone likelihood ratios\n\n\n\n\n\nThu, Oct 29\nTo be posted\nLec 18: Likelihood-ratio tests (LRTs)\n\n\n\n\n\n\n\nLarge Sample Theory\n\n\n\n\n11\nTue, Nov 3\nTo be posted\nLec 19: Large sample theory I: modes of convergence\n\n\n\n\n\nThu, Nov 5\nTo be posted\nLec 20: LLN, CLT, and Slutsky\n\n\n\n\n12\nTue, Nov 10\nTo be posted\nLec 21: Delta method and estimator asymptotics\n\n\n\n\n\nThu, Nov 12\nTo be posted\nLec 22: MLE asymptotics\n\n\n\n\n13\nTue, Nov 17\nTo be posted\nLec 23: Wilks’ theorem and large-sample LRTs\n\n\n\n\n\nThu, Nov 19\nTo be posted\nMidterm 2\n\nMidterm 2\n\n\n\n\n\nConfidence intervals\n\n\n\n\n14\nTue, Nov 24\nTo be posted\nLec 24: Foundations\n\n\n\n\n\nThu, Nov 26\nTo be posted\nNo class (Thanksgiving recess)\n\n\n\n\n15\nTue, Dec 1\nTo be posted\nLec 25: Exact construction\n\n\n\n\n\nThu, Dec 3\nTo be posted\nLec 26: Asymptotic methods\n\n\n\n\n16\nThu, Dec 10\nTo be posted\nFinal exam\n\nFinal exam",
-    "crumbs": [
-      "Syllabus",
-      "Schedule"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_materials.html",
-    "href": "syllabus/syllabus_materials.html",
-    "title": "Course materials",
-    "section": "",
-    "text": "You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are all good options:\n\n[Ross] A First Course in Probability by Sheldon Ross;\n[HTZ] Probability and Statistical Inference by Robert Hogg, Elliot Tanis, and Dale Zimmerman;\n[DS] Probability and Statistics by Morris DeGroot and Mark Schervish;\n[Wass] All of Statistics by Larry Wasserman.\n\nIn the PREPARE column of the course schedule, I will indicate which parts of a book correspond to the lectures.",
-    "crumbs": [
-      "Syllabus",
-      "Materials"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_materials.html#textbooks",
-    "href": "syllabus/syllabus_materials.html#textbooks",
-    "title": "Course materials",
-    "section": "",
-    "text": "You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are all good options:\n\n[Ross] A First Course in Probability by Sheldon Ross;\n[HTZ] Probability and Statistical Inference by Robert Hogg, Elliot Tanis, and Dale Zimmerman;\n[DS] Probability and Statistics by Morris DeGroot and Mark Schervish;\n[Wass] All of Statistics by Larry Wasserman.\n\nIn the PREPARE column of the course schedule, I will indicate which parts of a book correspond to the lectures.",
-    "crumbs": [
-      "Syllabus",
-      "Materials"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_materials.html#technology",
-    "href": "syllabus/syllabus_materials.html#technology",
-    "title": "Course materials",
-    "section": "Technology",
-    "text": "Technology\nLecture will largely be a low tech affair: pencil and paper should be sufficient most of the time. You should always plan to bring a laptop or tablet device to lab. In general, you will need access to a device with internet so that you can use the following:\n\nThis course page that you are on right now;\nR/RStudio via the Duke Container Manager;\nCanvas, through which you can access…\n\nGradescope;\nEd Discussion;\n\nZoom (e.g. for remote office hours).\n\nIf access to technology becomes a concern for you during the semester, contact the instructor immediately to discuss options.",
-    "crumbs": [
-      "Syllabus",
-      "Materials"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html",
-    "href": "syllabus/syllabus_policies.html",
-    "title": "Policies",
-    "section": "",
-    "text": "You are enthusiastically encouraged to work together and help one another on labs and problem sets. I would much rather you consult your peers than some daft language model. What I ask is that you acknowledge your collaborators. So, at the end of each problem in your write-up, leave a comment like “Ursula, Ignatius and I worked together on this problem,” or “Ethel explained to me how to do part b.” You are not being judged based on your acknowledgements, and there is no penalty for getting “too much” help from others. If you omit acknowledgements, I will assume you did your work solo. If your classmates tell a different story, I will have questions. But otherwise, so long as you are thorough and honest, there will be no problems.\nHaving said all of that, you should not be crassly handing your solutions to others for them to brainlessly copy. This is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#collaboration",
-    "href": "syllabus/syllabus_policies.html#collaboration",
-    "title": "Policies",
-    "section": "",
-    "text": "You are enthusiastically encouraged to work together and help one another on labs and problem sets. I would much rather you consult your peers than some daft language model. What I ask is that you acknowledge your collaborators. So, at the end of each problem in your write-up, leave a comment like “Ursula, Ignatius and I worked together on this problem,” or “Ethel explained to me how to do part b.” You are not being judged based on your acknowledgements, and there is no penalty for getting “too much” help from others. If you omit acknowledgements, I will assume you did your work solo. If your classmates tell a different story, I will have questions. But otherwise, so long as you are thorough and honest, there will be no problems.\nHaving said all of that, you should not be crassly handing your solutions to others for them to brainlessly copy. This is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#use-of-outside-resources-including-ai",
-    "href": "syllabus/syllabus_policies.html#use-of-outside-resources-including-ai",
-    "title": "Policies",
-    "section": "Use of outside resources, including AI",
-    "text": "Use of outside resources, including AI\nThere are at least two reasons you might seek outside resources:\n\n✅ Extra practice or alternative instruction: Go crazy. Knock yourself out. Have a ball. The internet is saturated with good (and horrible) resources for learning this material, so if you find something that really resonates with you, have at it;\n❌ Doing the problems for you: If you find a solution online, or ask a language model to generate one, and you copy it down and submit it as your own work, that is plagiarism. If we detect it, you will earn a zero for that part of your write-up.\n\n“Using ChatGPT to complete assignments is like bringing a forklift into the weight room; you will never improve your cognitive fitness that way.” Furthermore, 69% of your final course grade is determined by your performance on old school, no-tech exams. As such, outsourcing all of your thinking to an AI will probably end in humiliating disaster. To avoid this, I suggest you abstain from using language models to do the problems for you.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#communication",
-    "href": "syllabus/syllabus_policies.html#communication",
-    "title": "Policies",
-    "section": "Communication",
-    "text": "Communication\nIf you wish to ask content-related questions in writing, please do not do so via e-mail. Instead, please use the course discussion forum Ed Discussion. That way all members of the teaching team can see your question, and all students can benefit from the ensuing discussion. You are also encouraged to answer one another’s questions.\nIf you have questions about personal matters that may not be appropriate for the public course forum (e.g. illness, accommodations, etc), then please e-mail the instructor directly (anya.katsevich@duke.edu).\n\n\n\n\n\n\nNote\n\n\n\nYou can ask questions anonymously on Ed. The teaching team will still know your identity, but your peers will not.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#late-work-and-extensions",
-    "href": "syllabus/syllabus_policies.html#late-work-and-extensions",
-    "title": "Policies",
-    "section": "Late work and extensions",
-    "text": "Late work and extensions\nNo late work will be accepted unless you request an extension in advance by e-mailing the instructor directly (anya.katsevich@duke.edu). All reasonable requests will be entertained, but extensions will not be long.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#regrade-requests",
-    "href": "syllabus/syllabus_policies.html#regrade-requests",
-    "title": "Policies",
-    "section": "Regrade requests",
-    "text": "Regrade requests\nIf you receive a graded assignment back, and you believe that some part of it was graded incorrectly, you may dispute the grade by submitting a regrade request in Gradescope. Note the following:\n\nYou have one week after you receive a grade to submit a regrade request;\nYou should submit separate regrade requests for each question you wish to dispute, not a single catch-all request;\nRequests will be considered if there was an error in the grade calculation or if a correct answer was mistakenly marked as incorrect;\nRequests to dispute the number of points deducted for an incorrect response will not be considered;\nNo grades will be changed after the final exam has been administered on Monday April 27.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#attendance",
-    "href": "syllabus/syllabus_policies.html#attendance",
-    "title": "Policies",
-    "section": "Attendance",
-    "text": "Attendance\nLive your life. Attendance is not strictly required for any of the class meetings. The responsibility lies with us to make class meetings sufficiently engaging and informative that you choose to attend. Having said that, success in this class and regular attendance are probably highly positively correlated. Furthermore, while lab attendance is not required, regular attendance is probably the path of least resistance to earning full credit for the lab component of your final grade. The labs are designed so that they can be completed in one sitting more or less, and they are due at midnight the same day. So show up to lab, bang it out, and move on with your life.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#accommodations",
-    "href": "syllabus/syllabus_policies.html#accommodations",
-    "title": "Policies",
-    "section": "Accommodations",
-    "text": "Accommodations\nIf you need accommodations for this class, you will need to register with the Student Disability Access Office (SDAO) and provide them with documentation related to your needs. SDAO will work with you to determine what accommodations are appropriate for your situation. Please note that accommodations are not retroactive and disability accommodations cannot be provided until a Faculty Accommodation Letter has been given to me. Please contact SDAO for more information: sdao@duke.edu or access.duke.edu.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_policies.html#duke-community-standard",
-    "href": "syllabus/syllabus_policies.html#duke-community-standard",
-    "title": "Policies",
-    "section": "Duke Community Standard",
-    "text": "Duke Community Standard\nDuke University is a community dedicated to scholarship, leadership, and service and to the principles of honesty, fairness, respect, and accountability. Members of this community commit to reflect upon and uphold these principles in all academic and non-academic endeavors, and to protect and promote a culture of integrity.\nDuke University has high expectations for students’ scholarship and conduct. In accepting admission, students indicate their willingness to subscribe to and be governed by the rules and regulations of the university, which flow from the Duke Community Standard (DCS).\nRegardless of course delivery format, it is the responsibility of all students to understand and follow all Duke policies, including but not limited to the academic integrity policy (e.g., completing one’s own work, following proper citation of sources, adhering to guidance around group work projects, and more). Ignoring these requirements is a violation of the DCS.\nStudents can direct any questions or concerns regarding academic integrity to the Office of Student Conduct and Community Standards at conduct@duke.edu and can access the DCS guide at https://dukecommunitystandard.students.duke.edu/.\nIn STA 240 specifically…\n\nIf a conduct violation results in a zero on a lab or problem set, that zero will not be dropped;\nIf a conduct violation results in a zero on a midterm, that zero will not be replaced with your final exam score;\nIf we discover that students are sharing and copying assignment solutions, all students involved will be penalized equally, the sharers the same as the recipients.",
-    "crumbs": [
-      "Syllabus",
-      "Policies"
-    ]
-  },
-  {
-    "objectID": "syllabus/syllabus_team.html",
-    "href": "syllabus/syllabus_team.html",
-    "title": "Teaching team",
-    "section": "",
-    "text": "Mug\nName\nRole\nOffice Hours\n\n\n\n\n\nGwen Jacobson\nHead TA\nTime TBD \nOld Chem 203B\n\n\n\nJun Chen\nTA\nTime TBD \nOld Chem 203B\n\n\n\nVarun Mittal\nTA\nTime TBD \nOld Chem 203B\n\n\n\nBethany Akinola\nTA\nTime TBD \nOld Chem 203B\n\n\n\nJanet Meng\nTA\nTime TBD \nOld Chem 203B\n\n\n\nAnya Katsevich\nInstructor\nTue, Thu 4:30 PM - 5:30 PM \nOld Chem 216",
-    "crumbs": [
-      "Syllabus",
-      "Teaching team"
     ]
   },
   {
@@ -1089,10 +968,6 @@
     "href": "math/massage-and-squint.html",
     "title": "“Massage and squint”",
     "section": "",
-    "text": "In this class, we have to simplify many sums, infinite series, and integrals (eg when computing expected values). Sometimes, we have to do this using the formal techniques we learned in Calc II, but other times, the sum or integral is just a familiar object in disguise. If we can recognize that, we can avoid doing any hardcore math.\nHere’s the principle:\n\nTake your sum or integral and rewrite it (“massage” it) until you recognize (after “squinting” at it) that it is equivalent to a familiar object. Then plug in what you know.\n\nLet’s unpack that:\n\nmassaging: u-substitution if it’s an integral, re-indexing if it’s a sum, multiply by a cleverly written 1, add a cleverly written 0, complete the square, etc;\nfamiliar object: geometric series, Taylor series of a friendly function (probably \\(e^x\\)), binomial theorem, gamma function, kernel of special density like the Gaussian, etc.\n\n\n\n\n\n\n\nWarningPay attention!\n\n\n\nIf you are going to be a stats major/minor, I know for an absolute fact that you will be doing this stuff early and often in STA 332 and STA 402, so take the practice seriously.\n\n\n\nKernel tricks\n\nProbability density functions must integrate to 1.\n\nLike “energy is conserved” or “demand curves slope down,” the above statement is true and simple, but surprisingly powerful.\nAs we have seen several times, all densities have the following format:\n\\[\nf(x;\\,\\boldsymbol{\\theta})=\\underbrace{c(\\boldsymbol{\\theta})}_{\\text{normalizing constant}}\\underbrace{k(x;\\,\\boldsymbol{\\theta})}_{\\text{kernel}}.\n\\]\nHere, \\(\\boldsymbol{\\theta}\\) is generic notation for the parameters of the distribution. So \\(\\boldsymbol{\\theta}=(\\mu,\\, \\sigma^2)\\) for the normal, or \\(\\boldsymbol{\\theta}=(\\alpha,\\,\\beta)\\) for the gamma. \\(k(x;\\,\\boldsymbol{\\theta})\\) is the density kernel or unnormalized density. It’s the part of the density formula that actually depends on the argument \\(x\\). \\(c(\\boldsymbol{\\theta})\\) is the normalizing constant that hangs out in the front and serves just to make sure that the whole thing integrates to 1. Since\n\\[\n\\int_{-\\infty}^\\infty f(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x\n=\n\\int_{-\\infty}^\\infty c(\\boldsymbol{\\theta})k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x\n=\nc(\\boldsymbol{\\theta})\\int_{-\\infty}^\\infty k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x=1,\n\\]\nthen\n\\[\n\\int_{-\\infty}^\\infty k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x=\\frac{1}{c(\\boldsymbol{\\theta})},\n\\]\nSo, the integral of the kernel is the inverse of the normalizing constant. Based on this simple fact, every probability density function you encounter gives you a free integral identity that you can use in subsequent computations.\n\n\n\n\n\n\nTipExample: Gaussian integral\n\n\n\nFor the Gaussian density:\n\\[\n\\begin{align*}\n    c(\\boldsymbol{\\theta})\n    &=\n    \\frac{1}{\\sqrt{2\\pi\\sigma^2}}\n    \\\\\n    k(x;\\,\\boldsymbol{\\theta})\n    &=\n    \\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\n    .\n\\end{align*}\n\\]\nSo for any values of \\(\\mu\\in\\mathbb{R}\\) and \\(\\sigma&gt;0\\), we get\n\\[\n\\int_{-\\infty}^\\infty\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\\text{d} x=\\sqrt{2\\pi\\sigma^2}.\n\\]\nUse this fact to make your life easier!\n\n\n\n\n\n\n\n\nNoteExample: gamma integral\n\n\n\nFor the gamma density:\n\\[\n\\begin{align*}\n    c(\\boldsymbol{\\theta})\n    &=\n    \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}\n    \\\\\n    k(x;\\,\\boldsymbol{\\theta})\n    &=\n    x^{\\alpha-1}\n    e^{-\\beta x}\n\\end{align*}\n\\]\nSo for any values of \\(\\alpha,\\,\\beta&gt;0\\), we get\n\\[\n\\int_0^\\infty x^{\\alpha-1}e^{-\\beta x}\\,\\text{d} x=\\frac{\\Gamma(\\alpha)}{\\beta^\\alpha}\n\\]\nUse this fact to make your life easier!\n\n\n\n\nExamples\n“Massage and squint” is just a grand exercise in pattern recognition, so here is a running list of examples from the course. Study these carefully:\n\nPoisson mean from PSET 0 #3;\nPoisson MGF from lecture;\nStandard normal MGF from lecture;\nGamma MGF from lecture;\nPSET 5 #4: \\(\\Gamma(1/2)=\\sqrt{\\pi}\\);\nPSET 5 #6c;\nPSET 6 #7;\nPoisson-binomial hierarchy from lecture;\nGamma-normal hierarchy from lecture;\nPSET 6 #9: the beta-gamma hierarchy;\nPSET 6 #10: gamma-gamma hierarchy.",
-    "crumbs": [
-      "Math Helpers",
-      "Massage and squint"
-    ]
+    "text": "In this class, we have to simplify many sums, infinite series, and integrals (eg when computing expected values). Sometimes, we have to do this using the formal techniques we learned in Calc II, but other times, the sum or integral is just a familiar object in disguise. If we can recognize that, we can avoid doing any hardcore math.\nHere’s the principle:\n\nTake your sum or integral and rewrite it (“massage” it) until you recognize (after “squinting” at it) that it is equivalent to a familiar object. Then plug in what you know.\n\nLet’s unpack that:\n\nmassaging: u-substitution if it’s an integral, re-indexing if it’s a sum, multiply by a cleverly written 1, add a cleverly written 0, complete the square, etc;\nfamiliar object: geometric series, Taylor series of a friendly function (probably \\(e^x\\)), binomial theorem, gamma function, kernel of special density like the Gaussian, etc.\n\n\n\n\n\n\n\nWarningPay attention!\n\n\n\nIf you are going to be a stats major/minor, I know for an absolute fact that you will be doing this stuff early and often in STA 332 and STA 402, so take the practice seriously.\n\n\n\nKernel tricks\n\nProbability density functions must integrate to 1.\n\nLike “energy is conserved” or “demand curves slope down,” the above statement is true and simple, but surprisingly powerful.\nAs we have seen several times, all densities have the following format:\n\\[\nf(x;\\,\\boldsymbol{\\theta})=\\underbrace{c(\\boldsymbol{\\theta})}_{\\text{normalizing constant}}\\underbrace{k(x;\\,\\boldsymbol{\\theta})}_{\\text{kernel}}.\n\\]\nHere, \\(\\boldsymbol{\\theta}\\) is generic notation for the parameters of the distribution. So \\(\\boldsymbol{\\theta}=(\\mu,\\, \\sigma^2)\\) for the normal, or \\(\\boldsymbol{\\theta}=(\\alpha,\\,\\beta)\\) for the gamma. \\(k(x;\\,\\boldsymbol{\\theta})\\) is the density kernel or unnormalized density. It’s the part of the density formula that actually depends on the argument \\(x\\). \\(c(\\boldsymbol{\\theta})\\) is the normalizing constant that hangs out in the front and serves just to make sure that the whole thing integrates to 1. Since\n\\[\n\\int_{-\\infty}^\\infty f(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x\n=\n\\int_{-\\infty}^\\infty c(\\boldsymbol{\\theta})k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x\n=\nc(\\boldsymbol{\\theta})\\int_{-\\infty}^\\infty k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x=1,\n\\]\nthen\n\\[\n\\int_{-\\infty}^\\infty k(x;\\,\\boldsymbol{\\theta})\\,\\text{d} x=\\frac{1}{c(\\boldsymbol{\\theta})},\n\\]\nSo, the integral of the kernel is the inverse of the normalizing constant. Based on this simple fact, every probability density function you encounter gives you a free integral identity that you can use in subsequent computations.\n\n\n\n\n\n\nTipExample: Gaussian integral\n\n\n\nFor the Gaussian density:\n\\[\n\\begin{align*}\n    c(\\boldsymbol{\\theta})\n    &=\n    \\frac{1}{\\sqrt{2\\pi\\sigma^2}}\n    \\\\\n    k(x;\\,\\boldsymbol{\\theta})\n    &=\n    \\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\n    .\n\\end{align*}\n\\]\nSo for any values of \\(\\mu\\in\\mathbb{R}\\) and \\(\\sigma&gt;0\\), we get\n\\[\n\\int_{-\\infty}^\\infty\\exp\\left(-\\frac{1}{2}\\frac{(x-\\mu)^2}{\\sigma^2}\\right)\\text{d} x=\\sqrt{2\\pi\\sigma^2}.\n\\]\nUse this fact to make your life easier!\n\n\n\n\n\n\n\n\nNoteExample: gamma integral\n\n\n\nFor the gamma density:\n\\[\n\\begin{align*}\n    c(\\boldsymbol{\\theta})\n    &=\n    \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)}\n    \\\\\n    k(x;\\,\\boldsymbol{\\theta})\n    &=\n    x^{\\alpha-1}\n    e^{-\\beta x}\n\\end{align*}\n\\]\nSo for any values of \\(\\alpha,\\,\\beta&gt;0\\), we get\n\\[\n\\int_0^\\infty x^{\\alpha-1}e^{-\\beta x}\\,\\text{d} x=\\frac{\\Gamma(\\alpha)}{\\beta^\\alpha}\n\\]\nUse this fact to make your life easier!\n\n\n\n\nExamples\n“Massage and squint” is just a grand exercise in pattern recognition, so here is a running list of examples from the course. Study these carefully:\n\nPoisson mean from PSET 0 #3;\nPoisson MGF from lecture;\nStandard normal MGF from lecture;\nGamma MGF from lecture;\nPSET 5 #4: \\(\\Gamma(1/2)=\\sqrt{\\pi}\\);\nPSET 5 #6c;\nPSET 6 #7;\nPoisson-binomial hierarchy from lecture;\nGamma-normal hierarchy from lecture;\nPSET 6 #9: the beta-gamma hierarchy;\nPSET 6 #10: gamma-gamma hierarchy."
   }
 ]
