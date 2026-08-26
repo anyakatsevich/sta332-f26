@@ -38,7 +38,10 @@ d |>
     materials = as.character(materials),
     due = as.character(due),
     prepare = if_else(
-      !is.na(date) & date > prepare_cutoff_date,
+      !is.na(date) &
+        date > prepare_cutoff_date &
+        coalesce(session == "Lec", FALSE) &
+        (is.na(prepare) | str_squish(prepare) == ""),
       "*To be posted*",
       prepare
     )
