@@ -7,7 +7,8 @@ project:
   - math/**.qmd
 
   resources:
-    - lecture-notes/lecture1.pdf
+    - lecture-notes/**.pdf
+
 website:
   page-navigation: true
   title: "STA 332 Fall 2026"
@@ -73,8 +74,8 @@ website:
             text: Infinite series
           - href: math/gamma-function.qmd
             text: Gamma function
-#          - href: math/massage-and-squint.qmd
-#            text: Massage and squint
+          - href: math/massage-and-squint.qmd
+            text: Massage and squint
       - section: "Distribution Families"
         contents:
           - href: distributions/discrete-binomial.qmd
