@@ -9,7 +9,10 @@ You are not required to purchase a textbook for this class. However, if you wish
 -   `[DS]` *Probability and Statistics* by Morris DeGroot and Mark Schervish;
 -   `[Wass]` *All of Statistics* by Larry Wasserman.
 
-In the **PREPARE** column of the [course schedule](https://anyakatsevich.github.io/sta332-f26/), I will indicate which parts of `[DS]` or `[Wass]` correspond to the lectures. Notes will be posted in the **MATERIALS** column; I will do my best to post them before lecture, but no guarantees.
+Another good source are these Berkeley [notes](https://stat210a.berkeley.edu/fall-2024/). If a sign-in pop-up appears, just press "Cancel", and you will be able to access the website.
+
+
+In the **PREPARE** column of the [course schedule](https://anyakatsevich.github.io/sta332-f26/), I will indicate which parts of `[DS]` `[Wass]`, or the Berkeley notes, correspond to the lectures. My own lecture notes will be posted in the **MATERIALS** column; I will do my best to post them before lecture, but no guarantees.
 
 ## Technology
 

@@ -8,6 +8,7 @@ project:
 
   resources:
     - lecture-notes/**.pdf
+    - problems/**.pdf
 
 website:
   page-navigation: true
