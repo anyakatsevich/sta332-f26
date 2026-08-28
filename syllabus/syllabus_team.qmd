@@ -10,19 +10,19 @@ editor:
 | ![](images/gj.jpg){.circ} |Gwen Jacobson     | Head TA       | Wed 6:00 PM - 7:00 PM, Old Chem 203B \         |
 |                           |                  |               | Fri 11:00 AM - 12:00 PM, Old Chem 203B         |
 +---------------------------+------------------+---------------+------------------------------------------------+
-| ![](images/jc.jpg){.circ} |Jun Chen          | TA            | Friday 5:00 PM -7:00 PM\                       |
-|                           |                  |               | Old Chem 203B                                  |
+| ![](images/jc.jpg){.circ} |Jun Chen          | TA            | Friday 5:00 PM -7:00 PM, Old Chem 203B         |
+|                           |                  |               |                                                |
 +---------------------------+------------------+---------------+------------------------------------------------+
-|                           |Varun Mittal      | TA            | **Time TBD **\                                 |
-|                           |                  |               | Old Chem 203B                                  |
+|![](images/vm.jpg){.circ}  |Varun Mittal      | TA            | *TBD**                                         |
+|                           |                  |               |                                                |
 +---------------------------+------------------+---------------+------------------------------------------------+
-|                           |Bethany Akinola   | TA            | **Time TBD **\                                 |
-|                           |                  |               | Old Chem 203B                                  |
+|                           |Bethany Akinola   | TA            | 6:00 PM - 8:00 PM,  Old Chem 203A              |
+|                           |                  |               |                                                |
 +---------------------------+------------------+---------------+------------------------------------------------+
-|                           |Erin Chen         | TA            | Thu 5:30 PM - 6:30 PM, Old Chem 203B \         |
+| ![](images/ec.jpg){.circ} |Erin Chen         | TA            | Thu 5:30 PM - 6:30 PM, Old Chem 203B \         |
 |                           |                  |               | Fri 1:30 PM - 2:30 PM, Old Chem 203A           |
 +---------------------------+------------------+---------------+------------------------------------------------+
-| ![](images/ak.jpg){.circ} |Anya Katsevich    |Instructor     | Tue, Thu 4:30 PM - 5:30 PM\                    |
-|                           |                  |               | Old Chem 216                                   |
+| ![](images/ak.jpg){.circ} |Anya Katsevich    |Instructor     | Tue, Thu 4:45 PM - 5:45 PM, Old Chem 216       |
+|                           |                  |               |                                                |
 +---------------------------+------------------+---------------+------------------------------------------------+
 : {tbl-colwidths="[20,20,20,40]"}
