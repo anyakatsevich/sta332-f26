@@ -19,7 +19,10 @@ library(googlesheets4)
 library(gt)
 library(tidyverse)
 gs4_deauth()
-d <- read_sheet("https://docs.google.com/spreadsheets/d/1Zp3NdSqwdS6rTftKkCuG_a7_XPMYDaaIz41QerwnIJ8/edit?usp=sharing")
+d <- read_sheet(
+  "https://docs.google.com/spreadsheets/d/1Zp3NdSqwdS6rTftKkCuG_a7_XPMYDaaIz41QerwnIJ8/edit?usp=sharing"
+) |>
+  rename(due = `due/event`)
 prepare_cutoff_date <- as.Date("2026-08-24")
 ```
 
@@ -126,6 +129,7 @@ d |>
         stringr::str_replace_all("^|$", "**") |>
         md()
   }) |>
+  cols_label(due = md("**DUE/EVENT**")) |>
   tab_options(table.font.size = 13) |>
   opt_row_striping() |>
   tab_style(
