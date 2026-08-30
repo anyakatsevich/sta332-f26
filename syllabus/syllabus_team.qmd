@@ -16,7 +16,7 @@ editor:
 |![](images/vm.jpg){.circ}  |Varun Mittal      | TA            | **TBD**                                        |
 |                           |                  |               |                                                |
 +---------------------------+------------------+---------------+------------------------------------------------+
-|                           |Bethany Akinola   | TA            | Mon 6:00 PM - 8:00 PM,  Old Chem 203A          |
+|![](images/ba.jpg){.circ}  |Bethany Akinola   | TA            | Mon 6:00 PM - 8:00 PM,  Old Chem 203A          |
 |                           |                  |               |                                                |
 +---------------------------+------------------+---------------+------------------------------------------------+
 | ![](images/ec.jpg){.circ} |Erin Chen         | TA            | Thu 5:30 PM - 6:30 PM, Old Chem 203B \         |
