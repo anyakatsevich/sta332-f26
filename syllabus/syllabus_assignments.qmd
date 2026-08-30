@@ -65,7 +65,7 @@ Your lowest problem set score will be dropped at the end of the semester.
 We will have six ten-minute in-class quizzes, which will be announced ahead of time. The quizzes are there to encourage you to engage with the material and study continually, rather than only right before the exams. I know quizzes can be stressful, so the grading policy will be generous.
 
 Your final quiz grade is computed from your raw quiz average as follows: 
-$$\text{Final quiz grade} = \max\left(100, \;\frac32\,\times\,\text{Raw quiz average}\right)$$  
+$$\text{Final quiz grade} = \min\left(100, \;\frac32\,\times\,\text{Raw quiz average}\right)$$  
 
 ::: callout-note
 ## Missed quizzes 
