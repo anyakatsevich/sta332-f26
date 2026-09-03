@@ -9,6 +9,7 @@ project:
   resources:
     - lecture-notes/**.pdf
     - problems/**.pdf
+    - quizzes/**.pdf
 
 website:
   page-navigation: true
