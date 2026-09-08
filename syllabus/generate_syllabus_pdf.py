@@ -1,496 +1,379 @@
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
+"""Create a polished STA 332 Fall 2026 syllabus from the website copy."""
+
+from pathlib import Path
+from xml.sax.saxutils import escape
+
 from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-    HRFlowable, KeepTogether
-)
-from reportlab.lib.enums import TA_LEFT, TA_CENTER
-
-OUTPUT = "/Users/aek72/STA 240/STA 240 Website/syllabus/STA240_Syllabus.pdf"
-
-doc = SimpleDocTemplate(
-    OUTPUT,
-    pagesize=letter,
-    leftMargin=1*inch, rightMargin=1*inch,
-    topMargin=1*inch, bottomMargin=1*inch
+    BaseDocTemplate, Frame, HRFlowable, Image, PageBreak, PageTemplate,
+    Paragraph, Spacer, Table, TableStyle,
 )
 
-styles = getSampleStyleSheet()
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT = ROOT / "output" / "pdf" / "STA332-Fall-2026-Syllabus.pdf"
+LOGO = ROOT / "img" / "logo.png"
 
-# Custom styles
-title_style = ParagraphStyle(
-    'CourseTitle', parent=styles['Title'],
-    fontSize=22, spaceAfter=6, textColor=colors.HexColor('#003366')
-)
-subtitle_style = ParagraphStyle(
-    'Subtitle', parent=styles['Normal'],
-    fontSize=11, spaceAfter=16, textColor=colors.HexColor('#555555'),
-    alignment=TA_CENTER
-)
-h1_style = ParagraphStyle(
-    'H1', parent=styles['Heading1'],
-    fontSize=14, spaceBefore=18, spaceAfter=6,
-    textColor=colors.HexColor('#003366'),
-    borderPad=0
-)
-h2_style = ParagraphStyle(
-    'H2', parent=styles['Heading2'],
-    fontSize=12, spaceBefore=12, spaceAfter=4,
-    textColor=colors.HexColor('#005599')
-)
-body_style = ParagraphStyle(
-    'Body', parent=styles['Normal'],
-    fontSize=10, leading=14, spaceAfter=6
-)
-bullet_style = ParagraphStyle(
-    'Bullet', parent=styles['Normal'],
-    fontSize=10, leading=14, spaceAfter=4,
-    leftIndent=18, firstLineIndent=-12
-)
-callout_note_style = ParagraphStyle(
-    'CalloutNote', parent=styles['Normal'],
-    fontSize=10, leading=14, spaceAfter=4,
-    leftIndent=12, rightIndent=12,
-    backColor=colors.HexColor('#E8F4FD'),
-    borderPad=6
-)
-callout_warn_style = ParagraphStyle(
-    'CalloutWarn', parent=styles['Normal'],
-    fontSize=10, leading=14, spaceAfter=4,
-    leftIndent=12, rightIndent=12,
-    backColor=colors.HexColor('#FFF3CD'),
-    borderPad=6
-)
+PURPLE = colors.HexColor("#5E157D")
+DARK_PURPLE = colors.HexColor("#3E0E55")
+LAVENDER = colors.HexColor("#F3EDF7")
+GOLD = colors.HexColor("#E6B94A")
+INK = colors.HexColor("#24212A")
+MUTED = colors.HexColor("#66616C")
+RULE = colors.HexColor("#D8CFDC")
+NOTE_BG = colors.HexColor("#F2F7FA")
+NOTE_EDGE = colors.HexColor("#5D8293")
+WARN_BG = colors.HexColor("#FFF6DE")
+WARN_EDGE = colors.HexColor("#B47A00")
 
-def note_box(label, text, warn=False):
-    bg = colors.HexColor('#E8F4FD') if not warn else colors.HexColor('#FFF3CD')
-    border = colors.HexColor('#0077BB') if not warn else colors.HexColor('#BB7700')
-    label_color = border
-    content = []
-    if label:
-        content.append(Paragraph(f"<b>{label}</b>", ParagraphStyle(
-            'NoteLabel', parent=body_style, textColor=label_color, spaceAfter=2
-        )))
-    content.append(Paragraph(text, body_style))
-    tbl = Table([[content]], colWidths=[6.5*inch])
-    tbl.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), bg),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('LEFTPADDING', (0,0), (-1,-1), 10),
-        ('RIGHTPADDING', (0,0), (-1,-1), 10),
-        ('TOPPADDING', (0,0), (-1,-1), 8),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+
+def fonts():
+    regular = Path("/System/Library/Fonts/Supplemental/Arial.ttf")
+    bold = Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf")
+    italic = Path("/System/Library/Fonts/Supplemental/Arial Italic.ttf")
+    if regular.exists() and bold.exists() and italic.exists():
+        pdfmetrics.registerFont(TTFont("SyllabusSans", str(regular)))
+        pdfmetrics.registerFont(TTFont("SyllabusSans-Bold", str(bold)))
+        pdfmetrics.registerFont(TTFont("SyllabusSans-Italic", str(italic)))
+        pdfmetrics.registerFontFamily(
+            "SyllabusSans", normal="SyllabusSans", bold="SyllabusSans-Bold",
+            italic="SyllabusSans-Italic", boldItalic="SyllabusSans-Bold",
+        )
+        return "SyllabusSans", "SyllabusSans-Bold"
+    return "Helvetica", "Helvetica-Bold"
+
+
+FONT, FONT_BOLD = fonts()
+BASE = getSampleStyleSheet()
+BODY = ParagraphStyle(
+    "Body", parent=BASE["BodyText"], fontName=FONT, fontSize=9.25,
+    leading=13.1, textColor=INK, spaceAfter=6, allowWidows=0, allowOrphans=0,
+)
+SMALL = ParagraphStyle(
+    "Small", parent=BODY, fontSize=8.25, leading=11.2, spaceAfter=4,
+)
+H1 = ParagraphStyle(
+    "H1", parent=BASE["Heading1"], fontName=FONT_BOLD, fontSize=17,
+    leading=20, textColor=PURPLE, spaceBefore=10, spaceAfter=5, keepWithNext=True,
+)
+H2 = ParagraphStyle(
+    "H2", parent=BASE["Heading2"], fontName=FONT_BOLD, fontSize=11.5,
+    leading=14, textColor=DARK_PURPLE, spaceBefore=9, spaceAfter=4, keepWithNext=True,
+)
+BULLET = ParagraphStyle(
+    "Bullet", parent=BODY, fontSize=9.1, leading=12.7, leftIndent=15,
+    firstLineIndent=-9, bulletIndent=4, spaceAfter=3.5,
+)
+TABLE_TEXT = ParagraphStyle("TableText", parent=BODY, fontSize=8.25, leading=10.4, spaceAfter=0)
+TABLE_HEAD = ParagraphStyle(
+    "TableHead", parent=TABLE_TEXT, fontName=FONT_BOLD, textColor=colors.white,
+)
+CALLOUT = ParagraphStyle("Callout", parent=BODY, fontSize=8.8, leading=12.2, spaceAfter=3)
+
+
+def p(text, style=BODY):
+    return Paragraph(text, style)
+
+
+def link(label, url):
+    return f'<link href="{escape(url)}" color="#5E157D"><u>{escape(label)}</u></link>'
+
+
+def bullet(text):
+    return Paragraph(f"&bull;&nbsp; {text}", BULLET)
+
+
+def heading(text):
+    return [
+        p(text, H1),
+        HRFlowable(width="100%", thickness=1.2, color=GOLD, spaceAfter=5),
+    ]
+
+
+def grid(data, widths, aligns=None, font_size=8.25):
+    rows = []
+    for row_number, row in enumerate(data):
+        style = TABLE_HEAD if row_number == 0 else TABLE_TEXT
+        cells = []
+        for value in row:
+            local = ParagraphStyle(f"table-{row_number}-{len(cells)}", parent=style)
+            local.fontSize = font_size
+            local.leading = font_size + 2.1
+            cells.append(value if isinstance(value, Paragraph) else Paragraph(str(value), local))
+        rows.append(cells)
+    result = Table(rows, colWidths=widths, repeatRows=1, hAlign="LEFT")
+    commands = [
+        ("BACKGROUND", (0, 0), (-1, 0), PURPLE),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LAVENDER]),
+        ("GRID", (0, 0), (-1, -1), 0.45, RULE),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ]
+    if aligns:
+        for column, alignment in enumerate(aligns):
+            commands.append(("ALIGN", (column, 0), (column, -1), alignment))
+    result.setStyle(TableStyle(commands))
+    return result
+
+
+def callout(title, content, warning=False):
+    items = content if isinstance(content, list) else [p(content, CALLOUT)]
+    if title:
+        title_style = ParagraphStyle(
+            f"Callout-{title}", parent=CALLOUT, fontName=FONT_BOLD,
+            textColor=WARN_EDGE if warning else NOTE_EDGE, spaceAfter=3,
+        )
+        items.insert(0, p(escape(title), title_style))
+    result = Table([[items]], colWidths=[6.72 * inch], hAlign="LEFT")
+    result.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), WARN_BG if warning else NOTE_BG),
+        ("LINEBEFORE", (0, 0), (0, -1), 3, WARN_EDGE if warning else NOTE_EDGE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 7),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
     ]))
-    return tbl
+    return result
 
-def section_rule():
-    return HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#003366'), spaceAfter=4, spaceBefore=4)
 
-story = []
+def header_footer(canvas, doc):
+    canvas.saveState()
+    if doc.page > 1:
+        canvas.setStrokeColor(RULE)
+        canvas.setLineWidth(0.5)
+        canvas.line(0.72 * inch, 10.33 * inch, 7.78 * inch, 10.33 * inch)
+        canvas.setFont(FONT_BOLD, 8)
+        canvas.setFillColor(PURPLE)
+        canvas.drawString(0.75 * inch, 10.48 * inch, "STA 332 · Statistical Inference")
+        canvas.setFont(FONT, 8)
+        canvas.setFillColor(MUTED)
+        canvas.drawRightString(7.75 * inch, 10.48 * inch, "Fall 2026 · Duke University")
+    canvas.setStrokeColor(RULE)
+    canvas.line(0.72 * inch, 0.55 * inch, 7.78 * inch, 0.55 * inch)
+    canvas.setFont(FONT, 7.6)
+    canvas.setFillColor(MUTED)
+    canvas.drawString(0.75 * inch, 0.36 * inch, "Based on the course website syllabus · Generated September 8, 2026")
+    canvas.drawRightString(7.75 * inch, 0.36 * inch, str(doc.page))
+    canvas.restoreState()
 
-# ── COVER ──────────────────────────────────────────────────────────────────
-story.append(Spacer(1, 0.5*inch))
-story.append(Paragraph("STA 240: Probability and Statistics", title_style))
-story.append(Paragraph("Spring 2026 &nbsp;·&nbsp; Duke University", subtitle_style))
-story.append(section_rule())
-story.append(Spacer(1, 0.15*inch))
 
-# ── 1. COURSE OVERVIEW ─────────────────────────────────────────────────────
-story.append(Paragraph("Course Overview", h1_style))
-story.append(section_rule())
+def build_story():
+    s = []
 
-story.append(Paragraph("<b>Description</b>", h2_style))
-story.append(Paragraph(
-    "This is a course on the mathematics of probability and statistics. In <b>probability</b>, "
-    "we describe the distribution of a random phenomenon and then study how the realizations of "
-    "that phenomenon typically behave. In <b>statistics</b>, we do the reverse; we observe "
-    "realizations of a random phenomenon with <i>unknown</i> distribution, and then use the data "
-    "to figure out what the distribution is. We will spend twelve weeks on the first, and then "
-    "three weeks on the second. Topics include set theory, probability spaces, counting methods, "
-    "conditional probability, discrete and (absolutely) continuous random variables, "
-    "transformations of random variables, (pseudo)random number generation, bivariate "
-    "distributions, concentration inequalities, limit theorems, maximum likelihood estimation, "
-    "and Bayesian inference with conjugate priors.",
-    body_style
-))
-story.append(Paragraph("Aside from the concrete topics, the course emphasizes four generic intellectual themes:", body_style))
-story.append(Paragraph(
-    "• Students in this class will improve their mathematical maturity. They will deepen their "
-    "experience with all of the main ideas and techniques of univariate calculus, encounter topics "
-    "like set theory and combinatorics, and get a taste of rigorous mathematical proof.",
-    bullet_style
-))
-story.append(Paragraph(
-    "• Probability and statistics weasel their way into pretty much everything these days, and "
-    "students will study a wide variety of famous and obscure applications coming from the natural "
-    "and social sciences, technology and industry, and even arts and culture.",
-    bullet_style
-))
-story.append(Paragraph(
-    "• Probability and statistics are often counterintuitive, and humans frequently make silly and "
-    "harmful mistakes in reasoning. Students will use their mathematical knowledge to identify and "
-    "critique these errors—and hopefully avoid them themselves.",
-    bullet_style
-))
-story.append(Paragraph(
-    "• This is a course about doing the math, but in the modern era, this has a symbiotic "
-    "relationship with computer simulation. Students will learn the basics of the R programming "
-    "language and use it to simulate probabilistic environments and reinforce their mathematical "
-    "reasoning.",
-    bullet_style
-))
-story.append(Paragraph("<b>Prerequisites:</b> single-variable calculus.", body_style))
+    # Cover
+    s.append(Spacer(1, 0.33 * inch))
+    if LOGO.exists():
+        logo = Image(str(LOGO), width=2 * inch, height=2 * inch)
+        logo.hAlign = "CENTER"
+        s.extend([logo, Spacer(1, 0.15 * inch)])
+    cover = ParagraphStyle(
+        "Cover", fontName=FONT_BOLD, fontSize=26, leading=30,
+        textColor=PURPLE, alignment=TA_CENTER, spaceAfter=5,
+    )
+    subtitle = ParagraphStyle(
+        "Subtitle", parent=BODY, fontSize=13, leading=17,
+        textColor=MUTED, alignment=TA_CENTER, spaceAfter=8,
+    )
+    s.extend([
+        p("STA 332", cover), p("Statistical Inference", cover),
+        p("Fall 2026 · Duke University", subtitle), Spacer(1, 0.08 * inch),
+        HRFlowable(width="62%", thickness=2, color=GOLD, hAlign="CENTER", spaceAfter=16),
+    ])
+    quick = grid(
+        [["MEETS", "WHERE", "INSTRUCTOR"], ["Tue/Thu<br/>3:05-4:20 PM", "Gross Hall 103", "Anya Katsevich"]],
+        [2.1 * inch] * 3, aligns=["CENTER"] * 3, font_size=9,
+    )
+    quick.hAlign = "CENTER"
+    s.extend([quick, Spacer(1, 0.32 * inch)])
+    cover_note = ParagraphStyle(
+        "CoverNote", parent=BODY, fontSize=10, leading=14, textColor=MUTED,
+        alignment=TA_CENTER, leftIndent=0.55 * inch, rightIndent=0.55 * inch,
+    )
+    s.append(p(
+        "This PDF collects the Course Overview, Teaching Team, Course Materials, Assignments and Grading, "
+        "Policies, and University Resources pages from the "
+        + link("STA 332 course website", "https://anyakatsevich.github.io/sta332-f26/") + ".",
+        cover_note,
+    ))
+    s.append(PageBreak())
 
-story.append(Paragraph("<b>Meetings</b>", h2_style))
-meetings_data = [
-    ["Meeting", "Location", "Time", "Staff"],
-    ["Lectures", "Old Chem 116", "Mo/We 10:05 – 11:20 AM", "Anya"],
-    ["Lab 01", "Old Chem 201", "Th 1:25 – 2:40 PM", "Gwen"],
-    ["Lab 02", "Social Sciences 105", "Th 3:05 – 4:20 PM", "Federico"],
-]
-meetings_tbl = Table(meetings_data, colWidths=[1.2*inch, 1.8*inch, 2.3*inch, 1.2*inch])
-meetings_tbl.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#003366')),
-    ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-    ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-    ('FONTSIZE', (0,0), (-1,-1), 10),
-    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F2F2F2')]),
-    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CCCCCC')),
-    ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-    ('LEFTPADDING', (0,0), (-1,-1), 8),
-    ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ('TOPPADDING', (0,0), (-1,-1), 6),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-]))
-story.append(meetings_tbl)
-story.append(Spacer(1, 0.1*inch))
+    # Overview
+    s.extend(heading("Course Overview"))
+    s.append(p("Description", H2))
+    s.append(p("This course provides an introduction to the mathematical foundation underlying statistical learning and inference. It introduces concepts and methods from the classical theory of statistics, with a focus on point estimation, interval estimation, and hypothesis testing, along with their adjacent topics and their application."))
+    s.append(p("<b>Brief overview of topics.</b> Introduction to the problems of Statistical Inference. Definition of random sample, statistical model and likelihood. Definition and properties of estimators and sufficient and complete statistics. Point estimation: comparing estimators in decision theoretic framework (loss functions, risk, mean squared error) and optimality results (Uniform Minimum Variance Estimators, Fisher's information, Cramer's Rao Lower bound). Hypothesis testing: comparing testing procedures and constructing optimal tests within the Neyman-Pearson framework. Tests based on the likelihood ratio. Confidence intervals: construction based on inverting tests. Asymptotic considerations: consistent and asymptotically efficient estimators. Likelihood-based asymptotic tests and confidence intervals."))
+    s.append(p("<b>Prerequisites:</b> (Statistical Science 240L, 230, or 231) and (Mathematics 202, 212, 219, or 222). Recommended prerequisite: Statistical Science 210, 360, and (Mathematics 221, 218, or 216). Specifically, students should be fluent in calculus (differentiation, integration, etc.), and probability (discrete and continuous random variables, joint, marginal and conditional distributions, etc). Familiarity with basic estimation concepts such as the maximum likelihood principle and Bayes rule is helpful."))
+    s.append(p("Meetings", H2))
+    s.append(grid([["Meeting", "Location", "Time"], ["Lecture", "Gross Hall 103", "Tue/Thu 3:05 PM - 4:20 PM"]], [1.3 * inch, 2.5 * inch, 2.9 * inch]))
 
-# ── 2. TEACHING TEAM ───────────────────────────────────────────────────────
-story.append(Paragraph("Teaching Team", h1_style))
-story.append(section_rule())
+    s.extend(heading("Teaching Team"))
+    s.append(grid([
+        ["Name", "Role", "Office Hours"],
+        ["Gwen Jacobson", "Head TA", "Wed 6:00 PM - 7:00 PM, Old Chem 203B<br/>Fri 11:00 AM - 12:00 PM, Old Chem 203B"],
+        ["Jun Chen", "TA", "Fri 5:00 PM - 7:00 PM, Old Chem 203B"],
+        ["Varun Mittal", "TA", "Tue 8:30 AM - 10:30 AM, Old Chem 203B"],
+        ["Bethany Akinola", "TA", "Mon 6:00 PM - 8:00 PM, Old Chem 203A"],
+        ["Erin Chen", "TA", "Thu 5:30 PM - 6:30 PM, Old Chem 203B<br/>Fri 1:30 PM - 2:30 PM, Old Chem 203A"],
+        ["Anya Katsevich", "Instructor", "Tue/Thu 4:45 PM - 5:45 PM, Old Chem 216"],
+    ], [1.65 * inch, 1.1 * inch, 3.95 * inch]))
 
-team_data = [
-    ["Name", "Role", "Office Hours"],
-    ["Anya Katsevich", "Instructor", "Mon, Wed 3:00 – 4:00 PM\nOld Chem 216\nanya.katsevich@duke.edu"],
-    ["Gwen Jacobson", "Head TA", "Fri 1:00 – 2:00 PM, 5:00 – 6:00 PM\nOld Chem 203B"],
-    ["Federico Lazzarini", "TA", "Tue, Thu 5:00 – 6:00 PM\nOld Chem 203B"],
-]
-team_tbl = Table(team_data, colWidths=[2*inch, 1.5*inch, 3*inch])
-team_tbl.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#003366')),
-    ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-    ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-    ('FONTSIZE', (0,0), (-1,-1), 10),
-    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F2F2F2')]),
-    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CCCCCC')),
-    ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-    ('VALIGN', (0,0), (-1,-1), 'TOP'),
-    ('LEFTPADDING', (0,0), (-1,-1), 8),
-    ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ('TOPPADDING', (0,0), (-1,-1), 7),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 7),
-]))
-story.append(team_tbl)
-story.append(Spacer(1, 0.1*inch))
+    s.extend(heading("Course Materials"))
+    s.append(p("Textbooks", H2))
+    s.append(p("You are not required to purchase a textbook for this class. However, if you wish to follow along with one, these are good options:"))
+    s.extend([
+        bullet("[DS] <i>Probability and Statistics</i> by Morris DeGroot and Mark Schervish;"),
+        bullet("[Wass] <i>All of Statistics</i> by Larry Wasserman."),
+        p("Another good source are these Berkeley " + link("notes", "https://stat210a.berkeley.edu/fall-2024/") + ". If a sign-in pop-up appears, just press \"Cancel\", and you will be able to access the website."),
+        p("In the <b>PREPARE</b> column of the " + link("course schedule", "https://anyakatsevich.github.io/sta332-f26/") + ", I will indicate which parts of [DS], [Wass], or the Berkeley notes correspond to the lectures. My own lecture notes will be posted in the <b>MATERIALS</b> column; I will do my best to post them before lecture, but no guarantees."),
+        p("Technology", H2),
+        p("Lecture will largely be a low tech affair: pencil and paper will suffice. In general, you will need access to a device with internet so that you can use the following:"),
+        bullet(link("This course page", "https://anyakatsevich.github.io/sta332-f26/") + " that you are on right now;"),
+        bullet(link("Canvas", "https://go.canvas.duke.edu/") + ", through which you can access " + link("Gradescope", "https://www.gradescope.com/courses/82894") + " and " + link("Ed Discussion", "https://edstem.org/us/courses/103644/discussion") + ";"),
+        bullet(link("Zoom", "https://duke.zoom.us/") + " (e.g. for remote office hours)."),
+        p("If access to technology becomes a concern for you during the semester, contact the instructor immediately to discuss options."),
+    ])
 
-# ── 3. COURSE MATERIALS ────────────────────────────────────────────────────
-story.append(Paragraph("Course Materials", h1_style))
-story.append(section_rule())
+    # Grading
+    s.extend(heading("Assignments and Grading"))
+    s.append(p("Your final course grade will be calculated as follows:"))
+    s.append(grid([
+        ["Category", "Percentage"], ["Problem Sets", "10%"], ["Quizzes", "15%"],
+        ["Midterm Exam 1", "25%"], ["Midterm Exam 2", "25%"], ["Final exam", "25%"],
+    ], [4.5 * inch, 2.2 * inch], ["LEFT", "CENTER"]))
+    s.extend([Spacer(1, 0.06 * inch), p("Your final letter grade will be determined based on the usual thresholds:")])
+    s.append(grid([
+        ["Grade", "Range", "Grade", "Range", "Grade", "Range"],
+        ["A+", ">= 97", "B+", "87 - 89.99", "C+", "77 - 79.99"],
+        ["A", "93 - 96.99", "B", "83 - 86.99", "C", "73 - 76.99"],
+        ["A-", "90 - 92.99", "B-", "80 - 82.99", "C-", "70 - 72.99"],
+        ["D+", "67 - 69.99", "D", "63 - 66.99", "D-", "60 - 62.99"],
+        ["F", "< 60", "", "", "", ""],
+    ], [0.62 * inch, 1.45 * inch] * 3, ["CENTER"] * 6))
+    s.extend([Spacer(1, 0.07 * inch), callout(None, "These thresholds will not change, and they will be applied exactly. This means that the final grades will not be curved, and a 92.99, for example, will not be rounded up to an A.", True)])
 
-story.append(Paragraph("<b>Textbooks</b>", h2_style))
-story.append(Paragraph(
-    "You are not required to purchase a textbook for this class. However, if you wish to follow "
-    "along with one, these are all good options:", body_style
-))
-for book in [
-    "[Ross] <i>A First Course in Probability</i> by Sheldon Ross",
-    "[HTZ] <i>Probability and Statistical Inference</i> by Robert Hogg, Elliot Tanis, and Dale Zimmerman",
-    "[DS] <i>Probability and Statistics</i> by Morris DeGroot and Mark Schervish",
-    "[Wass] <i>All of Statistics</i> by Larry Wasserman",
-]:
-    story.append(Paragraph(f"• {book}", bullet_style))
+    s.append(p("Problem Sets (10%)", H2))
+    s.append(p("Mathematics is like everything else in life; if you practice, you improve. As such, I encourage you to take the problem sets seriously. Truly understanding how to solve the problems on each problem set is great preparation for the exams. Copying AI-generated solutions without understanding them will not help you learn! You must hand-write your solutions, either on paper or on a tablet, and upload them to " + link("Gradescope", "https://www.gradescope.com/courses/82894") + " by the due date as a single .pdf file."))
+    s.append(p("<b>Grading scheme:</b> we will grade each problem set out of 10 points. 2 out of 10 points are awarded for completing every problem. The other 8 points are awarded for correctly solving one problem chosen by the teaching team. We will not disclose ahead of time which problem is graded, so you should solve them all."))
+    s.append(grid([["Component", "Points"], ["Coherent attempt on every required problem", "2"], ["Sampled problem: correct, justified, clearly written", "8"]], [5.5 * inch, 1.2 * inch], ["LEFT", "CENTER"]))
+    s.extend([Spacer(1, 0.07 * inch), callout("Grace", "Your lowest problem set score will be dropped at the end of the semester.")])
 
-story.append(Paragraph("<b>Technology</b>", h2_style))
-story.append(Paragraph(
-    "Lecture will largely be a low-tech affair: pencil and paper should be sufficient most of the "
-    "time. You should always plan to bring a laptop or tablet device to lab. In general, you will "
-    "need access to a device with internet so that you can use:", body_style
-))
-for item in [
-    "This course website",
-    "R/RStudio via the Duke Container Manager",
-    "Canvas (which provides access to Gradescope and Ed Discussion)",
-    "Zoom (e.g. for remote office hours)",
-]:
-    story.append(Paragraph(f"• {item}", bullet_style))
-story.append(Paragraph(
-    "If access to technology becomes a concern for you during the semester, contact the instructor "
-    "immediately to discuss options.", body_style
-))
+    s.append(p("Quizzes (15%)", H2))
+    s.append(p("We will have six ten-minute in-class quizzes, which will be announced ahead of time. The quizzes are there to encourage you to engage with the material and study continually, rather than only right before the exams. I know quizzes can be stressful, so the grading policy will be generous."))
+    s.append(p("Your final quiz grade is computed from your raw quiz average (your average score in percentage points across the six quizzes) as follows:"))
+    eq = ParagraphStyle("Equation", parent=BODY, fontName=FONT_BOLD, fontSize=10.3, leading=15, alignment=TA_CENTER, textColor=DARK_PURPLE, backColor=LAVENDER, borderPadding=8, spaceAfter=7)
+    s.append(p("Final quiz grade = min(100, 3/2 × Raw quiz average)", eq))
+    s.append(p("For example, if each quiz has three questions and you get two correct on each one, then your raw quiz average is 66.67% and your final quiz grade is 100%."))
+    s.append(callout("Missed quizzes", [
+        p("No make-up quizzes will be given. If you miss a quiz, you get a zero for it by default, unless your absence is recognized by a Dean's Excuse, Notification of Varsity Athletic Participation, or Religious Observance Form; see the forms " + link("here", "https://trinity.duke.edu/undergraduate/academic-policies/class-attendance-and-missed-work#collapse-accordion-1072-2") + ".", CALLOUT),
+        p("After the appropriate scores have been included, your raw quiz average will be converted to your final quiz grade using the above formula.", CALLOUT),
+    ]))
 
-# ── 4. ASSIGNMENTS AND GRADING ─────────────────────────────────────────────
-story.append(Paragraph("Assignments and Grading", h1_style))
-story.append(section_rule())
+    s.append(p("Exams (25% each)", H2))
+    s.append(p("There will be three exams. The dates, times, and locations are firm, so mark your calendar now:"))
+    s.extend([
+        bullet("<b>Midterm 1:</b> Tuesday October 6 during lecture;"),
+        bullet("<b>Midterm 2:</b> Thursday November 19 during lecture;"),
+        bullet("<b>Final:</b> Thursday December 10 from 2 PM - 5 PM in Gross Hall 103."),
+        p("These will be old school, pencil-and-paper, in-class exams. Exams are closed-book and closed-notes. No online or electronic resources are permitted."),
+        p("If you seek testing accommodations, make sure the Student Disability Access Office sends me a letter, and then please make your appointments in the " + link("Testing Center", "https://testingcenter.duke.edu") + " as soon as possible."),
+        callout("Grace", "If you do better on the final exam than you did on one of the midterms, we will replace your lowest midterm exam score with your final exam score."),
+        Spacer(1, 0.06 * inch),
+        callout("No make-up exams", "If you are absent from one of the midterms for whatever reason, there will not be a make-up. Pursuant to the above policy, we will simply replace the missed midterm score with the final exam score. If you miss the final exam, you get a zero unless you have a " + link("Dean's Excuse", "https://trinity.duke.edu/undergraduate/academic-policies/final-exams-scheduling-conflicts-and-absences") + ".", True),
+    ])
 
-story.append(Paragraph("Your final course grade will be calculated as follows:", body_style))
-grade_data = [
-    ["Category", "Percentage"],
-    ["Labs", "10%"],
-    ["Problem Sets", "21%"],
-    ["Midterm Exam 1", "23%"],
-    ["Midterm Exam 2", "23%"],
-    ["Final Exam", "23%"],
-]
-grade_tbl = Table(grade_data, colWidths=[3.5*inch, 3*inch])
-grade_tbl.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#003366')),
-    ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-    ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-    ('FONTSIZE', (0,0), (-1,-1), 10),
-    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F2F2F2')]),
-    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CCCCCC')),
-    ('ALIGN', (1,0), (1,-1), 'CENTER'),
-    ('ALIGN', (0,0), (0,-1), 'LEFT'),
-    ('LEFTPADDING', (0,0), (-1,-1), 8),
-    ('TOPPADDING', (0,0), (-1,-1), 6),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-]))
-story.append(grade_tbl)
-story.append(Spacer(1, 0.1*inch))
+    # Policies
+    s.extend(heading("Policies"))
+    s.append(p("Collaboration", H2))
+    s.append(p("You are <i>enthusiastically encouraged</i> to work together and help one another on problem sets. However, copying someone else's solutions word-for-word is plagiarism, and all involved will earn a zero on the assignment and be referred to the conduct office, both sharers and recipients alike. The write-up you submit must be your own work."))
+    s.append(p("Use of outside resources, including AI", H2))
+    s.append(p("There are at least two reasons you might seek outside resources:"))
+    s.extend([
+        bullet("<b>Extra practice or alternative instruction:</b> Go crazy. Knock yourself out. Have a ball. The internet is saturated with good (and horrible) resources for learning this material, so if you find something that really resonates with you, have at it;"),
+        bullet("<b>Doing the problems for you:</b> If you find a solution online, or ask a language model to generate one, and you copy it down and submit it as your own work, that is plagiarism. If we detect it, you will earn a zero for that part of your write-up."),
+        p('"' + link("Using ChatGPT to complete assignments is like bringing a forklift into the weight room; you will never improve your cognitive fitness that way", "https://www.newyorker.com/culture/the-weekend-essay/why-ai-isnt-going-to-make-art") + '." Furthermore, 90% of your final course grade is determined by your performance on old school, no-tech exams. As such, outsourcing all of your <i>thinking</i> to an AI will probably end in humiliating disaster. To avoid this, I suggest you abstain from using language models to do the problems for you.'),
+    ])
+    s.append(p("Communication", H2))
+    s.append(p("If you wish to ask content-related questions in writing, please do not do so via e-mail. Instead, please use the course discussion forum " + link("Ed Discussion", "https://edstem.org/us/courses/103644/discussion") + ". That way all members of the teaching team can see your question, and all students can benefit from the ensuing discussion. You are also encouraged to answer one another's questions."))
+    s.append(p("If you have questions about personal matters that may not be appropriate for the public course forum (e.g. illness, accommodations, etc), then please e-mail the instructor directly (anya.katsevich@duke.edu)."))
+    s.append(callout(None, "You can ask questions anonymously on Ed. The teaching team will still know your identity, but your peers will not."))
+    s.append(p("Late work and extensions", H2))
+    s.append(p("No late work will be accepted unless you request an extension in advance by e-mailing the instructor directly (anya.katsevich@duke.edu). All reasonable requests will be entertained, but extensions will not be long."))
+    s.append(p("Regrade requests", H2))
+    s.append(p("If you receive a graded assignment back, and you believe that some part of it was graded incorrectly, you may dispute the grade by submitting a " + link("regrade request", "https://guides.gradescope.com/hc/en-us/articles/21854736042253-Submitting-a-Regrade-Request") + " in Gradescope. Note the following:"))
+    for item in [
+        "You have one week after you receive a grade to submit a regrade request;",
+        "You should submit separate regrade requests for each question you wish to dispute, not a single catch-all request;",
+        "Requests will be considered if there was an error in the grade calculation or if a correct answer was mistakenly marked as incorrect;",
+        "Requests to dispute the number of points deducted for an incorrect response will not be considered;",
+        "<b>No grades will be changed after the final exam has been administered.</b>",
+    ]:
+        s.append(bullet(item))
+    s.append(p("Attendance", H2))
+    s.append(p("Live your life. Attendance is not strictly required for any of the class meetings, and the responsibility lies with us to make class meetings sufficiently engaging and informative that you choose to attend. Having said that, success in this class and regular attendance are probably highly positively correlated."))
+    s.append(p("Accommodations", H2))
+    s.append(p("If you need accommodations for this class, you will need to register with the Student Disability Access Office (SDAO) and provide them with documentation related to your needs. SDAO will work with you to determine what accommodations are appropriate for your situation. Please note that accommodations are not retroactive and disability accommodations cannot be provided until a Faculty Accommodation Letter has been given to me. Please contact SDAO for more information: sdao@duke.edu or access.duke.edu."))
+    s.append(p("Duke Community Standard", H2))
+    s.append(p("Duke University is a community dedicated to scholarship, leadership, and service and to the principles of honesty, fairness, respect, and accountability. Members of this community commit to reflect upon and uphold these principles in all academic and non-academic endeavors, and to protect and promote a culture of integrity."))
+    s.append(p("Duke University has high expectations for students' scholarship and conduct. In accepting admission, students indicate their willingness to subscribe to and be governed by the rules and regulations of the university, which flow from the " + link("Duke Community Standard (DCS)", "https://dukecommunitystandard.students.duke.edu") + "."))
+    s.append(p("Regardless of course delivery format, it is the responsibility of all students to understand and follow all Duke policies, including but not limited to the " + link("academic integrity policy", "https://dukecommunitystandard.students.duke.edu/policy/academic-dishonesty/") + " (e.g., completing one's own work, following proper citation of sources, adhering to guidance around group work projects, and more). Ignoring these requirements is a violation of the DCS."))
+    s.append(p("Students can direct any questions or concerns regarding academic integrity to the Office of Student Conduct and Community Standards at conduct@duke.edu and can access the DCS guide at dukecommunitystandard.students.duke.edu."))
+    s.append(p("In STA 332 specifically..."))
+    s.extend([
+        bullet("If a conduct violation results in a zero on a problem set, that zero will not be dropped;"),
+        bullet("If a conduct violation results in a zero on a midterm, that zero will not be replaced with your final exam score;"),
+        bullet("If we discover that students are sharing and copying assignment solutions, all students involved will be penalized equally, the sharers the same as the recipients."),
+    ])
 
-story.append(Paragraph("Final letter grades are determined by:", body_style))
-letter_data = [
-    ["Grade", "Range", "Grade", "Range", "Grade", "Range"],
-    ["A+", "≥ 97", "B+", "87 – 89.99", "C+", "77 – 79.99"],
-    ["A",  "93 – 96.99", "B",  "83 – 86.99", "C",  "73 – 76.99"],
-    ["A-", "90 – 92.99", "B-", "80 – 82.99", "C-", "70 – 72.99"],
-    ["D+", "67 – 69.99", "D",  "63 – 66.99", "D-", "60 – 62.99"],
-    ["F",  "< 60", "", "", "", ""],
-]
-letter_tbl = Table(letter_data, colWidths=[0.6*inch, 1.4*inch, 0.6*inch, 1.4*inch, 0.6*inch, 1.4*inch])
-letter_tbl.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#003366')),
-    ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-    ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-    ('FONTSIZE', (0,0), (-1,-1), 10),
-    ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#F2F2F2')]),
-    ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CCCCCC')),
-    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-    ('LEFTPADDING', (0,0), (-1,-1), 6),
-    ('TOPPADDING', (0,0), (-1,-1), 5),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-]))
-story.append(letter_tbl)
-story.append(Spacer(1, 0.08*inch))
-story.append(note_box(None,
-    "These thresholds will not change and will be applied exactly. Final grades will not be "
-    "curved, and a 92.99 will not be rounded up to an A.", warn=True))
-story.append(Spacer(1, 0.08*inch))
+    # Resources
+    s.extend(heading("University Resources"))
+    s.append(p("Course costs", H2))
+    s.append(p("If you are having difficulty with the costs associated with this course (obtaining a laptop, mostly), here are some resources:"))
+    s.extend([
+        bullet("<b>" + link("Karsh Office of Undergraduate Support", "https://financialaid.duke.edu/") + ":</b> Regardless of your aid package, Karsh offers loans and resources for connecting students with campus programs that might help alleviate course costs."),
+        bullet("<b>" + link("DukeLIFE", "https://dukelife.duke.edu/programs/course-materials-assistance/") + ":</b> The Course Material Assistance program offers assistance for eligible students, including through the " + link("LIFE Loaner Laptop Program", "https://dukelife.duke.edu/academic-support/loaner-laptop-program/") + ". Students who are eligible for DukeLIFE benefits are notified before the start of the semester; program resources are limited."),
+        bullet("<b>" + link("Duke Link", "https://link.duke.edu/") + ":</b> They have a small supply of laptops that can be rented out for five days at a time."),
+    ])
+    s.append(p("Tech support", H2))
+    s.append(p("Contact the Duke OIT Service Desk at " + link("oit.duke.edu/help", "https://oit.duke.edu/help") + "."))
+    s.append(p("Academic support", H2))
+    s.append(p("There are times you may need help with the class that is beyond what can be provided by the teaching team. In those instances, I encourage you to visit the Academic Resource Center. The " + link("Academic Resource Center (the ARC)", "https://arc.duke.edu") + " offers services to support students academically during their undergraduate careers at Duke. The ARC can provide support with time management, academic skills and strategies, course-specific tutoring, and more. ARC services are available free to all Duke undergraduate student studying any discipline."))
+    s.append(p("You can contact the Academic Resource Center by phone at (919) 684-5917, by email at theARC@duke.edu, or by visiting arc.duke.edu."))
+    s.append(p("Accessibility", H2))
+    s.append(p("If any portion of the course is not accessible to you due to challenges with technology or the course format, please let me know so we can make appropriate accommodations."))
+    s.append(p("The " + link("Student Disability Access Office (SDAO)", "https://access.duke.edu/students") + " is available to ensure that students can engage with their courses and related assignments. Students should contact the SDAO to " + link("request or update accommodations", "https://access.duke.edu/requests") + " under these circumstances."))
+    s.append(p("Mental health and well-being", H2))
+    s.append(p("Duke is committed to holistic student wellbeing, which includes one's mental, emotional, and physical health. The university offers resources to help students manage daily stress, to encourage intentional self-care, and to access just-in-time support. If you find you need support, your mental and/or emotional health concerns are impacting your day-to-day activities, your academic performance, or you need someone to talk to, the resources below are available to you:"))
+    s.extend([
+        bullet("<b>" + link("DukeReach", "https://students.duke.edu/wellness/dukereach/") + ":</b> DukeReach provides comprehensive outreach services for students managing challenges related to mental health, physical health, social adjustment, and other stressors. Contact dukereach@duke.edu;"),
+        bullet("<b>" + link("Counseling and Psychological Services (CAPS)", "https://students.duke.edu/wellness/caps/") + ":</b> CAPS offers counseling services to Duke students including virtual appointments and community referrals. Walk in or call 919-660-1000. Hours: Monday-Friday 9:00 AM - 4:00 PM. After-hours counseling: 919-660-1000 Option 2;"),
+        bullet("<b>" + link("TimelyCare", "https://app.timelycare.com/auth/login") + ":</b> Free, confidential 24/7 mental health support through TalkNow and scheduled counseling;"),
+        bullet("<b>" + link("Duke Student Health", "https://students.duke.edu/wellness/studenthealth/") + ":</b> Healthcare services for Duke students. Call 919-681-9355. Hours: Monday-Friday 8:00 AM - 4:30 PM; Thursday 9:00 AM - 4:30 PM. Closed 12:00-12:30 PM daily."),
+    ])
+    return s
 
-story.append(Paragraph("<b>Labs (10%)</b>", h2_style))
-story.append(Paragraph(
-    "In lab every Thursday, you will complete a guided activity that introduces you to special "
-    "topics, extensions, or applications of the latest course material, including implementation "
-    "in R. Labs are due by 11:59 PM ET the same day they are held.", body_style
-))
-story.append(Paragraph("Each lab is graded:", body_style))
-for row in [
-    "1.0 – a complete, good faith attempt at every part of every problem",
-    "0.5 – partially complete",
-    "0.0 – no submission, or mostly incomplete",
-]:
-    story.append(Paragraph(f"• {row}", bullet_style))
-story.append(note_box("Grace", "Your two lowest lab scores will be dropped at the end of the semester."))
 
-story.append(Paragraph("<b>Problem Sets (21%)</b>", h2_style))
-story.append(Paragraph(
-    "Problem sets are the heart of the course. They mostly consist of pencil-and-paper math "
-    "problems (sometimes with coding). You may compose solutions however you like so long as you "
-    "ultimately upload a single .pdf file to Gradescope.", body_style
-))
-story.append(note_box("Grace", "Your lowest problem set score will be dropped at the end of the semester."))
+def main():
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    doc = BaseDocTemplate(
+        str(OUTPUT), pagesize=letter,
+        leftMargin=0.75 * inch, rightMargin=0.75 * inch,
+        topMargin=0.75 * inch, bottomMargin=0.72 * inch,
+        title="STA 332 Fall 2026 Syllabus", author="Anya Katsevich",
+        subject="Course syllabus for STA 332: Statistical Inference",
+    )
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
+    doc.addPageTemplates([PageTemplate(id="syllabus", frames=[frame], onPage=header_footer)])
+    doc.build(build_story())
+    print(OUTPUT)
 
-story.append(Paragraph("<b>Exams (23% each)</b>", h2_style))
-story.append(Paragraph("There will be three exams. Dates, times, and locations are firm:", body_style))
-for exam in [
-    "<b>Midterm 1:</b> Wednesday, February 18 during lecture",
-    "<b>Midterm 2:</b> Wednesday, April 1 during lecture",
-    "<b>Final:</b> Monday, April 27, 9:00 AM – 12:00 PM, Old Chem 116",
-]:
-    story.append(Paragraph(f"• {exam}", bullet_style))
-story.append(Paragraph(
-    "These are old-school, pencil-and-paper, in-class exams. The only allowed resource is both "
-    "sides of one 8.5\" × 11\" sheet of notes, handwritten by you alone (directly onto paper, "
-    "not on a tablet).", body_style
-))
-story.append(Paragraph(
-    "If you seek testing accommodations, make sure the Student Disability Access Office sends the "
-    "instructor a letter, and make your appointments in the Testing Center as soon as possible.",
-    body_style
-))
-story.append(note_box("Grace",
-    "If you do better on the final exam than on one of the midterms, your lowest midterm score "
-    "will be replaced with your final exam score."))
-story.append(note_box("No make-up exams",
-    "If you miss a midterm for any reason, there will be no make-up — the missed midterm score "
-    "will simply be replaced by the final exam score. If you miss the final exam, you receive a "
-    "zero unless you have a Dean's Excuse.", warn=True))
 
-# ── 5. POLICIES ────────────────────────────────────────────────────────────
-story.append(Paragraph("Policies", h1_style))
-story.append(section_rule())
-
-story.append(Paragraph("<b>Collaboration</b>", h2_style))
-story.append(Paragraph(
-    "You are <i>enthusiastically encouraged</i> to work together and help one another on labs and "
-    "problem sets. What is asked is that you <i>acknowledge</i> your collaborators. So, at the "
-    "end of each problem in your write-up, leave a note such as \"Ursula, Ignatius and I worked "
-    "together on this problem.\" You are not judged based on your acknowledgements, and there is "
-    "no penalty for getting \"too much\" help from others.", body_style
-))
-story.append(Paragraph(
-    "Having said that, you should not be handing your solutions to others for them to brainlessly "
-    "copy. This is plagiarism, and all involved will earn a zero and be referred to the conduct "
-    "office. The write-up you submit must be your own work.", body_style
-))
-
-story.append(Paragraph("<b>Use of Outside Resources, Including AI</b>", h2_style))
-story.append(Paragraph(
-    "There are at least two reasons you might seek outside resources:", body_style
-))
-story.append(Paragraph(
-    "✅ <b>Extra practice or alternative instruction:</b> Go crazy. The internet is saturated "
-    "with good (and horrible) resources for learning this material.", bullet_style
-))
-story.append(Paragraph(
-    "❌ <b>Doing the problems for you:</b> If you find a solution online, or ask a language model "
-    "to generate one, and you copy it and submit it as your own work, that is plagiarism. If "
-    "detected, you will earn a zero for that part of your write-up.", bullet_style
-))
-story.append(Paragraph(
-    "Furthermore, 69% of your final course grade is determined by your performance on old-school, "
-    "no-tech exams. Outsourcing your thinking to an AI will probably end in disaster.", body_style
-))
-
-story.append(Paragraph("<b>Communication</b>", h2_style))
-story.append(Paragraph(
-    "For content-related questions in writing, please use the course discussion forum "
-    "<b>Ed Discussion</b> (not e-mail), so all members of the teaching team and all students can "
-    "benefit. For personal matters (illness, accommodations, etc.), e-mail the instructor directly "
-    "at anya.katsevich@duke.edu.", body_style
-))
-story.append(note_box(None, "You can ask questions anonymously on Ed. The teaching team will still know your identity, but your peers will not."))
-
-story.append(Paragraph("<b>Late Work and Extensions</b>", h2_style))
-story.append(Paragraph(
-    "No late work will be accepted unless you request an extension <i>in advance</i> by e-mailing "
-    "the instructor directly. All reasonable requests will be entertained, but extensions will not "
-    "be long.", body_style
-))
-
-story.append(Paragraph("<b>Regrade Requests</b>", h2_style))
-story.append(Paragraph(
-    "If you believe part of a graded assignment was marked incorrectly, you may submit a regrade "
-    "request in Gradescope. Note the following:", body_style
-))
-for item in [
-    "You have one week after receiving a grade to submit a regrade request;",
-    "Submit separate regrade requests for each question you wish to dispute;",
-    "Requests will be considered if there was an error in the grade calculation or if a correct answer was mistakenly marked as incorrect;",
-    "Requests to dispute the number of points deducted for an incorrect response will not be considered;",
-    "<b>No grades will be changed after the final exam on Monday, April 27.</b>",
-]:
-    story.append(Paragraph(f"• {item}", bullet_style))
-
-story.append(Paragraph("<b>Attendance</b>", h2_style))
-story.append(Paragraph(
-    "Attendance is not strictly required for any class meetings. The responsibility lies with the "
-    "teaching team to make class sufficiently engaging and informative that you choose to attend. "
-    "That said, success in this class and regular attendance are probably highly positively "
-    "correlated. While lab attendance is not required, showing up, completing the lab in one "
-    "sitting, and submitting by midnight is probably the path of least resistance to full lab "
-    "credit.", body_style
-))
-
-story.append(Paragraph("<b>Accommodations</b>", h2_style))
-story.append(Paragraph(
-    "If you need accommodations, register with the Student Disability Access Office (SDAO) and "
-    "provide documentation. SDAO will work with you to determine appropriate accommodations. Note "
-    "that accommodations are not retroactive and cannot be provided until a Faculty Accommodation "
-    "Letter has been given to the instructor. Contact SDAO: sdao@duke.edu or access.duke.edu.",
-    body_style
-))
-
-story.append(Paragraph("<b>Duke Community Standard</b>", h2_style))
-story.append(Paragraph(
-    "Duke University is a community dedicated to scholarship, leadership, and service and to the "
-    "principles of honesty, fairness, respect, and accountability. Members of this community "
-    "commit to reflect upon and uphold these principles in all academic and non-academic "
-    "endeavors, and to protect and promote a culture of integrity.", body_style
-))
-story.append(Paragraph(
-    "In accepting admission, students indicate their willingness to subscribe to and be governed "
-    "by the rules and regulations of the university, which flow from the Duke Community Standard "
-    "(DCS). It is the responsibility of all students to understand and follow all Duke policies, "
-    "including the academic integrity policy.", body_style
-))
-story.append(Paragraph("In STA 240 specifically:", body_style))
-for item in [
-    "If a conduct violation results in a zero on a lab or problem set, that zero will not be dropped;",
-    "If a conduct violation results in a zero on a midterm, that zero will not be replaced with your final exam score;",
-    "If students are found sharing and copying assignment solutions, all students involved will be penalized equally.",
-]:
-    story.append(Paragraph(f"• {item}", bullet_style))
-
-# ── 6. UNIVERSITY RESOURCES ────────────────────────────────────────────────
-story.append(Paragraph("University Resources", h1_style))
-story.append(section_rule())
-
-story.append(Paragraph("<b>Course Costs</b>", h2_style))
-story.append(Paragraph(
-    "If you are having difficulty with costs associated with this course (obtaining a laptop, "
-    "mostly), here are some resources:", body_style
-))
-for item in [
-    "<b>Karsh Office of Undergraduate Support:</b> Offers loans and resources for connecting students with campus programs.",
-    "<b>DukeLIFE:</b> The Course Material Assistance program offers assistance for eligible students, including the LIFE Loaner Laptop Program.",
-    "<b>Duke Link:</b> Has a small supply of laptops that can be rented out for five days at a time.",
-]:
-    story.append(Paragraph(f"• {item}", bullet_style))
-
-story.append(Paragraph("<b>Tech Support</b>", h2_style))
-story.append(Paragraph("Contact the Duke OIT Service Desk at oit.duke.edu/help.", body_style))
-
-story.append(Paragraph("<b>Academic Support</b>", h2_style))
-story.append(Paragraph(
-    "The Academic Resource Center (ARC) offers services to support students academically, "
-    "including time management, academic skills and strategies, and course-specific tutoring. "
-    "ARC services are free to all Duke undergraduate students. Contact: (919) 684-5917, "
-    "theARC@duke.edu, or arc.duke.edu.", body_style
-))
-
-story.append(Paragraph("<b>Accessibility</b>", h2_style))
-story.append(Paragraph(
-    "If any portion of the course is not accessible to you due to challenges with technology or "
-    "the course format, please let the instructor know so appropriate accommodations can be made. "
-    "The Student Disability Access Office (SDAO) is available to ensure students can engage with "
-    "their courses and related assignments.", body_style
-))
-
-story.append(Paragraph("<b>Mental Health and Well-Being</b>", h2_style))
-story.append(Paragraph(
-    "Duke is committed to holistic student wellbeing. If you find you need support, resources "
-    "include:", body_style
-))
-for item in [
-    "<b>DukeReach:</b> Comprehensive outreach services for students managing challenges related to mental health, physical health, social adjustment, and other stressors. Contact: dukereach@duke.edu.",
-    "<b>Counseling and Psychological Services (CAPS):</b> Counseling services including virtual appointments. Walk in or call (919) 660-1000. Hours: Mon–Fri 9:00 AM – 4:00 PM. After-hours: (919) 660-1000 Option 2.",
-    "<b>TimelyCare:</b> Free 24/7 mental health support (TalkNow and scheduled counseling) for Duke students.",
-    "<b>Duke Student Health:</b> Wide range of healthcare services. Call (919) 681-9355. Hours: Mon–Fri 8:00 AM – 4:30 PM (Thu 9:00 AM – 4:30 PM).",
-]:
-    story.append(Paragraph(f"• {item}", bullet_style))
-
-doc.build(story)
-print(f"PDF created: {OUTPUT}")
+if __name__ == "__main__":
+    main()
