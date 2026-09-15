@@ -72,7 +72,7 @@ For example, if each quiz has three questions and you get two correct on each on
 ::: callout-note
 ## Missed quizzes 
 
-No make-up quizzes will be given. If you miss a quiz, you get a zero for it by default, unless your absence is recognized by a Dean’s Excuse, Notification of Varsity Athletic Participation, or Religious Observance Form; see the forms [here](https://trinity.duke.edu/undergraduate/academic-policies/class-attendance-and-missed-work#collapse-accordion-1072-2). 
+No make-up quizzes will be given. If you miss a quiz, you get a zero for it by default, unless you email me **ahead of time** with documentation to justify your absence. This does not have to be one of Duke's formal excuse mechanisms. If your documentation is acceptable (at my discretion), that quiz will be dropped from your grade.
 
 After the appropriate scores have been included, your raw quiz average will be converted to your final quiz grade using the above formula.
 :::
