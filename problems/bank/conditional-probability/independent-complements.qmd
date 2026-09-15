@@ -1,1 +1,0 @@
-If we know that $A$ and $B$ are independent events, show that their complements $A^c$ and $B^c$ are also independent events.
